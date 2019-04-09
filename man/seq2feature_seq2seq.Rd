@@ -2,7 +2,7 @@
 % Please edit documentation in R/main_functions.R
 \name{seq2feature_seq2seq}
 \alias{seq2feature_seq2seq}
-\title{Extract features from action sequences by sequence-to-sequence autoencoder}
+\title{Feature Extraction by action sequence autoencoder}
 \usage{
 seq2feature_seq2seq(seqs, K, rnn_type = "lstm", n_epoch = 50,
   method = "last", step_size = 1e-04, optimizer_name = "adam",
@@ -24,11 +24,11 @@ seq2feature_seq2seq(seqs, K, rnn_type = "lstm", n_epoch = 50,
 
 \item{optimizer_name}{a character string specifying the optimizer to be used for training: sgd, rmsprop, adadelta, adam}
 
-\item{samples_train}{specify train set;}
+\item{samples_train}{specify the train set;}
 
-\item{samples_valid}{specify validation set;}
+\item{samples_valid}{specify the validation set;}
 
-\item{samples_test}{specify test set;}
+\item{samples_test}{specify the test set;}
 
 \item{pca}{logical. If TRUE, the principal components of features are returned.}
 
@@ -46,12 +46,12 @@ a list
   \item{test_loss}{a vector of length \code{n_epoch}; test loss trace}
 }
 \description{
-Extract features from action sequences by sequence-to-sequence autoencoder
+\code{seq2feature_seq2seq} extract features from action sequences by action sequence autoencoder
 }
 \examples{
 n <- 50
 seqs <- seq_gen(n)
-seq2seq_res <- seq2feature_seq2seq(seqs, 5, n_epoch=10, samples_train=1:40, samples_valid=41:50)
+seq2seq_res <- seq2feature_seq2seq(seqs, 5, rnn_type="lstm", n_epoch=5, samples_train=1:40, samples_valid=41:50)
 features <- seq2seq_res$theta
 plot(seq2seq_res$train_loss, col="blue", type="l")
 lines(seq2seq_res$valid_loss, col="red")

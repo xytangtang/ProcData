@@ -2,13 +2,13 @@
 % Please edit documentation in R/seq_functions.R
 \name{seq_gen}
 \alias{seq_gen}
-\title{Generating action sequences similar to PISA data: decide two conditions to run simulations and select an answer}
+\title{Sequence generator}
 \usage{
 seq_gen(n, action_set1 = c("OPT1_1", "OPT1_2", "OPT1_3"),
-  action_set2 = c("OPT2_1", "OPT2_2"), answer_set = c("CHECK_A", "CHECK_B",
-  "CHECK_C", "CHECK_D"), p1 = rep(1, length(action_set1)), p2 = rep(1,
-  length(action_set2)), p_answer = rep(1, length(answer_set)),
-  p_continue = 0.5, p_choose = 0.5)
+  action_set2 = c("OPT2_1", "OPT2_2"), answer_set = c("CHECK_A",
+  "CHECK_B", "CHECK_C", "CHECK_D"), p1 = rep(1, length(action_set1)),
+  p2 = rep(1, length(action_set2)), p_answer = rep(1,
+  length(answer_set)), p_continue = 0.5, p_choose = 0.5)
 }
 \arguments{
 \item{n}{number of sequences to be generated}
@@ -33,5 +33,5 @@ seq_gen(n, action_set1 = c("OPT1_1", "OPT1_2", "OPT1_3"),
 a list of \code{n} elements. Each element is a sequence of actions.
 }
 \description{
-Generating action sequences similar to PISA data: decide two conditions to run simulations and select an answer
+\code{seq_gen} generates action sequences similar to PISA data: choose the levels of two conditions to run simulations and select an answer
 }

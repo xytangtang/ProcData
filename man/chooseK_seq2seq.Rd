@@ -2,7 +2,7 @@
 % Please edit documentation in R/main_functions.R
 \name{chooseK_seq2seq}
 \alias{chooseK_seq2seq}
-\title{Choose the number of seq2seq features by cross validation}
+\title{Choose the number of autoencoder features}
 \usage{
 chooseK_seq2seq(seqs, rnn_type = "lstm", K_cand, n_epoch = 50,
   method = "last", step_size = 1e-04, optimizer_name = "adam",
@@ -38,12 +38,12 @@ a list
   \item{cv_loss}{cross-validation loss for each candidate K}
 }
 \description{
-Choose the number of seq2seq features by cross validation
+\code{chooseK_seq2seq} choose the number of features to be extracted by cross-validation
 }
 \examples{
 n <- 50
 seqs <- seq_gen(n)
-K_res <- chooseK_seq2seq(seqs, 5:10, n_epoch=10, n_fold=2, valid_prop=0.2)
-seq2seq_res <- seq2feature_seq2seq(seqs, K_res$K, n_epoch=10, samples_train=1:40, samples_valid=41:50)
+K_res <- chooseK_seq2seq(seqs, K_cand=c(5, 10), rnn_type="lstm", n_epoch=5, n_fold=2, valid_prop=0.2)
+seq2seq_res <- seq2feature_seq2seq(seqs, K_res$K, rnn_type="lstm", n_epoch=10, samples_train=1:40, samples_valid=41:50)
 theta <- seq2seq_res$theta
 }

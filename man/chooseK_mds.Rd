@@ -2,10 +2,11 @@
 % Please edit documentation in R/main_functions.R
 \name{chooseK_mds}
 \alias{chooseK_mds}
-\title{Choose the number of MDS features by cross validation}
+\title{Choose the number of MDS features}
 \usage{
 chooseK_mds(seqs = NULL, K_cand, method = "oss", n_fold = 5,
-  max_epoch = 100, step_size = 0.01, tot = 1e-06, return_dist = FALSE)
+  max_epoch = 100, step_size = 0.01, tot = 1e-06,
+  return_dist = FALSE)
 }
 \arguments{
 \item{seqs}{a list of \code{n} action sequences or their dissimilarity matrix.}
@@ -20,19 +21,19 @@ chooseK_mds(seqs = NULL, K_cand, method = "oss", n_fold = 5,
 
 \item{step_size}{the step size to be used in stochastic gradient descent}
 
-\item{tot}{the tolerance of accuracy}
+\item{tot}{accuracy tolerance}
 
-\item{return_dist}{logical. If dissimilarity matrix should be returned. Default is \code{FALSE}.}
+\item{return_dist}{logical. If \code{TRUE}, the dissimilarity matrix will be returned. Default is \code{FALSE}.}
 }
 \value{
 a list
-  \item{K}{number of features with smallest cross-validation loss}
+  \item{K}{the number of features with smallest cross-validation loss}
   \item{K_cand}{candidates of number of features}
   \item{cv_loss}{cross-validation loss for each candidate K}
   \item{dist_mat}{dissimilarity matrix of sequences}
 }
 \description{
-Choose the number of MDS features by cross validation
+\code{chooseK_mds} choose the number of MDS features to be extracted by cross-validation
 }
 \examples{
 n <- 50

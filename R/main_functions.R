@@ -5,16 +5,18 @@
 #' @import utils
 NULL
 
-#' Extract features from action sequences by multidimensional scaling
+#' Feature extraction via multidimensional scaling
 #' 
-#' @param seqs a list or a square matrix. If a list, each element is an action sequence in the form of a vector of actions. Alternatively, their dissimilarity matrix can be provided
+#' \code{seq2feature_mds} extracts \code{K} features from action sequences \code{seqs} by multidimensional scaling
+#' 
+#' @param seqs a list or a square matrix. If it is a list, each of its elements is an action sequence in the form of a vector of actions. Alternatively, their dissimilarity matrix can be provided
 #' @param K the number of features to be extracted.
-#' @param method the dissimilarity measure to be used to calculate distance matrix. Currently available methods: \code{oss}. It implements the order-based sequence similarity in Gomez-Alonso and Valls (2008).
+#' @param method the dissimilarity measure to be used to calculate distance matrix. Currently available methods: \code{"oss"}. It implements the order-based sequence similarity in Gomez-Alonso and Valls (2008).
 #' @param max_epoch the maximum number of epochs in stochastic gradient descent.
 #' @param step_size the step size to be used in stochastic gradient descent
-#' @param pca logical. If TRUE, the principal components of features are returned.
-#' @param tot the tolerance of accuracy
-#' @param return_dist logical. If the dissimilarity matrix should be returned. Default is \code{FALSE}.
+#' @param pca logical. If \code{TRUE}, the principal components of the extracted features are returned.
+#' @param tot accuracy tolerance
+#' @param return_dist logical. If \code{TRUE}, the dissimilarity matrix will be returned. Default is \code{FALSE}.
 #' @return a list
 #'   \item{theta}{an \code{n} by \code{K} matrix of \code{K} raw features or principal features for \code{n} sequences.}
 #'   \item{loss}{discrepancy between estimated and true dissimilarity}
@@ -59,18 +61,20 @@ seq2feature_mds <- function(seqs=NULL, K=2, method="oss", max_epoch=100, step_si
   res
 }
 
-#' Choose the number of MDS features by cross validation
+#' Choose the number of MDS features
 #' 
+#' \code{chooseK_mds} choose the number of MDS features to be extracted by cross-validation
+#'
 #' @param seqs a list of \code{n} action sequences or their dissimilarity matrix.
 #' @param K_cand candidates of number of features.
 #' @param method the dissimilarity measure to be used to calculate distance matrix. Currently available methods: \code{oss}. It implements the order-based sequence similarity in Gomez-Alonso and Valls (2008).
 #' @param max_epoch the maximum number of epochs in stochastic gradient descent.
 #' @param n_fold number of folds for cross-validation
 #' @param step_size the step size to be used in stochastic gradient descent
-#' @param tot the tolerance of accuracy
-#' @param return_dist logical. If dissimilarity matrix should be returned. Default is \code{FALSE}.
+#' @param tot accuracy tolerance 
+#' @param return_dist logical. If \code{TRUE}, the dissimilarity matrix will be returned. Default is \code{FALSE}.
 #' @return a list
-#'   \item{K}{number of features with smallest cross-validation loss}
+#'   \item{K}{the number of features with smallest cross-validation loss}
 #'   \item{K_cand}{candidates of number of features}
 #'   \item{cv_loss}{cross-validation loss for each candidate K}
 #'   \item{dist_mat}{dissimilarity matrix of sequences}
@@ -129,8 +133,9 @@ chooseK_mds <- function(seqs=NULL, K_cand, method="oss", n_fold=5, max_epoch=100
   res
 }
 
-
-#' Extract features from action sequences by sequence-to-sequence autoencoder
+#' Feature Extraction by action sequence autoencoder
+#'
+#' \code{seq2feature_seq2seq} extract features from action sequences by action sequence autoencoder
 #' 
 #' @param seqs a list of \code{n} action sequences. Each element is an action sequence in the form of a vector of actions.
 #' @param K the number of features to be extracted.
@@ -139,9 +144,9 @@ chooseK_mds <- function(seqs=NULL, K_cand, method="oss", n_fold=5, max_epoch=100
 #' @param method the method to be used to compute features from the output of an RNN; With \code{method="last"}, the features are the last output of the encoder RNN; with \code{method="avg"}, the features are the average of the outputs of the encoder RNN. keep the output of the last step; "average": average of the outputs of all time steps
 #' @param step_size (baseline) learning rate of optimizer
 #' @param optimizer_name a character string specifying the optimizer to be used for training: sgd, rmsprop, adadelta, adam
-#' @param samples_train specify train set;
-#' @param samples_valid specify validation set; 
-#' @param samples_test specify test set;
+#' @param samples_train specify the train set;
+#' @param samples_valid specify the validation set; 
+#' @param samples_test specify the test set;
 #' @param pca logical. If TRUE, the principal components of features are returned.
 #' @param gpu logical. If TRUE, use gpu (if available) for training
 #' @param verbose logical. If TRUE, training progress is printed.
@@ -154,7 +159,7 @@ chooseK_mds <- function(seqs=NULL, K_cand, method="oss", n_fold=5, max_epoch=100
 #' @examples 
 #' n <- 50
 #' seqs <- seq_gen(n)
-#' seq2seq_res <- seq2feature_seq2seq(seqs, 5, n_epoch=10, samples_train=1:40, samples_valid=41:50)
+#' seq2seq_res <- seq2feature_seq2seq(seqs, 5, rnn_type="lstm", n_epoch=5, samples_train=1:40, samples_valid=41:50)
 #' features <- seq2seq_res$theta
 #' plot(seq2seq_res$train_loss, col="blue", type="l")
 #' lines(seq2seq_res$valid_loss, col="red")
@@ -248,7 +253,7 @@ seq2feature_seq2seq <- function(seqs, K, rnn_type="lstm", n_epoch=50, method="la
     
     decoder_inputs <-  encoder_outputs_long %>% layer_lambda(fn_rp)
     decoder_outputs <- decoder_inputs %>% 
-      layer_lstm(units=K, return_sequences=TRUE) %>% 
+      layer_gru(units=K, return_sequences=TRUE) %>% 
       layer_dense(n_event, activation='softmax')
   }
   
@@ -262,15 +267,6 @@ seq2feature_seq2seq <- function(seqs, K, rnn_type="lstm", n_epoch=50, method="la
   else if (optimizer_name == "adam") optimizer <- optimizer_adam(lr=step_size)
   
   autoencoder_model %>% compile(optimizer=optimizer, loss='categorical_crossentropy')
-  
-  # if (length(valid_set) > 1) samples_valid <- valid_set
-  # else 
-  # {
-  #   if (valid_set < 1) n_valid <- floor(n_seq*valid_set)
-  #   else n_valid <- floor(valid_set)
-  #   samples_valid <- sample(1:n_seq, n_valid)
-  # }
-  # samples_train <- setdiff(1:n_seq, samples_valid)
   
   best_valid_loss <- Inf
   valid_loss <- rep(0, n_epoch)
@@ -314,7 +310,9 @@ seq2feature_seq2seq <- function(seqs, K, rnn_type="lstm", n_epoch=50, method="la
   res
 }
 
-#' Choose the number of seq2seq features by cross validation
+#' Choose the number of autoencoder features
+#'
+#' \code{chooseK_seq2seq} choose the number of features to be extracted by cross-validation
 #' 
 #' @param seqs a list of \code{n} action sequences. Each element is an action sequence in the form of a vector of actions.
 #' @param K_cand candidates of number of features.
@@ -334,8 +332,8 @@ seq2feature_seq2seq <- function(seqs, K, rnn_type="lstm", n_epoch=50, method="la
 #' @examples 
 #' n <- 50
 #' seqs <- seq_gen(n)
-#' K_res <- chooseK_seq2seq(seqs, 5:10, n_epoch=10, n_fold=2, valid_prop=0.2)
-#' seq2seq_res <- seq2feature_seq2seq(seqs, K_res$K, n_epoch=10, samples_train=1:40, samples_valid=41:50)
+#' K_res <- chooseK_seq2seq(seqs, K_cand=c(5, 10), rnn_type="lstm", n_epoch=5, n_fold=2, valid_prop=0.2)
+#' seq2seq_res <- seq2feature_seq2seq(seqs, K_res$K, rnn_type="lstm", n_epoch=10, samples_train=1:40, samples_valid=41:50)
 #' theta <- seq2seq_res$theta
 #' @export
 chooseK_seq2seq <- function(seqs, rnn_type="lstm", K_cand, n_epoch=50, method="last", step_size=0.0001, optimizer_name="adam", n_fold=5, valid_prop=0.1, gpu = FALSE, verbose=TRUE) {

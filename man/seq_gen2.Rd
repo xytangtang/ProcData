@@ -2,7 +2,7 @@
 % Please edit documentation in R/seq_functions.R
 \name{seq_gen2}
 \alias{seq_gen2}
-\title{Generating action sequence according to probability transition matrix}
+\title{Action sequence generator}
 \usage{
 seq_gen2(n, Pmat = NULL, events = letters, start_index = 1,
   end_index = length(events), max_len = 200)
@@ -24,5 +24,5 @@ seq_gen2(n, Pmat = NULL, events = letters, start_index = 1,
 a list of \code{n} elements. Each element is a sequence of actions.
 }
 \description{
-Generating action sequence according to probability transition matrix
+\code{seq_gen2} generates action sequences according to a given probability transition matrix
 }

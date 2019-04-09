@@ -2,27 +2,28 @@
 % Please edit documentation in R/main_functions.R
 \name{seq2feature_mds}
 \alias{seq2feature_mds}
-\title{Extract features from action sequences by multidimensional scaling}
+\title{Feature extraction via multidimensional scaling}
 \usage{
-seq2feature_mds(seqs = NULL, K = 2, method = "oss", max_epoch = 100,
-  step_size = 0.01, pca = TRUE, tot = 1e-06, return_dist = FALSE)
+seq2feature_mds(seqs = NULL, K = 2, method = "oss",
+  max_epoch = 100, step_size = 0.01, pca = TRUE, tot = 1e-06,
+  return_dist = FALSE)
 }
 \arguments{
-\item{seqs}{a list or a square matrix. If a list, each element is an action sequence in the form of a vector of actions. Alternatively, their dissimilarity matrix can be provided}
+\item{seqs}{a list or a square matrix. If it is a list, each of its elements is an action sequence in the form of a vector of actions. Alternatively, their dissimilarity matrix can be provided}
 
 \item{K}{the number of features to be extracted.}
 
-\item{method}{the dissimilarity measure to be used to calculate distance matrix. Currently available methods: \code{oss}. It implements the order-based sequence similarity in Gomez-Alonso and Valls (2008).}
+\item{method}{the dissimilarity measure to be used to calculate distance matrix. Currently available methods: \code{"oss"}. It implements the order-based sequence similarity in Gomez-Alonso and Valls (2008).}
 
 \item{max_epoch}{the maximum number of epochs in stochastic gradient descent.}
 
 \item{step_size}{the step size to be used in stochastic gradient descent}
 
-\item{pca}{logical. If TRUE, the principal components of features are returned.}
+\item{pca}{logical. If \code{TRUE}, the principal components of the extracted features are returned.}
 
-\item{tot}{the tolerance of accuracy}
+\item{tot}{accuracy tolerance}
 
-\item{return_dist}{logical. If the dissimilarity matrix should be returned. Default is \code{FALSE}.}
+\item{return_dist}{logical. If \code{TRUE}, the dissimilarity matrix will be returned. Default is \code{FALSE}.}
 }
 \value{
 a list
@@ -31,7 +32,7 @@ a list
   \item{dist_mat}{dissimilary matrix}
 }
 \description{
-Extract features from action sequences by multidimensional scaling
+\code{seq2feature_mds} extracts \code{K} features from action sequences \code{seqs} by multidimensional scaling
 }
 \examples{
 n <- 50

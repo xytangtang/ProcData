@@ -1,4 +1,7 @@
-#' Generating action sequences similar to PISA data: decide two conditions to run simulations and select an answer
+#' Sequence generator
+#'
+#' \code{seq_gen} generates action sequences similar to PISA data: choose the levels of two conditions to run simulations and select an answer
+#'
 #' @param n number of sequences to be generated
 #' @param action_set1 choices for the first condition
 #' @param action_set2 choices for the second condition
@@ -28,7 +31,10 @@ seq_gen <- function(n, action_set1 = c("OPT1_1", "OPT1_2", "OPT1_3"), action_set
   seqs
 }
 
-#' Generating action sequence according to probability transition matrix
+#' Action sequence generator
+#'
+#' \code{seq_gen2} generates action sequences according to a given probability transition matrix
+#'
 #' @param n number of sequences to be generated
 #' @param events a set of \code{N} possible actions including start and end
 #' @param Pmat \code{N} by \code{N} probability transition matrix; if \code{Pmat} not supplied, each action is randomly drawn from \code{events} (excluding start).
