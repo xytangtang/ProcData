@@ -1,0 +1,4 @@
+src/RcppExports.*
+src/*.o
+src/*.so
+
