@@ -2,3 +2,4 @@ src/RcppExports.*
 src/*.o
 src/*.so
 
+.Rproj.user

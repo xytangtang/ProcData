@@ -134,6 +134,7 @@ chooseK_mds <- function(seqs=NULL, K_cand, method="oss", n_fold=5, max_epoch=100
 #' 
 #' @param seqs a list of \code{n} action sequences. Each element is an action sequence in the form of a vector of actions.
 #' @param K the number of features to be extracted.
+#' @param rnn_type the type of recurrent neural network to be used for modeling action sequences. \code{"lstm"} for long-short term memory. \code{"gru"} for gated recurrent unit.
 #' @param n_epoch the number of epochs to be run when minimizing the loss function
 #' @param method the method to be used to compute features from the output of an RNN; With \code{method="last"}, the features are the last output of the encoder RNN; with \code{method="avg"}, the features are the average of the outputs of the encoder RNN. keep the output of the last step; "average": average of the outputs of all time steps
 #' @param step_size (baseline) learning rate of optimizer
@@ -158,7 +159,7 @@ chooseK_mds <- function(seqs=NULL, K_cand, method="oss", n_fold=5, max_epoch=100
 #' plot(seq2seq_res$train_loss, col="blue", type="l")
 #' lines(seq2seq_res$valid_loss, col="red")
 #' @export
-seq2feature_seq2seq <- function(seqs, K, n_epoch=50, method="last", step_size=0.0001, optimizer_name="adam", samples_train, samples_valid, samples_test=NULL, pca=TRUE, gpu=FALSE, verbose=TRUE, return_theta=TRUE) {
+seq2feature_seq2seq <- function(seqs, K, rnn_type="lstm", n_epoch=50, method="last", step_size=0.0001, optimizer_name="adam", samples_train, samples_valid, samples_test=NULL, pca=TRUE, gpu=FALSE, verbose=TRUE, return_theta=TRUE) {
   
   n_seq <- length(seqs)
   
@@ -184,39 +185,73 @@ seq2feature_seq2seq <- function(seqs, K, n_epoch=50, method="last", step_size=0.
   # Define keras model
   # Define an input sequence and process it.
   encoder_inputs <- layer_input(shape=list(NULL))
-  
-  if (method=="last") {
-    encoder_outputs_long <- encoder_inputs %>%
-      layer_embedding(n_event, K) %>%
-      layer_lstm(units=K, return_sequences=TRUE, return_state=TRUE)
-    encoder_outputs <- encoder_outputs_long[[2]]
-    
-    fn_rp <- function(x) {
-      stepMatrix <- k_ones_like(x[[1]][,,1, drop=FALSE])
-      latentMatrix <- k_expand_dims(x[[2]], axis=2)
+  if (rnn_type == "lstm")
+  {
+    if (method=="last") {
+      encoder_outputs_long <- encoder_inputs %>%
+        layer_embedding(n_event, K) %>%
+        layer_lstm(units=K, return_sequences=TRUE, return_state=TRUE)
+      encoder_outputs <- encoder_outputs_long[[3]]
       
-      return(k_permute_dimensions(k_batch_dot(latentMatrix,stepMatrix, axes=list(2, 3)), list(1,3,2)))
+      fn_rp <- function(x) {
+        stepMatrix <- k_ones_like(x[[1]][,,1, drop=FALSE])
+        latentMatrix <- k_expand_dims(x[[3]], axis=2)
+        
+        return(k_permute_dimensions(k_batch_dot(latentMatrix,stepMatrix, axes=list(2, 3)), list(1,3,2)))
+      }
+    } else {
+      encoder_outputs_long <- encoder_inputs %>%
+        layer_embedding(n_event, K) %>%
+        layer_lstm(units=K, return_sequences=TRUE)
+      
+      fn_average <- function(x) k_mean(x, axis=2)
+      encoder_outputs <- encoder_outputs_long %>% layer_lambda(fn_average)
+      # Repeat 2D tensor to form a 3D tensor to be used as inputs of LSTM layer
+      fn_rp <- function(x) {
+        stepMatrix <- k_ones_like(k_expand_dims(x[,,1], axis = -1)) # matrix with ones, shaped as (batch, steps, 1)
+        latentMatrix <- k_mean(x, axis = 2, keepdims = TRUE) # latent vars, shaped as (batch, 1, latent_dim)
+        return(k_permute_dimensions(k_batch_dot(latentMatrix,stepMatrix, axes=list(2, 3)), list(1,3,2)))
+      }
     }
-  } else {
-    encoder_outputs_long <- encoder_inputs %>%
-      layer_embedding(n_event, K) %>%
-      layer_lstm(units=K, return_sequences=TRUE)
     
-    fn_average <- function(x) k_mean(x, axis=2)
-    encoder_outputs <- encoder_outputs_long %>% layer_lambda(fn_average)
-    # Repeat 2D tensor to form a 3D tensor to be used as inputs of LSTM layer
-    fn_rp <- function(x) {
-      stepMatrix <- k_ones_like(k_expand_dims(x[,,1], axis = -1)) # matrix with ones, shaped as (batch, steps, 1)
-      latentMatrix <- k_mean(x, axis = 2, keepdims = TRUE) # latent vars, shaped as (batch, 1, latent_dim)
-      return(k_permute_dimensions(k_batch_dot(latentMatrix,stepMatrix, axes=list(2, 3)), list(1,3,2)))
+    decoder_inputs <-  encoder_outputs_long %>% layer_lambda(fn_rp)
+    decoder_outputs <- decoder_inputs %>% 
+      layer_lstm(units=K, return_sequences=TRUE) %>% 
+      layer_dense(n_event, activation='softmax')
+  } else if (rnn_type == "gru") {
+    if (method=="last") {
+      encoder_outputs_long <- encoder_inputs %>%
+        layer_embedding(n_event, K) %>%
+        layer_gru(units=K, return_sequences=TRUE, return_state=TRUE)
+      encoder_outputs <- encoder_outputs_long[[2]]
+      
+      fn_rp <- function(x) {
+        stepMatrix <- k_ones_like(x[[1]][,,1, drop=FALSE])
+        latentMatrix <- k_expand_dims(x[[2]], axis=2)
+        
+        return(k_permute_dimensions(k_batch_dot(latentMatrix,stepMatrix, axes=list(2, 3)), list(1,3,2)))
+      }
+    } else {
+      encoder_outputs_long <- encoder_inputs %>%
+        layer_embedding(n_event, K) %>%
+        layer_gru(units=K, return_sequences=TRUE)
+      
+      fn_average <- function(x) k_mean(x, axis=2)
+      encoder_outputs <- encoder_outputs_long %>% layer_lambda(fn_average)
+      # Repeat 2D tensor to form a 3D tensor to be used as inputs of LSTM layer
+      fn_rp <- function(x) {
+        stepMatrix <- k_ones_like(k_expand_dims(x[,,1], axis = -1)) # matrix with ones, shaped as (batch, steps, 1)
+        latentMatrix <- k_mean(x, axis = 2, keepdims = TRUE) # latent vars, shaped as (batch, 1, latent_dim)
+        return(k_permute_dimensions(k_batch_dot(latentMatrix,stepMatrix, axes=list(2, 3)), list(1,3,2)))
+      }
     }
+    
+    decoder_inputs <-  encoder_outputs_long %>% layer_lambda(fn_rp)
+    decoder_outputs <- decoder_inputs %>% 
+      layer_lstm(units=K, return_sequences=TRUE) %>% 
+      layer_dense(n_event, activation='softmax')
   }
-
-  decoder_inputs <-  encoder_outputs_long %>% layer_lambda(fn_rp)
-  decoder_outputs <- decoder_inputs %>% 
-                     layer_lstm(units=K, return_sequences=TRUE) %>% 
-                     layer_dense(n_event, activation='softmax')
- 
+  
   autoencoder_model <- keras_model(inputs = encoder_inputs, outputs = decoder_outputs)
   encoder_model <- keras_model(inputs = encoder_inputs, outputs = encoder_outputs)
   
@@ -283,6 +318,7 @@ seq2feature_seq2seq <- function(seqs, K, n_epoch=50, method="last", step_size=0.
 #' 
 #' @param seqs a list of \code{n} action sequences. Each element is an action sequence in the form of a vector of actions.
 #' @param K_cand candidates of number of features.
+#' @param rnn_type the type of recurrent neural network to be used for modeling action sequences. \code{"lstm"} for long-short term memory. \code{"gru"} for gated recurrent unit.
 #' @param n_epoch the number of epochs to be run when minimizing the loss function
 #' @param method the method to be used to compute features from the output of an RNN; With \code{method="last"}, the features are the last output of the encoder RNN; with \code{method="avg"}, the features are the average of the outputs of the encoder RNN. keep the output of the last step; "average": average of the outputs of all time steps
 #' @param step_size (baseline) learning rate of optimizer
@@ -302,7 +338,7 @@ seq2feature_seq2seq <- function(seqs, K, n_epoch=50, method="last", step_size=0.
 #' seq2seq_res <- seq2feature_seq2seq(seqs, K_res$K, n_epoch=10, samples_train=1:40, samples_valid=41:50)
 #' theta <- seq2seq_res$theta
 #' @export
-chooseK_seq2seq <- function(seqs, K_cand, n_epoch=50, method="last", step_size=0.0001, optimizer_name="adam", n_fold=5, valid_prop=0.1, gpu = FALSE, verbose=TRUE) {
+chooseK_seq2seq <- function(seqs, rnn_type="lstm", K_cand, n_epoch=50, method="last", step_size=0.0001, optimizer_name="adam", n_fold=5, valid_prop=0.1, gpu = FALSE, verbose=TRUE) {
   n_K <- length(K_cand)
   n_seq <- length(seqs)
   folds <- sample(1:n_fold, n_seq, replace=TRUE)
@@ -317,7 +353,7 @@ chooseK_seq2seq <- function(seqs, K_cand, n_epoch=50, method="last", step_size=0
       index_valid <- sample(index_train_valid, round(length(index_train_valid)*valid_prop))
       index_train <- setdiff(index_train_valid, index_valid)
       
-      seq2seq_res <- seq2feature_seq2seq(seqs = seqs, K = K, n_epoch = n_epoch, method = method, step_size = step_size, optimizer_name = optimizer_name, samples_train = index_train, samples_valid = index_valid, samples_test = index_test, pca = FALSE, gpu = gpu, verbose = verbose, return_theta = FALSE)
+      seq2seq_res <- seq2feature_seq2seq(seqs = seqs, K = K, rnn_type = rnn_type, n_epoch = n_epoch, method = method, step_size = step_size, optimizer_name = optimizer_name, samples_train = index_train, samples_valid = index_valid, samples_test = index_test, pca = FALSE, gpu = gpu, verbose = verbose, return_theta = FALSE)
       
       cv_loss[index_K] <- cv_loss[index_K] + seq2seq_res$test_loss[which.min(seq2seq_res$valid_loss)]
     }

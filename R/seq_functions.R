@@ -1,4 +1,4 @@
-#' Generating action sequences similar to PISA data: decide two conditions to run simulations and select a answer
+#' Generating action sequences similar to PISA data: decide two conditions to run simulations and select an answer
 #' @param n number of sequences to be generated
 #' @param action_set1 choices for the first condition
 #' @param action_set2 choices for the second condition

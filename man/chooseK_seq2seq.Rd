@@ -4,12 +4,14 @@
 \alias{chooseK_seq2seq}
 \title{Choose the number of seq2seq features by cross validation}
 \usage{
-chooseK_seq2seq(seqs, K_cand, n_epoch = 50, method = "last",
-  step_size = 1e-04, optimizer_name = "adam", n_fold = 5,
-  valid_prop = 0.1, gpu = FALSE, verbose = TRUE)
+chooseK_seq2seq(seqs, rnn_type = "lstm", K_cand, n_epoch = 50,
+  method = "last", step_size = 1e-04, optimizer_name = "adam",
+  n_fold = 5, valid_prop = 0.1, gpu = FALSE, verbose = TRUE)
 }
 \arguments{
 \item{seqs}{a list of \code{n} action sequences. Each element is an action sequence in the form of a vector of actions.}
+
+\item{rnn_type}{the type of recurrent neural network to be used for modeling action sequences. \code{"lstm"} for long-short term memory. \code{"gru"} for gated recurrent unit.}
 
 \item{K_cand}{candidates of number of features.}
 
