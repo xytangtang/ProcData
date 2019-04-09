@@ -4,8 +4,9 @@
 \alias{seq2feature_mds}
 \title{Extract features from action sequences by multidimensional scaling}
 \usage{
-seq2feature_mds(seqs = NULL, K = 2, method = "oss", max_epoch = 100,
-  step_size = 0.01, pca = TRUE, tot = 1e-06, return_dist = FALSE)
+seq2feature_mds(seqs = NULL, K = 2, method = "oss",
+  max_epoch = 100, step_size = 0.01, pca = TRUE, tot = 1e-06,
+  return_dist = FALSE)
 }
 \arguments{
 \item{seqs}{a list or a square matrix. If a list, each element is an action sequence in the form of a vector of actions. Alternatively, their dissimilarity matrix can be provided}

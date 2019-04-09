@@ -5,9 +5,9 @@
 \title{Extract features from action sequences by sequence-to-sequence autoencoder}
 \usage{
 seq2feature_seq2seq(seqs, K, n_epoch = 50, method = "last",
-  step_size = 1e-04, optimizer_name = "adam", samples_train, samples_valid,
-  samples_test = NULL, pca = TRUE, gpu = FALSE, verbose = TRUE,
-  return_theta = TRUE)
+  step_size = 1e-04, optimizer_name = "adam", samples_train,
+  samples_valid, samples_test = NULL, pca = TRUE, gpu = FALSE,
+  verbose = TRUE, return_theta = TRUE)
 }
 \arguments{
 \item{seqs}{a list of \code{n} action sequences. Each element is an action sequence in the form of a vector of actions.}

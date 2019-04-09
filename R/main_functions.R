@@ -79,7 +79,8 @@ seq2feature_mds <- function(seqs=NULL, K=2, method="oss", max_epoch=100, step_si
 #' seqs <- seq_gen(n)
 #' K_res <- chooseK_mds(seqs, 5:10, return_dist=TRUE)
 #' theta <- seq2feature_mds(K_res$dist_mat, K_res$K)$theta
-#' 
+#'
+#' @export 
 chooseK_mds <- function(seqs=NULL, K_cand, method="oss", n_fold=5, max_epoch=100, step_size=0.01, tot=1e-6, return_dist=FALSE) {
   if (is.null(seqs)) stop("Either a list of sequences or their dissimilarity matrix should be provided!\n")
   if (is.matrix(seqs)) {

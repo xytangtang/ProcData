@@ -6,8 +6,8 @@
 \title{Data of item CP025Q01 (climate control item 1) in PISA 2012}
 \format{A list with two elements. 
 \describe{
-  \item {seqs}{A list of 16920 elements. Each element is an action sequence.}
-  \item {responses}{Binary responses of 16920 respondent. The order of the respondents matches that in \code{seqs}.}
+  \item{seqs}{A list of 16920 elements. Each element is an action sequence.}
+  \item{responses}{Binary responses of 16920 respondent. The order of the respondents matches that in \code{seqs}.}
 }}
 \source{
 item interface: \url{http://www.oecd.org/pisa/test-2012/testquestions/question3/}

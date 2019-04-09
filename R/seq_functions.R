@@ -66,7 +66,7 @@ seq_gen2 <- function(n, Pmat = NULL, events = letters, start_index=1, end_index=
 #' 
 #' @param x an action sequences
 #' @param actions a set of actions whose number of appearances will be count
-#' @export
+
 count_actions <- function(x, actions) 
 {
 	sapply(actions, function(a) sum(x==a))

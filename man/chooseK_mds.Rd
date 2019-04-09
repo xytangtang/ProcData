@@ -5,7 +5,8 @@
 \title{Choose the number of MDS features by cross validation}
 \usage{
 chooseK_mds(seqs = NULL, K_cand, method = "oss", n_fold = 5,
-  max_epoch = 100, step_size = 0.01, tot = 1e-06, return_dist = FALSE)
+  max_epoch = 100, step_size = 0.01, tot = 1e-06,
+  return_dist = FALSE)
 }
 \arguments{
 \item{seqs}{a list of \code{n} action sequences or their dissimilarity matrix.}
