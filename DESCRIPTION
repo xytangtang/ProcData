@@ -1,0 +1,16 @@
+Package: ProcData
+Type: Package
+Title: Process Data Analysis
+Version: 1.0
+Date: 2018-05-22
+Author: Xueying Tang
+Maintainer: Xueying Tang <xueyingtang1989@gmail.com>
+Description: This package implements methods for process data analysis in R.
+    It includes multidimensional scaling feature extraction.
+License: GPL (>= 2)
+Depends: R (>= 2.10)
+Imports: Rcpp (>= 0.12.16),
+    keras
+LinkingTo: Rcpp
+RoxygenNote: 6.0.1
+LazyData: true
