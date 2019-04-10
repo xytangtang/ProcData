@@ -4,17 +4,16 @@
 \alias{seq2binary}
 \title{Predict binary variable from action sequences}
 \usage{
-seq2binary(seqs, response, model_output = "seq2binary_model.h5",
-  rnn_type = "lstm", n_hidden = 0, K = 20, K_hidden = NULL,
-  n_epoch = 20, batch_size = 16, optimizer = "rmsprop", index_train,
-  index_valid, index_test, gpu = TRUE)
+seq2binary(seqs, response, rnn_type = "lstm", n_hidden = 0, K = 20,
+  K_hidden = NULL, n_epoch = 20, batch_size = 16,
+  optimizer_name = "rmsprop", step_size = 0.001, index_train,
+  index_valid, index_test, gpu = TRUE, return_model = TRUE,
+  model_output = "seq2binary_model.h5")
 }
 \arguments{
 \item{seqs}{a list of \code{n} action sequences. Each element is an action sequence in the form of a vector of actions.}
 
 \item{response}{the binary response variable}
-
-\item{model_output}{a character string giving the name of the file to store keras model.}
 
 \item{rnn_type}{the type of recurrent neural network to be used for modeling action sequences. \code{"lstm"} for long-short term memory. \code{"gru"} for gated recurrent unit.}
 
@@ -28,7 +27,9 @@ seq2binary(seqs, response, model_output = "seq2binary_model.h5",
 
 \item{batch_size}{batch size in training.}
 
-\item{optimizer}{a character string specifies the optimizer to be used for training.}
+\item{optimizer_name}{a character string specifies the optimizer to be used for training.}
+
+\item{step_size}{step size used in the optimizer}
 
 \item{index_train}{a vector of indices specifying the training set}
 
@@ -37,6 +38,10 @@ seq2binary(seqs, response, model_output = "seq2binary_model.h5",
 \item{index_test}{a vector of indices specifying the test set}
 
 \item{gpu}{logical. If TRUE, use gpu (if available) for training}
+
+\item{return_model}{logical. If TRUE, the trained keras model will be returned}
+
+\item{model_output}{a character string giving the name of the file to save the trained keras model.}
 }
 \value{
 a list

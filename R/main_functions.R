@@ -371,7 +371,8 @@ chooseK_seq2seq <- function(seqs, rnn_type="lstm", K_cand, n_epoch=50, method="l
 #' @param K_hidden a vector of length \code{n_hidden} specifying the number of nodes in each hidden layers.
 #' @param n_epoch the number of epochs to be run in training.
 #' @param batch_size batch size in training.
-#' @param optimizer a character string specifies the optimizer to be used for training.
+#' @param optimizer_name a character string specifies the optimizer to be used for training.
+#' @param step_size step size used in the optimizer
 #' @param index_train a vector of indices specifying the training set
 #' @param index_valid a vector of indices specifying the validation set
 #' @param index_test a vector of indices specifying the test set
@@ -391,7 +392,7 @@ chooseK_seq2seq <- function(seqs, rnn_type="lstm", K_cand, n_epoch=50, method="l
 #' index_test <- setdiff(1:n, c(index_train, index_valid))
 #' res <- seq2scale(seqs, y, index_train = index_train, index_valid = index_valid, index_test = index_valid)
 #' @export
-seq2scale <- function(seqs, response, model_output = "seq2scale_model.h5", rnn_type = "lstm", n_hidden = 0, K = 20, K_hidden = NULL, n_epoch=20, batch_size = 16, optimizer="rmsprop", index_train, index_valid, index_test, gpu=TRUE)
+seq2scale <- function(seqs, response, rnn_type = "lstm", n_hidden = 0, K = 20, K_hidden = NULL, n_epoch=20, batch_size = 16, optimizer_name="rmsprop", step_size=0.001, index_train, index_valid, index_test, gpu=TRUE, return_model=TRUE, model_output = "seq2scale_model.h5")
 {
   n_person <- length(seqs)
   events <- unique(unlist(seqs))
@@ -427,6 +428,11 @@ seq2scale <- function(seqs, response, model_output = "seq2scale_model.h5", rnn_t
   
   seq2scale_model <- keras_model(seq_inputs, scale_outputs)
   
+  if (optimizer_name == "sgd") optimizer <- optimizer_sgd(lr=step_size)
+  else if (optimizer_name == "rmsprop") optimizer <- optimizer_rmsprop(lr=step_size)
+  else if (optimizer_name == "adadelta") optimizer <- optimizer_adadelta(lr=step_size)
+  else if (optimizer_name == "adam") optimizer <- optimizer_adam(lr=step_size)
+  
   seq2scale_model %>% compile(optimizer = optimizer, loss='mean_squared_error')
   
   model_res <- seq2scale_model %>% fit(int_seqs[index_train, ], response[index_train], epochs=n_epoch, batch_size=batch_size, verbose=FALSE, validation_data=list(int_seqs[index_valid,], response[index_valid]), callbacks=list(callback_model_checkpoint(model_output, monitor="val_loss", save_best_only = TRUE)))
@@ -450,9 +456,14 @@ seq2scale <- function(seqs, response, model_output = "seq2scale_model.h5", rnn_t
   colnames(summary_res) <- c("mse", "rsq")
   rownames(summary_res) <- c("train", "valid", "test")
   
-  k_clear_session()
+  if (return_model) {
+    res <- list(model = seq2scale_model, summary = summary_res, trace = trace_res, pred = pred_test, events=events, max_len = max_len)
+  } else {
+      res <- list(summary = summary_res, trace = trace_res, pred = pred_test)
+      k_clear_session()
+  }
   
-  return(list(summary = summary_res, trace = trace_res, pred = pred_test))
+  res  
     
 }
 
@@ -461,18 +472,20 @@ seq2scale <- function(seqs, response, model_output = "seq2scale_model.h5", rnn_t
 #' 
 #' @param seqs a list of \code{n} action sequences. Each element is an action sequence in the form of a vector of actions.
 #' @param response the binary response variable
-#' @param model_output a character string giving the name of the file to store keras model.
 #' @param rnn_type the type of recurrent neural network to be used for modeling action sequences. \code{"lstm"} for long-short term memory. \code{"gru"} for gated recurrent unit.
 #' @param n_hidden the number of hidden layers in the feed-forward neural network.
 #' @param K the latent dimension in the recurrent neural network. 
 #' @param K_hidden a vector of length \code{n_hidden} specifying the number of nodes in each hidden layers.
 #' @param n_epoch the number of epochs to be run in training.
 #' @param batch_size batch size in training.
-#' @param optimizer a character string specifies the optimizer to be used for training.
+#' @param optimizer_name a character string specifies the optimizer to be used for training.
+#' @param step_size step size used in the optimizer
 #' @param index_train a vector of indices specifying the training set
 #' @param index_valid a vector of indices specifying the validation set
 #' @param index_test a vector of indices specifying the test set
 #' @param gpu logical. If TRUE, use gpu (if available) for training
+#' @param return_model logical. If TRUE, the trained keras model will be returned
+#' @param model_output a character string giving the name of the file to save the trained keras model.
 #' @return a list
 #'   \item{summary}{a vector of length 3 summarizing the prediction accuracy in the training, validation and test sets.}
 #'   \item{trace}{a \code{n_epoch} by 2 matrix giving the trace of model training. The two columns gives the trace for the training set and the validation set, respectively.}
@@ -488,7 +501,7 @@ seq2scale <- function(seqs, response, model_output = "seq2scale_model.h5", rnn_t
 #' index_test <- setdiff(1:n, c(index_train, index_valid))
 #' res <- seq2binary(seqs, y, index_train = index_train, index_valid = index_valid, index_test = index_valid)
 #' @export
-seq2binary <- function(seqs, response, model_output = "seq2binary_model.h5", rnn_type = "lstm", n_hidden = 0, K = 20, K_hidden = NULL, n_epoch=20, batch_size = 16, optimizer="rmsprop", index_train, index_valid, index_test, gpu = TRUE)
+seq2binary <- function(seqs, response, rnn_type = "lstm", n_hidden = 0, K = 20, K_hidden = NULL, n_epoch=20, batch_size = 16, optimizer_name="rmsprop", step_size=0.001, index_train, index_valid, index_test, gpu = TRUE, return_model = TRUE, model_output = "seq2binary_model.h5")
 {
   n_person <- length(seqs)
   events <- unique(unlist(seqs))
@@ -523,6 +536,11 @@ seq2binary <- function(seqs, response, model_output = "seq2binary_model.h5", rnn
   eval(parse(text=ff_string))
   seq2binary_model <- keras_model(seq_inputs, prob_outputs)
   
+  if (optimizer_name == "sgd") optimizer <- optimizer_sgd(lr=step_size)
+  else if (optimizer_name == "rmsprop") optimizer <- optimizer_rmsprop(lr=step_size)
+  else if (optimizer_name == "adadelta") optimizer <- optimizer_adadelta(lr=step_size)
+  else if (optimizer_name == "adam") optimizer <- optimizer_adam(lr=step_size)
+  
   seq2binary_model %>% compile(optimizer = optimizer, loss='binary_crossentropy', metrics='accuracy')
   
   model_res <- seq2binary_model %>% fit(int_seqs[index_train, ], response[index_train], epochs=n_epoch, batch_size=batch_size, verbose=FALSE, metrics='accuracy', validation_data=list(int_seqs[index_valid,], response[index_valid]), callbacks=list(callback_model_checkpoint(model_output, monitor="val_acc", save_best_only = TRUE)))
@@ -543,9 +561,15 @@ seq2binary <- function(seqs, response, model_output = "seq2binary_model.h5", rnn
   
   names(summary_res) <- c("train", "valid", "test")
   
-  k_clear_session()
+  if (return_model) {
+    res <- list(model = seq2binary_model, summary = summary_res, trace = trace_res, pred = pred_test, events = events, max_len = max_len)
+  } else {
+      res <- list(summary = summary_res, trace = trace_res, pred = pred_test)
+      k_clear_session()
+  }
   
-  return(list(summary = summary_res, trace = trace_res, pred = pred_test))
+  res  
 } 
+
   
   
