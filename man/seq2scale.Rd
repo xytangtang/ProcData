@@ -8,7 +8,8 @@ seq2scale(seqs, response, rnn_type = "lstm", n_hidden = 0, K = 20,
   K_hidden = NULL, n_epoch = 20, batch_size = 16,
   optimizer_name = "rmsprop", step_size = 0.001, index_train,
   index_valid, index_test, gpu = TRUE, return_model = TRUE,
-  model_output = "seq2scale_model.h5")
+  model_output = "seq2scale_model.h5", max_len = max(sapply(seqs,
+  length)))
 }
 \arguments{
 \item{seqs}{a list of \code{n} action sequences. Each element is an action sequence in the form of a vector of actions.}
@@ -39,15 +40,24 @@ seq2scale(seqs, response, rnn_type = "lstm", n_hidden = 0, K = 20,
 
 \item{gpu}{logical. If TRUE, use gpu (if available) for training}
 
+\item{return_model}{logical. If TRUE, the trained keras model will be returned}
+
 \item{model_output}{a character string giving the name of the file to store keras model.}
+
+\item{max_len}{maximum sequence length}
+
+\item{model_output}{a character string giving the name of the file to save the trained keras model.}
 }
 \value{
 a list
+  \item{model}{the trained keras model}
   \item{summary}{a 3 by 2 matrix summarizing the prediction performance. Rows of the matrix indicate training set, validation set and test set. Columns of the matrix indicate mean squared error and R-square.}
   \item{trace}{a \code{n_epoch} by 2 matrix giving the trace of model training. The two columns gives the trace for the training set and the validation set, respectively.}
   \item{pred_train}{fitted values for the training set.}
   \item{pred_valid}{predicted values for the validation set.}
   \item{pred_test}{predicted values for the test set.}
+  \item{events}{all possible actions}
+  \item{max_len}{maximum length of sequnces}
 }
 \description{
 Predict continuous variable from action sequences

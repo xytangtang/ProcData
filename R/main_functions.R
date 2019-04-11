@@ -377,12 +377,18 @@ chooseK_seq2seq <- function(seqs, rnn_type="lstm", K_cand, n_epoch=50, method="l
 #' @param index_valid a vector of indices specifying the validation set
 #' @param index_test a vector of indices specifying the test set
 #' @param gpu logical. If TRUE, use gpu (if available) for training
+#' @param return_model logical. If TRUE, the trained keras model will be returned
+#' @param model_output a character string giving the name of the file to save the trained keras model.
+#' @param max_len maximum sequence length
 #' @return a list
+#'   \item{model}{the trained keras model}
 #'   \item{summary}{a 3 by 2 matrix summarizing the prediction performance. Rows of the matrix indicate training set, validation set and test set. Columns of the matrix indicate mean squared error and R-square.}
 #'   \item{trace}{a \code{n_epoch} by 2 matrix giving the trace of model training. The two columns gives the trace for the training set and the validation set, respectively.}
 #'   \item{pred_train}{fitted values for the training set.}
 #'   \item{pred_valid}{predicted values for the validation set.}
 #'   \item{pred_test}{predicted values for the test set.}
+#'   \item{events}{all possible actions}
+#'   \item{max_len}{maximum length of sequnces}
 #' @examples
 #' n <- 50
 #' seqs <- seq_gen(n)
@@ -392,7 +398,7 @@ chooseK_seq2seq <- function(seqs, rnn_type="lstm", K_cand, n_epoch=50, method="l
 #' index_test <- setdiff(1:n, c(index_train, index_valid))
 #' res <- seq2scale(seqs, y, index_train = index_train, index_valid = index_valid, index_test = index_valid)
 #' @export
-seq2scale <- function(seqs, response, rnn_type = "lstm", n_hidden = 0, K = 20, K_hidden = NULL, n_epoch=20, batch_size = 16, optimizer_name="rmsprop", step_size=0.001, index_train, index_valid, index_test, gpu=TRUE, return_model=TRUE, model_output = "seq2scale_model.h5")
+seq2scale <- function(seqs, response, rnn_type = "lstm", n_hidden = 0, K = 20, K_hidden = NULL, n_epoch=20, batch_size = 16, optimizer_name="rmsprop", step_size=0.001, index_train, index_valid, index_test, gpu=TRUE, return_model=TRUE, model_output = "seq2scale_model.h5", max_len = max(sapply(seqs, length)))
 {
   n_person <- length(seqs)
   events <- unique(unlist(seqs))
@@ -486,12 +492,16 @@ seq2scale <- function(seqs, response, rnn_type = "lstm", n_hidden = 0, K = 20, K
 #' @param gpu logical. If TRUE, use gpu (if available) for training
 #' @param return_model logical. If TRUE, the trained keras model will be returned
 #' @param model_output a character string giving the name of the file to save the trained keras model.
+#' @param max_len maximum sequence length
 #' @return a list
+#'   \item{model}{the trained keras model}
 #'   \item{summary}{a vector of length 3 summarizing the prediction accuracy in the training, validation and test sets.}
 #'   \item{trace}{a \code{n_epoch} by 2 matrix giving the trace of model training. The two columns gives the trace for the training set and the validation set, respectively.}
 #'   \item{pred_train}{fitted probabilities for the training set.}
 #'   \item{pred_valid}{predicted probabilities for the validation set.}
 #'   \item{pred_test}{predicted probabilities for the test set.}
+#'   \item{events}{all possible actions}
+#'   \item{max_len}{maximum length of sequnces}
 #' @examples
 #' n <- 50
 #' seqs <- seq_gen(n)
@@ -501,13 +511,16 @@ seq2scale <- function(seqs, response, rnn_type = "lstm", n_hidden = 0, K = 20, K
 #' index_test <- setdiff(1:n, c(index_train, index_valid))
 #' res <- seq2binary(seqs, y, index_train = index_train, index_valid = index_valid, index_test = index_valid)
 #' @export
-seq2binary <- function(seqs, response, rnn_type = "lstm", n_hidden = 0, K = 20, K_hidden = NULL, n_epoch=20, batch_size = 16, optimizer_name="rmsprop", step_size=0.001, index_train, index_valid, index_test, gpu = TRUE, return_model = TRUE, model_output = "seq2binary_model.h5")
+seq2binary <- function(seqs, response, rnn_type = "lstm", n_hidden = 0, K = 20, K_hidden = NULL, n_epoch=20, batch_size = 16, optimizer_name="rmsprop", step_size=0.001, index_train, index_valid, index_test, gpu = TRUE, return_model = TRUE, model_output = "seq2binary_model.h5", max_len = max(sapply(seqs, length)))
 {
   n_person <- length(seqs)
   events <- unique(unlist(seqs))
   n_event <- length(events)
-  max_len <- max(sapply(seqs, length))
-  
+  max_len0 <- max(sapply(seqs, length))
+  if (max_len < max_len0) {
+    warning("max_len is set as the max length in seqs!\n")
+    max_len <- max_len0
+  }
   int_seqs <- matrix(0, n_person, max_len)
   
   for (index_seq in 1:n_person) {
@@ -571,5 +584,48 @@ seq2binary <- function(seqs, response, rnn_type = "lstm", n_hidden = 0, K = 20, 
   res  
 } 
 
+#' Sequence model prediction
+#'
+#' \code{seq_predict} predict response variables from a model fit by \code{seq2binary} or \code{seq2scale}.
+#'
+#' @param fit_res An object returned by \code{seq2binary} or \code{seq2scale} with return_model=TRUE.
+#' @param new_seqs Sequences that prediction is based on.
+#' @param batch_size batch size for computing predicted values
+#' 
+#' @return A vector of predicted values.
+#' 
+#' @examples
+#' n <- 100
+#' seqs <- seq_gen(n)
+#' y1 <- sapply(seqs, function(x) "CHECK_A" %in% x)
+#' y2 <- log10(sapply(seqs, length))
+#' index_train <- 1:70
+#' index_valie <- 71:85
+#' index_test <- 86:100
+#' res1 <- seq2binary(seqs, y1, index_train = index_train, index_valid = index_valid, index_test = index_valid)
+#' res2 <- seq2scale(seqs, y2, index_train = index_train, index_valid = index_valid, index_test = index_valid)
+#' res1_pred <- seq_predict(res1, seqs[index_test])
+#' res2_pred <- seq_predict(res2, seqs[index_test])
+#' all.equal(res1$pred, res1_pred) 
+#' all.equal(res2$pred, res2_pred)
+#'
+#' @export
+seq_predict <- function(fit_res, new_seqs, batch_size=16) {
+  model = fit_res$model
+  if (is.null(model)) stop("No model is available for prediction! Set return_model=TRUE in seq2binary or seq2scale.\n")
+  max_len <- fit_res$max_len
+  events <- fit_res$events
+
+  n <- length(new_seqs)
+  new_int_seqs <- matrix(0, n, max_len)
   
+  for (index_seq in 1:n) {
+    my_seq <- new_seqs[[index_seq]]
+    n_l <- length(my_seq)
+    tmp <- match(my_seq, events)
+    new_int_seqs[index_seq, 1:n_l] <- tmp
+  }
+
+  predict(model, new_int_seqs, batch_size = batch_size)
   
+}

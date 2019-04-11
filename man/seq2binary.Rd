@@ -8,7 +8,8 @@ seq2binary(seqs, response, rnn_type = "lstm", n_hidden = 0, K = 20,
   K_hidden = NULL, n_epoch = 20, batch_size = 16,
   optimizer_name = "rmsprop", step_size = 0.001, index_train,
   index_valid, index_test, gpu = TRUE, return_model = TRUE,
-  model_output = "seq2binary_model.h5")
+  model_output = "seq2binary_model.h5", max_len = max(sapply(seqs,
+  length)))
 }
 \arguments{
 \item{seqs}{a list of \code{n} action sequences. Each element is an action sequence in the form of a vector of actions.}
@@ -42,14 +43,19 @@ seq2binary(seqs, response, rnn_type = "lstm", n_hidden = 0, K = 20,
 \item{return_model}{logical. If TRUE, the trained keras model will be returned}
 
 \item{model_output}{a character string giving the name of the file to save the trained keras model.}
+
+\item{max_len}{maximum sequence length}
 }
 \value{
 a list
+  \item{model}{the trained keras model}
   \item{summary}{a vector of length 3 summarizing the prediction accuracy in the training, validation and test sets.}
   \item{trace}{a \code{n_epoch} by 2 matrix giving the trace of model training. The two columns gives the trace for the training set and the validation set, respectively.}
   \item{pred_train}{fitted probabilities for the training set.}
   \item{pred_valid}{predicted probabilities for the validation set.}
   \item{pred_test}{predicted probabilities for the test set.}
+  \item{events}{all possible actions}
+  \item{max_len}{maximum length of sequnces}
 }
 \description{
 Predict binary variable from action sequences
