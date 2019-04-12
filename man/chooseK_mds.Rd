@@ -2,38 +2,45 @@
 % Please edit documentation in R/main_functions.R
 \name{chooseK_mds}
 \alias{chooseK_mds}
-\title{Choose the number of MDS features}
+\title{Choose the number of multidimensional scaling features}
 \usage{
 chooseK_mds(seqs = NULL, K_cand, method = "oss", n_fold = 5,
-  max_epoch = 100, step_size = 0.01, tot = 1e-06,
-  return_dist = FALSE)
+  max_epoch = 100, step_size = 0.01, tot = 1e-06, return_dist = FALSE)
 }
 \arguments{
-\item{seqs}{a list of \code{n} action sequences or their dissimilarity matrix.}
+\item{seqs}{a list or a square matrix. If a list is provided, each of its
+elements should be an action sequence in the form of a vector of actions.
+If a squared matrix is provided, it is treated as the dissimilary matrix of
+a group of action sequences.}
 
-\item{K_cand}{candidates of number of features.}
+\item{K_cand}{the candidates of the number of features.}
 
-\item{method}{the dissimilarity measure to be used to calculate distance matrix. Currently available methods: \code{oss}. It implements the order-based sequence similarity in Gomez-Alonso and Valls (2008).}
+\item{method}{a character string specifies the dissimilarity measure for two
+action sequences. Order-based sequence similarity in Gomez-Alonso and Valls
+(2008) (\code{"oss"}) is the only available method for now.}
 
-\item{n_fold}{number of folds for cross-validation}
+\item{n_fold}{the number of folds for cross-validation.}
 
-\item{max_epoch}{the maximum number of epochs in stochastic gradient descent.}
+\item{max_epoch}{the maximum number of epochs for stochastic gradient
+descent.}
 
-\item{step_size}{the step size to be used in stochastic gradient descent}
+\item{step_size}{the step size of stochastic gradient descent.}
 
-\item{tot}{accuracy tolerance}
+\item{tot}{the accuracy tolerance for determining convergence.}
 
-\item{return_dist}{logical. If \code{TRUE}, the dissimilarity matrix will be returned. Default is \code{FALSE}.}
+\item{return_dist}{logical. If \code{TRUE}, the dissimilarity matrix will be
+returned. Default is \code{FALSE}.}
 }
 \value{
-a list
-  \item{K}{the number of features with smallest cross-validation loss}
-  \item{K_cand}{candidates of number of features}
-  \item{cv_loss}{cross-validation loss for each candidate K}
-  \item{dist_mat}{dissimilarity matrix of sequences}
+\code{chooseK_mds} returns a list containing
+  \item{K}{the value in \code{K_cand} producing the smallest cross-validation loss.}
+  \item{K_cand}{the candidates of the number of features.}
+  \item{cv_loss}{the cross-validation loss for each candidate in \code{K_cand}.}
+  \item{dist_mat}{the dissimilary matrix. This element exists only if \code{return_dist=TRUE}.}
 }
 \description{
-\code{chooseK_mds} choose the number of MDS features to be extracted by cross-validation
+\code{chooseK_mds} choose the number of multidimensional scaling features
+  to be extracted by cross-validation.
 }
 \examples{
 n <- 50
@@ -41,4 +48,13 @@ seqs <- seq_gen(n)
 K_res <- chooseK_mds(seqs, 5:10, return_dist=TRUE)
 theta <- seq2feature_mds(K_res$dist_mat, K_res$K)$theta
 
+}
+\references{
+Gomez-Alonso, C. and Valls, A. (2008). A similarity measure for sequences of
+  categorical data based on the ordering of common elements. In V. Torra & Y. Narukawa (Eds.) 
+  \emph{Modeling Decisions for Artificial Intelligence}, (pp. 134-145). Springer Berlin Heidelberg.
+}
+\seealso{
+\code{\link{seq2feature_mds}} for feature extraction after choosing
+  the number of features.
 }

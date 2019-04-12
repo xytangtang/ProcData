@@ -2,22 +2,24 @@
 % Please edit documentation in R/main_functions.R
 \name{seq_predict}
 \alias{seq_predict}
-\title{Sequence model prediction}
+\title{Sequence model predictions}
 \usage{
 seq_predict(fit_res, new_seqs, batch_size = 16)
 }
 \arguments{
-\item{fit_res}{An object returned by \code{seq2binary} or \code{seq2scale} with return_model=TRUE.}
+\item{fit_res}{an object returned by \code{seq2binary} or \code{seq2scale}
+with \code{return_model=TRUE}.}
 
-\item{new_seqs}{Sequences that prediction is based on.}
+\item{new_seqs}{action sequences with which to predict.}
 
 \item{batch_size}{batch size for computing predicted values}
 }
 \value{
-A vector of predicted values.
+\code{seq_predict} produces a vector of predicted values.
 }
 \description{
-\code{seq_predict} predict response variables from a model fit by \code{seq2binary} or \code{seq2scale}.
+\code{seq_predict} is a function for predictions from the models fitted by 
+  \code{seq2binary} or \code{seq2scale}.
 }
 \examples{
 n <- 100
@@ -34,4 +36,7 @@ res2_pred <- seq_predict(res2, seqs[index_test])
 all.equal(res1$pred, res1_pred) 
 all.equal(res2$pred, res2_pred)
 
+}
+\seealso{
+The model fitting functions \code{\link{seq2binary}} and \code{\link{seq2scale}}.
 }

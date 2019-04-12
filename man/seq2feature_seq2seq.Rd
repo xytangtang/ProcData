@@ -10,43 +10,59 @@ seq2feature_seq2seq(seqs, K, rnn_type = "lstm", n_epoch = 50,
   gpu = FALSE, verbose = TRUE, return_theta = TRUE)
 }
 \arguments{
-\item{seqs}{a list of \code{n} action sequences. Each element is an action sequence in the form of a vector of actions.}
+\item{seqs}{a list of \code{n} action sequences. Each element is an action
+sequence in the form of a vector of actions.}
 
 \item{K}{the number of features to be extracted.}
 
-\item{rnn_type}{the type of recurrent neural network to be used for modeling action sequences. \code{"lstm"} for long-short term memory. \code{"gru"} for gated recurrent unit.}
+\item{rnn_type}{the type of recurrent unit to be used for modeling
+action sequences. \code{"lstm"} for the long-short term memory unit. 
+\code{"gru"} for the gated recurrent unit.}
 
-\item{n_epoch}{the number of epochs to be run when minimizing the loss function}
+\item{n_epoch}{the number of training epochs for the autoencoder.}
 
-\item{method}{the method to be used to compute features from the output of an RNN; With \code{method="last"}, the features are the last output of the encoder RNN; with \code{method="avg"}, the features are the average of the outputs of the encoder RNN. keep the output of the last step; "average": average of the outputs of all time steps}
+\item{method}{the method for computing features from the output of an
+recurrent neural network in the encoder. Available options are 
+\code{"last"} and \code{"avg"}.}
 
-\item{step_size}{(baseline) learning rate of optimizer}
+\item{step_size}{the learning rate of optimizer.}
 
-\item{optimizer_name}{a character string specifying the optimizer to be used for training: sgd, rmsprop, adadelta, adam}
+\item{optimizer_name}{a character string specifying the optimizer to be used
+for training. Availabel options are \code{"sgd"}, \code{"rmsprop"}, 
+\code{"adadelta"}, and \code{"adam"}.}
 
-\item{samples_train}{specify the train set;}
+\item{samples_train, samples_valid, samples_test}{vectors of indices specifying the
+training, validation and test sets for training autoencoder.}
 
-\item{samples_valid}{specify the validation set;}
+\item{pca}{logical. If TRUE, the principal components of features are
+returned.}
 
-\item{samples_test}{specify the test set;}
-
-\item{pca}{logical. If TRUE, the principal components of features are returned.}
-
-\item{gpu}{logical. If TRUE, use gpu (if available) for training}
+\item{gpu}{logical. If TRUE, use gpu for training if available.}
 
 \item{verbose}{logical. If TRUE, training progress is printed.}
 
 \item{return_theta}{logical. If TRUE, extracted features are returned.}
 }
 \value{
-a list
-  \item{features}{an \code{n} by \code{K} matrix which gives \code{K} raw features or principal features for \code{n} sequences.}
-  \item{train_loss}{a vector of length \code{n_epoch}; training loss trace}
-  \item{valid_loss}{a vector of length \code{n_epoch}; validation loss trace}
-  \item{test_loss}{a vector of length \code{n_epoch}; test loss trace}
+\code{seq2feature_seq2seq} returns a list containing
+  \item{theta}{a matrix containing \code{K} features or principal features. Each column is a feature.}
+  \item{train_loss}{a vector of length \code{n_epoch} recording the trace of training losses.}
+  \item{valid_loss}{a vector of length \code{n_epoch} recording the trace of validation losses.}
+  \item{test_loss}{a vector of length \code{n_epoch} recording the trace of test losses. Exists only if \code{samples_test} is not \code{NULL}.}
 }
 \description{
-\code{seq2feature_seq2seq} extract features from action sequences by action sequence autoencoder
+\code{seq2feature_seq2seq} extract features from action sequences by action
+sequence autoencoder.
+}
+\details{
+This function trains a sequence-to-sequence autoencoder using keras. The encoder
+of the autoencoder consists of an embedding layer and a recurrent neural network.
+The decoder consists of another recurrent neural network and a fully connect layer
+with softmax activation. The outputs of the encoder are the extracted features.
+
+The output of the encoder is a function of the encoder recurrent neural network.
+It is the last output of the encoder recurrent neural network if \code{method="last"}
+and the average of the encoder recurrent nenural network if \code{method="avg"}.
 }
 \examples{
 n <- 50
@@ -55,4 +71,9 @@ seq2seq_res <- seq2feature_seq2seq(seqs, 5, rnn_type="lstm", n_epoch=5, samples_
 features <- seq2seq_res$theta
 plot(seq2seq_res$train_loss, col="blue", type="l")
 lines(seq2seq_res$valid_loss, col="red")
+}
+\seealso{
+\code{\link{chooseK_seq2seq}} for choosing \code{K} through cross-validation.
+
+Other feature extraction methods: \code{\link{seq2feature_mds}}
 }

@@ -2,65 +2,73 @@
 % Please edit documentation in R/main_functions.R
 \name{seq2scale}
 \alias{seq2scale}
-\title{Predict continuous variable from action sequences}
+\title{Fitting sequence models with numeric responses}
 \usage{
 seq2scale(seqs, response, rnn_type = "lstm", n_hidden = 0, K = 20,
   K_hidden = NULL, n_epoch = 20, batch_size = 16,
-  optimizer_name = "rmsprop", step_size = 0.001, index_train,
-  index_valid, index_test, gpu = TRUE, return_model = TRUE,
-  model_output = "seq2scale_model.h5", max_len = max(sapply(seqs,
-  length)))
+  optimizer_name = "rmsprop", step_size = 0.001, index_train, index_valid,
+  index_test, gpu = TRUE, return_model = TRUE,
+  model_output = "seq2scale_model.h5", max_len = max(sapply(seqs, length)))
 }
 \arguments{
-\item{seqs}{a list of \code{n} action sequences. Each element is an action sequence in the form of a vector of actions.}
+\item{seqs}{a list of \code{n} action sequences. Each element is an action
+sequence in the form of a vector of actions.}
 
-\item{response}{the continuous response variable}
+\item{response}{the continuous response variable.}
 
-\item{rnn_type}{the type of recurrent neural network to be used for modeling action sequences. \code{"lstm"} for long-short term memory. \code{"gru"} for gated recurrent unit.}
+\item{rnn_type}{the type of recurrent unit to be used for modeling
+action sequences. \code{"lstm"} for the long-short term memory unit. 
+\code{"gru"} for the gated recurrent unit.}
 
-\item{n_hidden}{the number of hidden layers in the feed-forward neural network.}
+\item{n_hidden}{the number of hidden fully-connected layers.}
 
-\item{K}{the latent dimension in the recurrent neural network.}
+\item{K}{the number of features to be extracted.}
 
-\item{K_hidden}{a vector of length \code{n_hidden} specifying the number of nodes in each hidden layers.}
+\item{K_hidden}{a vector of length \code{n_hidden} specifying
+the number of nodes in each hidden layer.}
 
-\item{n_epoch}{the number of epochs to be run in training.}
+\item{n_epoch}{the number of training epochs for the autoencoder.}
 
-\item{batch_size}{batch size in training.}
+\item{batch_size}{the batch size used in training.}
 
-\item{optimizer_name}{a character string specifies the optimizer to be used for training.}
+\item{optimizer_name}{a character string specifying the optimizer to be used
+for training. Availabel options are \code{"sgd"}, \code{"rmsprop"}, 
+\code{"adadelta"}, and \code{"adam"}.}
 
-\item{step_size}{step size used in the optimizer}
+\item{step_size}{the learning rate of optimizer.}
 
-\item{index_train}{a vector of indices specifying the training set}
+\item{index_train, index_valid, index_test}{vectors of indices specifying the training,
+validation, and test sets.}
 
-\item{index_valid}{a vector of indices specifying the validation set}
+\item{gpu}{logical. If TRUE, use gpu for training if available.}
 
-\item{index_test}{a vector of indices specifying the test set}
+\item{return_model}{logical. If TRUE, the trained keras model is returned.}
 
-\item{gpu}{logical. If TRUE, use gpu (if available) for training}
+\item{model_output}{a character string specifying the filename for saving the trained keras model.}
 
-\item{return_model}{logical. If TRUE, the trained keras model will be returned}
-
-\item{model_output}{a character string giving the name of the file to store keras model.}
-
-\item{max_len}{maximum sequence length}
-
-\item{model_output}{a character string giving the name of the file to save the trained keras model.}
+\item{max_len}{the maximum length of sequences.}
 }
 \value{
-a list
+\code{seq2scale} returns a list containing
   \item{model}{the trained keras model}
-  \item{summary}{a 3 by 2 matrix summarizing the prediction performance. Rows of the matrix indicate training set, validation set and test set. Columns of the matrix indicate mean squared error and R-square.}
-  \item{trace}{a \code{n_epoch} by 2 matrix giving the trace of model training. The two columns gives the trace for the training set and the validation set, respectively.}
-  \item{pred_train}{fitted values for the training set.}
-  \item{pred_valid}{predicted values for the validation set.}
-  \item{pred_test}{predicted values for the test set.}
-  \item{events}{all possible actions}
-  \item{max_len}{maximum length of sequnces}
+  \item{summary}{a 3 by 2 matrix summarizing the prediction performance. 
+    The rows correspond to the training, validation, and test sets. 
+    The two columns gives the mean squared error and the R-square.}
+  \item{trace}{a \code{n_epoch} by 2 matrix giving the trace of training 
+    and validation losses in the training process.}
+  \item{pred_train}{the fitted probabilities on the training set.}
+  \item{pred_valid}{the predicted probabilities for the validation set.}
+  \item{pred_test}{the predicted probabilities for the test set.}
+  \item{events}{the set of all possible actions.}
+  \item{max_len}{the length of padded sequnces.}
 }
 \description{
-Predict continuous variable from action sequences
+\code{seq2scale} is used to fit a neural network model relating 
+action sequences with numeric responses.
+}
+\details{
+The model fitted in this function is the same as that in \code{seq2binary} except
+that the last fully-connected layer has a linear activation.
 }
 \examples{
 n <- 50
@@ -70,4 +78,9 @@ index_train <- sample(1:n, round(0.8*n))
 index_valid <- sample(setdiff(1:n, index_train), round(0.1*n))
 index_test <- setdiff(1:n, c(index_train, index_valid))
 res <- seq2scale(seqs, y, index_train = index_train, index_valid = index_valid, index_test = index_valid)
+}
+\seealso{
+\code{\link{seq_predict}} for prediction from a sequence model.
+
+Other sequence models: \code{\link{seq2binary}}
 }

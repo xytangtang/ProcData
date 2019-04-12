@@ -1,19 +1,44 @@
-#' Sequence generator
+#' Action sequence generator
 #'
-#' \code{seq_gen} generates action sequences similar to PISA data: choose the levels of two conditions to run simulations and select an answer
-#'
-#' @param n number of sequences to be generated
-#' @param action_set1 choices for the first condition
-#' @param action_set2 choices for the second condition
-#' @param answer_set choices for the answer 
-#' @param p1 probability weights to sample from \code{action_set1}
-#' @param p2 probability weights to sample from \code{action_set2}
-#' @param p_answer probability weights to sample from \code{answer_set}
-#' @param p_continue probability of running another simulation
-#' @param p_choose probability of choose an answer
-#' @return a list of \code{n} elements. Each element is a sequence of actions.
+#' \code{seq_gen} generates action sequences of an imaginery simulation-based item.
+#' 
+#' The format of the generated sequences resembles that of the response processes of 
+#' simulation-based items. In these items, participants are asked to answer
+#' a question by running simulated experiments in which two conditions can 
+#' be controlled. A simulated experiment can be run by setting the two conditions
+#' at one of the given choices and click "Run" button.
+#' 
+#' The possible actions are "Start", "End", "Run", and the elements in \code{action_set1}, 
+#' \code{action_set2}, and \code{answer_set}. The generated sequences begin with "Start"
+#' and continue with groups of three actions. Each group of three actions, representing 
+#' one experiment, consists of an action chosen from \code{action_set1} according to 
+#' \code{p1}, an action chosen from \code{action_set2} according to \code{p2}, and "Run".
+#' The probability of performing an experiment after "Start" or one experiment is 
+#' \code{p_continue}. After the experiment process, with probability \code{p_choose}, an 
+#' answer will be chosen. The chosen answer is randomly sampled from \code{answer_set} 
+#' according to \code{p_answer}. All generated sequences end with "End".
+#' 
+#' @param n An integer. The number of sequences to be generated.
+#' @param action_set1,action_set2 Character vectors giving the choices for 
+#'   the first and the second conditions.
+#' @param answer_set A character vector giving the choices for the answer. 
+#' @param p1,p2 Nonnegative numeric vectors. They are the weights for sampling 
+#'   from \code{action_set1} and \code{action_set2}.
+#' @param p_answer A nonnegative numeric vector giving the weights for sampling
+#'   from \code{answer_set}.
+#' @param p_continue Probability of running an/another experiment.
+#' @param p_choose Probability of choosing an answer.
+#' @return A list of \code{n} elements. Each element is a generated action sequence.
+#' @examples 
+#' seqs <- seg_gen(100)
+#' 
+#' @family sequence generators
 #' @export
-seq_gen <- function(n, action_set1 = c("OPT1_1", "OPT1_2", "OPT1_3"), action_set2 = c("OPT2_1", "OPT2_2"), answer_set = c("CHECK_A", "CHECK_B", "CHECK_C", "CHECK_D"), p1 = rep(1,length(action_set1)), p2 = rep(1, length(action_set2)), p_answer = rep(1, length(answer_set)), p_continue = 0.5, p_choose = 0.5)
+seq_gen <- function(n, action_set1 = c("OPT1_1", "OPT1_2", "OPT1_3"), 
+                    action_set2 = c("OPT2_1", "OPT2_2"), 
+                    answer_set = c("CHECK_A", "CHECK_B", "CHECK_C", "CHECK_D"), 
+                    p1 = rep(1,length(action_set1)), p2 = rep(1, length(action_set2)), 
+                    p_answer = rep(1, length(answer_set)), p_continue = 0.5, p_choose = 0.5)
 {
   seqs <- list()
   for (i in 1:n)
@@ -31,17 +56,32 @@ seq_gen <- function(n, action_set1 = c("OPT1_1", "OPT1_2", "OPT1_3"), action_set
   seqs
 }
 
-#' Action sequence generator
+#' Markov action sequence generator
 #'
-#' \code{seq_gen2} generates action sequences according to a given probability transition matrix
+#' \code{seq_gen2} generates action sequences according to a given probability
+#' transition matrix.
 #'
-#' @param n number of sequences to be generated
-#' @param events a set of \code{N} possible actions including start and end
-#' @param Pmat \code{N} by \code{N} probability transition matrix; if \code{Pmat} not supplied, each action is randomly drawn from \code{events} (excluding start).
-#' @param start_index index of start in \code{events}
-#' @param end_index index of end in \code{events}
-#' @param max_len maximum length of generated sequences
-#' @return a list of \code{n} elements. Each element is a sequence of actions.
+#' This function generates \code{n} action sequences according \code{Pmat}. The
+#' set of possible actions is \code{events}. All generated sequences start with
+#' \code{events[start_index]} and end with \code{events[end_index]}. If
+#' \code{Pmat} is not supplied, actions is uniformly drawn from
+#' \code{events[-start_index]} until \code{events[end_index]} appears.
+#'
+#' @param n An integer. The number of sequences to be generated.
+#' @param events A character vector specifying the set of \code{N} possible
+#'   actions. Default is \code{letters}.
+#' @param Pmat An \code{N} by \code{N} probability transition matrix.
+#' @param start_index Index of the action indicating the start of an item in
+#'   \code{events}.
+#' @param end_index Index of the action indicating the end of an item in
+#'   \code{events}.
+#' @param max_len Maximum length of generated sequences.
+#' @return A list of \code{n} elements. Each element is a generated action
+#'   sequence.
+#' @examples 
+#' seqs <- seq_gen2(100)
+#' 
+#' @family sequence generators
 #' @export
 seq_gen2 <- function(n, Pmat = NULL, events = letters, start_index=1, end_index=length(events), max_len=200)
 {

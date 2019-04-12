@@ -2,27 +2,46 @@
 % Please edit documentation in R/seq_functions.R
 \name{seq_gen2}
 \alias{seq_gen2}
-\title{Action sequence generator}
+\title{Markov action sequence generator}
 \usage{
 seq_gen2(n, Pmat = NULL, events = letters, start_index = 1,
   end_index = length(events), max_len = 200)
 }
 \arguments{
-\item{n}{number of sequences to be generated}
+\item{n}{An integer. The number of sequences to be generated.}
 
-\item{Pmat}{\code{N} by \code{N} probability transition matrix; if \code{Pmat} not supplied, each action is randomly drawn from \code{events} (excluding start).}
+\item{Pmat}{An \code{N} by \code{N} probability transition matrix.}
 
-\item{events}{a set of \code{N} possible actions including start and end}
+\item{events}{A character vector specifying the set of \code{N} possible
+actions. Default is \code{letters}.}
 
-\item{start_index}{index of start in \code{events}}
+\item{start_index}{Index of the action indicating the start of an item in
+\code{events}.}
 
-\item{end_index}{index of end in \code{events}}
+\item{end_index}{Index of the action indicating the end of an item in
+\code{events}.}
 
-\item{max_len}{maximum length of generated sequences}
+\item{max_len}{Maximum length of generated sequences.}
 }
 \value{
-a list of \code{n} elements. Each element is a sequence of actions.
+A list of \code{n} elements. Each element is a generated action
+  sequence.
 }
 \description{
-\code{seq_gen2} generates action sequences according to a given probability transition matrix
+\code{seq_gen2} generates action sequences according to a given probability
+transition matrix.
+}
+\details{
+This function generates \code{n} action sequences according \code{Pmat}. The
+set of possible actions is \code{events}. All generated sequences start with
+\code{events[start_index]} and end with \code{events[end_index]}. If
+\code{Pmat} is not supplied, actions is uniformly drawn from
+\code{events[-start_index]} until \code{events[end_index]} appears.
+}
+\examples{
+seqs <- seq_gen2(100)
+
+}
+\seealso{
+Other sequence generators: \code{\link{seq_gen}}
 }

@@ -4,38 +4,63 @@
 \alias{seq2feature_mds}
 \title{Feature extraction via multidimensional scaling}
 \usage{
-seq2feature_mds(seqs = NULL, K = 2, method = "oss",
-  max_epoch = 100, step_size = 0.01, pca = TRUE, tot = 1e-06,
-  return_dist = FALSE)
+seq2feature_mds(seqs = NULL, K = 2, method = "oss", max_epoch = 100,
+  step_size = 0.01, pca = TRUE, tot = 1e-06, return_dist = FALSE)
 }
 \arguments{
-\item{seqs}{a list or a square matrix. If it is a list, each of its elements is an action sequence in the form of a vector of actions. Alternatively, their dissimilarity matrix can be provided}
+\item{seqs}{a list or a square matrix. If a list is provided, each of its
+elements should be an action sequence in the form of a vector of actions.
+If a squared matrix is provided, it is treated as the dissimilary matrix of
+a group of action sequences.}
 
 \item{K}{the number of features to be extracted.}
 
-\item{method}{the dissimilarity measure to be used to calculate distance matrix. Currently available methods: \code{"oss"}. It implements the order-based sequence similarity in Gomez-Alonso and Valls (2008).}
+\item{method}{a character string specifies the dissimilarity measure for two
+action sequences. Order-based sequence similarity in Gomez-Alonso and Valls
+(2008) (\code{"oss"}) is the only available method for now.}
 
-\item{max_epoch}{the maximum number of epochs in stochastic gradient descent.}
+\item{max_epoch}{the maximum number of epochs for stochastic gradient
+descent.}
 
-\item{step_size}{the step size to be used in stochastic gradient descent}
+\item{step_size}{the step size of stochastic gradient descent.}
 
-\item{pca}{logical. If \code{TRUE}, the principal components of the extracted features are returned.}
+\item{pca}{a logical scalar. If \code{TRUE}, the principal components of the
+extracted features are returned.}
 
-\item{tot}{accuracy tolerance}
+\item{tot}{the accuracy tolerance for determining convergence.}
 
-\item{return_dist}{logical. If \code{TRUE}, the dissimilarity matrix will be returned. Default is \code{FALSE}.}
+\item{return_dist}{logical. If \code{TRUE}, the dissimilarity matrix will be
+returned. Default is \code{FALSE}.}
 }
 \value{
-a list
-  \item{theta}{an \code{n} by \code{K} matrix of \code{K} raw features or principal features for \code{n} sequences.}
-  \item{loss}{discrepancy between estimated and true dissimilarity}
-  \item{dist_mat}{dissimilary matrix}
+\code{seq2feature_mds} returns a list containing 
+  \item{theta}{a numeric matrix giving the \code{K} extracted features or principal
+  features. Each column is a feature.} 
+  \item{loss}{the value of the multidimensional scaling objective function.}
+  \item{dist_mat}{the dissimilary matrix. This element exists only if \code{return_dist=TRUE}.}
 }
 \description{
-\code{seq2feature_mds} extracts \code{K} features from action sequences \code{seqs} by multidimensional scaling
+\code{seq2feature_mds} extracts \code{K} features from action sequences by
+multidimensional scaling.
+}
+\details{
+This function minimizes the objective function by stochastic gradient
+descent. The coordinates of the objects are extracted features. The number of
+features to be extracted \code{K} can be selected by cross-validation using
+\code{\link{chooseK_mds}}.
 }
 \examples{
 n <- 50
 seqs <- seq_gen(n)
 theta <- seq2feature_mds(seqs, 5)$theta
+}
+\references{
+Gomez-Alonso, C. and Valls, A. (2008). A similarity measure for sequences of
+  categorical data based on the ordering of common elements. In V. Torra & Y. Narukawa (Eds.) 
+  \emph{Modeling Decisions for Artificial Intelligence}, (pp. 134-145). Springer Berlin Heidelberg.
+}
+\seealso{
+\code{\link{chooseK_mds}} for choosing \code{K}.
+
+Other feature extraction methods: \code{\link{seq2feature_seq2seq}}
 }

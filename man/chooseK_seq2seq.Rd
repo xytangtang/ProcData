@@ -9,36 +9,42 @@ chooseK_seq2seq(seqs, rnn_type = "lstm", K_cand, n_epoch = 50,
   n_fold = 5, valid_prop = 0.1, gpu = FALSE, verbose = TRUE)
 }
 \arguments{
-\item{seqs}{a list of \code{n} action sequences. Each element is an action sequence in the form of a vector of actions.}
+\item{seqs}{a list of \code{n} action sequences. Each element is an action
+sequence in the form of a vector of actions.}
 
-\item{rnn_type}{the type of recurrent neural network to be used for modeling action sequences. \code{"lstm"} for long-short term memory. \code{"gru"} for gated recurrent unit.}
+\item{rnn_type}{the type of recurrent unit to be used for modeling
+action sequences. \code{"lstm"} for the long-short term memory unit. 
+\code{"gru"} for the gated recurrent unit.}
 
-\item{K_cand}{candidates of number of features.}
+\item{n_epoch}{the number of training epochs for the autoencoder.}
 
-\item{n_epoch}{the number of epochs to be run when minimizing the loss function}
+\item{method}{the method for computing features from the output of an
+recurrent neural network in the encoder. Available options are 
+\code{"last"} and \code{"avg"}.}
 
-\item{method}{the method to be used to compute features from the output of an RNN; With \code{method="last"}, the features are the last output of the encoder RNN; with \code{method="avg"}, the features are the average of the outputs of the encoder RNN. keep the output of the last step; "average": average of the outputs of all time steps}
+\item{step_size}{the learning rate of optimizer.}
 
-\item{step_size}{(baseline) learning rate of optimizer}
+\item{optimizer_name}{a character string specifying the optimizer to be used
+for training. Availabel options are \code{"sgd"}, \code{"rmsprop"}, 
+\code{"adadelta"}, and \code{"adam"}.}
 
-\item{optimizer_name}{a character string specifying the optimizer to be used for training: sgd, rmsprop, adadelta, adam}
+\item{n_fold}{the number of folds for cross-validation.}
 
-\item{n_fold}{number of folds for cross-validation}
+\item{valid_prop}{the proportion of validation samples in each fold.}
 
-\item{valid_prop}{proportion of validation samples in each fold.}
-
-\item{gpu}{logical. If TRUE, use gpu (if available) for training}
+\item{gpu}{logical. If TRUE, use gpu for training if available.}
 
 \item{verbose}{logical. If TRUE, training progress is printed.}
 }
 \value{
-a list
-  \item{K}{number of features with smallest cross-validation loss}
-  \item{K_cand}{candidates of number of features}
-  \item{cv_loss}{cross-validation loss for each candidate K}
+\code{chooseK_seq2seq} returns a list containing
+  \item{K}{the candidate in \code{K_cand} producing the smallest cross-validation loss.}
+  \item{K_cand}{the candidates of number of features.}
+  \item{cv_loss}{the cross-validation loss for each candidate in \code{K_cand}.}
 }
 \description{
-\code{chooseK_seq2seq} choose the number of features to be extracted by cross-validation
+\code{chooseK_seq2seq} chooses the number of features to be extracted
+ by cross-validation.
 }
 \examples{
 n <- 50
@@ -46,4 +52,7 @@ seqs <- seq_gen(n)
 K_res <- chooseK_seq2seq(seqs, K_cand=c(5, 10), rnn_type="lstm", n_epoch=5, n_fold=2, valid_prop=0.2)
 seq2seq_res <- seq2feature_seq2seq(seqs, K_res$K, rnn_type="lstm", n_epoch=10, samples_train=1:40, samples_valid=41:50)
 theta <- seq2seq_res$theta
+}
+\seealso{
+\code{\link{seq2feature_seq2seq}} for feature extraction given the number of features.
 }

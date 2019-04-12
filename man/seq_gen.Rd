@@ -2,36 +2,59 @@
 % Please edit documentation in R/seq_functions.R
 \name{seq_gen}
 \alias{seq_gen}
-\title{Sequence generator}
+\title{Action sequence generator}
 \usage{
 seq_gen(n, action_set1 = c("OPT1_1", "OPT1_2", "OPT1_3"),
-  action_set2 = c("OPT2_1", "OPT2_2"), answer_set = c("CHECK_A",
-  "CHECK_B", "CHECK_C", "CHECK_D"), p1 = rep(1, length(action_set1)),
-  p2 = rep(1, length(action_set2)), p_answer = rep(1,
-  length(answer_set)), p_continue = 0.5, p_choose = 0.5)
+  action_set2 = c("OPT2_1", "OPT2_2"), answer_set = c("CHECK_A", "CHECK_B",
+  "CHECK_C", "CHECK_D"), p1 = rep(1, length(action_set1)), p2 = rep(1,
+  length(action_set2)), p_answer = rep(1, length(answer_set)),
+  p_continue = 0.5, p_choose = 0.5)
 }
 \arguments{
-\item{n}{number of sequences to be generated}
+\item{n}{An integer. The number of sequences to be generated.}
 
-\item{action_set1}{choices for the first condition}
+\item{action_set1, action_set2}{Character vectors giving the choices for 
+the first and the second conditions.}
 
-\item{action_set2}{choices for the second condition}
+\item{answer_set}{A character vector giving the choices for the answer.}
 
-\item{answer_set}{choices for the answer}
+\item{p1, p2}{Nonnegative numeric vectors. They are the weights for sampling 
+from \code{action_set1} and \code{action_set2}.}
 
-\item{p1}{probability weights to sample from \code{action_set1}}
+\item{p_answer}{A nonnegative numeric vector giving the weights for sampling
+from \code{answer_set}.}
 
-\item{p2}{probability weights to sample from \code{action_set2}}
+\item{p_continue}{Probability of running an/another experiment.}
 
-\item{p_answer}{probability weights to sample from \code{answer_set}}
-
-\item{p_continue}{probability of running another simulation}
-
-\item{p_choose}{probability of choose an answer}
+\item{p_choose}{Probability of choosing an answer.}
 }
 \value{
-a list of \code{n} elements. Each element is a sequence of actions.
+A list of \code{n} elements. Each element is a generated action sequence.
 }
 \description{
-\code{seq_gen} generates action sequences similar to PISA data: choose the levels of two conditions to run simulations and select an answer
+\code{seq_gen} generates action sequences of an imaginery simulation-based item.
+}
+\details{
+The format of the generated sequences resembles that of the response processes of 
+simulation-based items. In these items, participants are asked to answer
+a question by running simulated experiments in which two conditions can 
+be controlled. A simulated experiment can be run by setting the two conditions
+at one of the given choices and click "Run" button.
+
+The possible actions are "Start", "End", "Run", and the elements in \code{action_set1}, 
+\code{action_set2}, and \code{answer_set}. The generated sequences begin with "Start"
+and continue with groups of three actions. Each group of three actions, representing 
+one experiment, consists of an action chosen from \code{action_set1} according to 
+\code{p1}, an action chosen from \code{action_set2} according to \code{p2}, and "Run".
+The probability of performing an experiment after "Start" or one experiment is 
+\code{p_continue}. After the experiment process, with probability \code{p_choose}, an 
+answer will be chosen. The chosen answer is randomly sampled from \code{answer_set} 
+according to \code{p_answer}. All generated sequences end with "End".
+}
+\examples{
+seqs <- seg_gen(100)
+
+}
+\seealso{
+Other sequence generators: \code{\link{seq_gen2}}
 }

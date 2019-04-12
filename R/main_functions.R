@@ -1,27 +1,41 @@
-#' @useDynLib ProcData
-#' @importFrom Rcpp sourceCpp
-#' @import keras
-#' @import stats
-#' @import utils
-NULL
 
 #' Feature extraction via multidimensional scaling
-#' 
-#' \code{seq2feature_mds} extracts \code{K} features from action sequences \code{seqs} by multidimensional scaling
-#' 
-#' @param seqs a list or a square matrix. If it is a list, each of its elements is an action sequence in the form of a vector of actions. Alternatively, their dissimilarity matrix can be provided
+#'
+#' \code{seq2feature_mds} extracts \code{K} features from action sequences by
+#' multidimensional scaling.
+#'
+#' This function minimizes the objective function by stochastic gradient
+#' descent. The coordinates of the objects are extracted features. The number of
+#' features to be extracted \code{K} can be selected by cross-validation using
+#' \code{\link{chooseK_mds}}.
+#'
+#' @family feature extraction methods
+#' @param seqs a list or a square matrix. If a list is provided, each of its
+#'   elements should be an action sequence in the form of a vector of actions.
+#'   If a squared matrix is provided, it is treated as the dissimilary matrix of
+#'   a group of action sequences.
 #' @param K the number of features to be extracted.
-#' @param method the dissimilarity measure to be used to calculate distance matrix. Currently available methods: \code{"oss"}. It implements the order-based sequence similarity in Gomez-Alonso and Valls (2008).
-#' @param max_epoch the maximum number of epochs in stochastic gradient descent.
-#' @param step_size the step size to be used in stochastic gradient descent
-#' @param pca logical. If \code{TRUE}, the principal components of the extracted features are returned.
-#' @param tot accuracy tolerance
-#' @param return_dist logical. If \code{TRUE}, the dissimilarity matrix will be returned. Default is \code{FALSE}.
-#' @return a list
-#'   \item{theta}{an \code{n} by \code{K} matrix of \code{K} raw features or principal features for \code{n} sequences.}
-#'   \item{loss}{discrepancy between estimated and true dissimilarity}
-#'   \item{dist_mat}{dissimilary matrix}
-#' @examples 
+#' @param method a character string specifies the dissimilarity measure for two
+#'   action sequences. Order-based sequence similarity in Gomez-Alonso and Valls
+#'   (2008) (\code{"oss"}) is the only available method for now.
+#' @param max_epoch the maximum number of epochs for stochastic gradient
+#'   descent.
+#' @param step_size the step size of stochastic gradient descent.
+#' @param pca a logical scalar. If \code{TRUE}, the principal components of the
+#'   extracted features are returned.
+#' @param tot the accuracy tolerance for determining convergence.
+#' @param return_dist logical. If \code{TRUE}, the dissimilarity matrix will be
+#'   returned. Default is \code{FALSE}.
+#' @return \code{seq2feature_mds} returns a list containing 
+#'   \item{theta}{a numeric matrix giving the \code{K} extracted features or principal
+#'   features. Each column is a feature.} 
+#'   \item{loss}{the value of the multidimensional scaling objective function.}
+#'   \item{dist_mat}{the dissimilary matrix. This element exists only if \code{return_dist=TRUE}.}
+#' @seealso \code{\link{chooseK_mds}} for choosing \code{K}.
+#' @references Gomez-Alonso, C. and Valls, A. (2008). A similarity measure for sequences of
+#'   categorical data based on the ordering of common elements. In V. Torra & Y. Narukawa (Eds.) 
+#'   \emph{Modeling Decisions for Artificial Intelligence}, (pp. 134-145). Springer Berlin Heidelberg.
+#' @examples
 #' n <- 50
 #' seqs <- seq_gen(n)
 #' theta <- seq2feature_mds(seqs, 5)$theta
@@ -61,23 +75,24 @@ seq2feature_mds <- function(seqs=NULL, K=2, method="oss", max_epoch=100, step_si
   res
 }
 
-#' Choose the number of MDS features
+#' Choose the number of multidimensional scaling features
 #' 
-#' \code{chooseK_mds} choose the number of MDS features to be extracted by cross-validation
+#' \code{chooseK_mds} choose the number of multidimensional scaling features
+#'   to be extracted by cross-validation.
 #'
-#' @param seqs a list of \code{n} action sequences or their dissimilarity matrix.
-#' @param K_cand candidates of number of features.
-#' @param method the dissimilarity measure to be used to calculate distance matrix. Currently available methods: \code{oss}. It implements the order-based sequence similarity in Gomez-Alonso and Valls (2008).
-#' @param max_epoch the maximum number of epochs in stochastic gradient descent.
-#' @param n_fold number of folds for cross-validation
-#' @param step_size the step size to be used in stochastic gradient descent
-#' @param tot accuracy tolerance 
-#' @param return_dist logical. If \code{TRUE}, the dissimilarity matrix will be returned. Default is \code{FALSE}.
-#' @return a list
-#'   \item{K}{the number of features with smallest cross-validation loss}
-#'   \item{K_cand}{candidates of number of features}
-#'   \item{cv_loss}{cross-validation loss for each candidate K}
-#'   \item{dist_mat}{dissimilarity matrix of sequences}
+#' @param K_cand the candidates of the number of features.
+#' @param n_fold the number of folds for cross-validation.
+#' @inheritParams seq2feature_mds
+#' @return \code{chooseK_mds} returns a list containing
+#'   \item{K}{the value in \code{K_cand} producing the smallest cross-validation loss.}
+#'   \item{K_cand}{the candidates of the number of features.}
+#'   \item{cv_loss}{the cross-validation loss for each candidate in \code{K_cand}.}
+#'   \item{dist_mat}{the dissimilary matrix. This element exists only if \code{return_dist=TRUE}.}
+#' @seealso \code{\link{seq2feature_mds}} for feature extraction after choosing
+#'   the number of features.
+#' @references Gomez-Alonso, C. and Valls, A. (2008). A similarity measure for sequences of
+#'   categorical data based on the ordering of common elements. In V. Torra & Y. Narukawa (Eds.) 
+#'   \emph{Modeling Decisions for Artificial Intelligence}, (pp. 134-145). Springer Berlin Heidelberg.
 #' @examples 
 #' n <- 50
 #' seqs <- seq_gen(n)
@@ -135,28 +150,48 @@ chooseK_mds <- function(seqs=NULL, K_cand, method="oss", n_fold=5, max_epoch=100
 
 #' Feature Extraction by action sequence autoencoder
 #'
-#' \code{seq2feature_seq2seq} extract features from action sequences by action sequence autoencoder
+#' \code{seq2feature_seq2seq} extract features from action sequences by action
+#' sequence autoencoder.
+#'
+#' This function trains a sequence-to-sequence autoencoder using keras. The encoder
+#' of the autoencoder consists of an embedding layer and a recurrent neural network.
+#' The decoder consists of another recurrent neural network and a fully connect layer
+#' with softmax activation. The outputs of the encoder are the extracted features.
 #' 
-#' @param seqs a list of \code{n} action sequences. Each element is an action sequence in the form of a vector of actions.
+#' The output of the encoder is a function of the encoder recurrent neural network.
+#' It is the last output of the encoder recurrent neural network if \code{method="last"}
+#' and the average of the encoder recurrent nenural network if \code{method="avg"}.
+#' 
+#' 
+#' @family feature extraction methods
+#' @param seqs a list of \code{n} action sequences. Each element is an action
+#'   sequence in the form of a vector of actions.
 #' @param K the number of features to be extracted.
-#' @param rnn_type the type of recurrent neural network to be used for modeling action sequences. \code{"lstm"} for long-short term memory. \code{"gru"} for gated recurrent unit.
-#' @param n_epoch the number of epochs to be run when minimizing the loss function
-#' @param method the method to be used to compute features from the output of an RNN; With \code{method="last"}, the features are the last output of the encoder RNN; with \code{method="avg"}, the features are the average of the outputs of the encoder RNN. keep the output of the last step; "average": average of the outputs of all time steps
-#' @param step_size (baseline) learning rate of optimizer
-#' @param optimizer_name a character string specifying the optimizer to be used for training: sgd, rmsprop, adadelta, adam
-#' @param samples_train specify the train set;
-#' @param samples_valid specify the validation set; 
-#' @param samples_test specify the test set;
-#' @param pca logical. If TRUE, the principal components of features are returned.
-#' @param gpu logical. If TRUE, use gpu (if available) for training
+#' @param rnn_type the type of recurrent unit to be used for modeling
+#'   action sequences. \code{"lstm"} for the long-short term memory unit. 
+#'   \code{"gru"} for the gated recurrent unit.
+#' @param n_epoch the number of training epochs for the autoencoder.
+#' @param method the method for computing features from the output of an
+#'   recurrent neural network in the encoder. Available options are 
+#'   \code{"last"} and \code{"avg"}.
+#' @param step_size the learning rate of optimizer.
+#' @param optimizer_name a character string specifying the optimizer to be used
+#'   for training. Availabel options are \code{"sgd"}, \code{"rmsprop"}, 
+#'   \code{"adadelta"}, and \code{"adam"}.
+#' @param samples_train,samples_valid,samples_test vectors of indices specifying the
+#'   training, validation and test sets for training autoencoder.
+#' @param pca logical. If TRUE, the principal components of features are
+#'   returned.
+#' @param gpu logical. If TRUE, use gpu for training if available.
 #' @param verbose logical. If TRUE, training progress is printed.
 #' @param return_theta logical. If TRUE, extracted features are returned.
-#' @return a list
-#'   \item{features}{an \code{n} by \code{K} matrix which gives \code{K} raw features or principal features for \code{n} sequences.}
-#'   \item{train_loss}{a vector of length \code{n_epoch}; training loss trace}
-#'   \item{valid_loss}{a vector of length \code{n_epoch}; validation loss trace}
-#'   \item{test_loss}{a vector of length \code{n_epoch}; test loss trace}
-#' @examples 
+#' @return \code{seq2feature_seq2seq} returns a list containing
+#'   \item{theta}{a matrix containing \code{K} features or principal features. Each column is a feature.}
+#'   \item{train_loss}{a vector of length \code{n_epoch} recording the trace of training losses.}
+#'   \item{valid_loss}{a vector of length \code{n_epoch} recording the trace of validation losses.}
+#'   \item{test_loss}{a vector of length \code{n_epoch} recording the trace of test losses. Exists only if \code{samples_test} is not \code{NULL}.}
+#' @seealso \code{\link{chooseK_seq2seq}} for choosing \code{K} through cross-validation.
+#' @examples
 #' n <- 50
 #' seqs <- seq_gen(n)
 #' seq2seq_res <- seq2feature_seq2seq(seqs, 5, rnn_type="lstm", n_epoch=5, samples_train=1:40, samples_valid=41:50)
@@ -166,6 +201,12 @@ chooseK_mds <- function(seqs=NULL, K_cand, method="oss", n_fold=5, max_epoch=100
 #' @export
 seq2feature_seq2seq <- function(seqs, K, rnn_type="lstm", n_epoch=50, method="last", step_size=0.0001, optimizer_name="adam", samples_train, samples_valid, samples_test=NULL, pca=TRUE, gpu=FALSE, verbose=TRUE, return_theta=TRUE) {
   
+  if (!(rnn_type %in% c("lstm", "gru"))) 
+    stop("Invalid rnn_type! Available options: lstm, gru.\n")
+  if (!(method %in% c("last", "avg"))) 
+    stop("Invalid method! Available options: last, avg.\n")
+  if (!(optimizer_name %in% c("sgd", "adam", "rmsprop", "adadelta"))) 
+    stop("Invalid optimizer! Available options: sgd, adam, rmsprop, adadelta.\n")
   n_seq <- length(seqs)
   
   events <- unique(unlist(seqs))
@@ -312,23 +353,17 @@ seq2feature_seq2seq <- function(seqs, K, rnn_type="lstm", n_epoch=50, method="la
 
 #' Choose the number of autoencoder features
 #'
-#' \code{chooseK_seq2seq} choose the number of features to be extracted by cross-validation
+#' \code{chooseK_seq2seq} chooses the number of features to be extracted
+#'  by cross-validation.
 #' 
-#' @param seqs a list of \code{n} action sequences. Each element is an action sequence in the form of a vector of actions.
-#' @param K_cand candidates of number of features.
-#' @param rnn_type the type of recurrent neural network to be used for modeling action sequences. \code{"lstm"} for long-short term memory. \code{"gru"} for gated recurrent unit.
-#' @param n_epoch the number of epochs to be run when minimizing the loss function
-#' @param method the method to be used to compute features from the output of an RNN; With \code{method="last"}, the features are the last output of the encoder RNN; with \code{method="avg"}, the features are the average of the outputs of the encoder RNN. keep the output of the last step; "average": average of the outputs of all time steps
-#' @param step_size (baseline) learning rate of optimizer
-#' @param optimizer_name a character string specifying the optimizer to be used for training: sgd, rmsprop, adadelta, adam
-#' @param n_fold number of folds for cross-validation
-#' @param valid_prop proportion of validation samples in each fold.
-#' @param gpu logical. If TRUE, use gpu (if available) for training
-#' @param verbose logical. If TRUE, training progress is printed.
-#' @return a list
-#'   \item{K}{number of features with smallest cross-validation loss}
-#'   \item{K_cand}{candidates of number of features}
-#'   \item{cv_loss}{cross-validation loss for each candidate K}
+#' @inheritParams seq2feature_seq2seq
+#' @param n_fold the number of folds for cross-validation.
+#' @param valid_prop the proportion of validation samples in each fold.
+#' @return \code{chooseK_seq2seq} returns a list containing
+#'   \item{K}{the candidate in \code{K_cand} producing the smallest cross-validation loss.}
+#'   \item{K_cand}{the candidates of number of features.}
+#'   \item{cv_loss}{the cross-validation loss for each candidate in \code{K_cand}.}
+#' @seealso \code{\link{seq2feature_seq2seq}} for feature extraction given the number of features.
 #' @examples 
 #' n <- 50
 #' seqs <- seq_gen(n)
@@ -360,35 +395,33 @@ chooseK_seq2seq <- function(seqs, rnn_type="lstm", K_cand, n_epoch=50, method="l
   res <- list(K=K_cand[which.min(cv_loss)], K_cand=K_cand, cv_loss=cv_loss)
 }
 
-#' Predict continuous variable from action sequences
+#' Fitting sequence models with numeric responses
 #' 
-#' @param seqs a list of \code{n} action sequences. Each element is an action sequence in the form of a vector of actions.
-#' @param response the continuous response variable
-#' @param model_output a character string giving the name of the file to store keras model.
-#' @param rnn_type the type of recurrent neural network to be used for modeling action sequences. \code{"lstm"} for long-short term memory. \code{"gru"} for gated recurrent unit.
-#' @param n_hidden the number of hidden layers in the feed-forward neural network.
-#' @param K the latent dimension in the recurrent neural network.
-#' @param K_hidden a vector of length \code{n_hidden} specifying the number of nodes in each hidden layers.
-#' @param n_epoch the number of epochs to be run in training.
-#' @param batch_size batch size in training.
-#' @param optimizer_name a character string specifies the optimizer to be used for training.
-#' @param step_size step size used in the optimizer
-#' @param index_train a vector of indices specifying the training set
-#' @param index_valid a vector of indices specifying the validation set
-#' @param index_test a vector of indices specifying the test set
-#' @param gpu logical. If TRUE, use gpu (if available) for training
-#' @param return_model logical. If TRUE, the trained keras model will be returned
-#' @param model_output a character string giving the name of the file to save the trained keras model.
-#' @param max_len maximum sequence length
-#' @return a list
+#' \code{seq2scale} is used to fit a neural network model relating 
+#' action sequences with numeric responses.
+#'
+#' The model fitted in this function is the same as that in \code{seq2binary} except
+#' that the last fully-connected layer has a linear activation.
+#' 
+#' @inheritParams seq2feature_seq2seq
+#' @inheritParams seq2binary
+#' @param response the continuous response variable.
+#' @param index_train,index_valid,index_test vectors of indices specifying the training,
+#'   validation, and test sets.
+#' @return \code{seq2scale} returns a list containing
 #'   \item{model}{the trained keras model}
-#'   \item{summary}{a 3 by 2 matrix summarizing the prediction performance. Rows of the matrix indicate training set, validation set and test set. Columns of the matrix indicate mean squared error and R-square.}
-#'   \item{trace}{a \code{n_epoch} by 2 matrix giving the trace of model training. The two columns gives the trace for the training set and the validation set, respectively.}
-#'   \item{pred_train}{fitted values for the training set.}
-#'   \item{pred_valid}{predicted values for the validation set.}
-#'   \item{pred_test}{predicted values for the test set.}
-#'   \item{events}{all possible actions}
-#'   \item{max_len}{maximum length of sequnces}
+#'   \item{summary}{a 3 by 2 matrix summarizing the prediction performance. 
+#'     The rows correspond to the training, validation, and test sets. 
+#'     The two columns gives the mean squared error and the R-square.}
+#'   \item{trace}{a \code{n_epoch} by 2 matrix giving the trace of training 
+#'     and validation losses in the training process.}
+#'   \item{pred_train}{the fitted probabilities on the training set.}
+#'   \item{pred_valid}{the predicted probabilities for the validation set.}
+#'   \item{pred_test}{the predicted probabilities for the test set.}
+#'   \item{events}{the set of all possible actions.}
+#'   \item{max_len}{the length of padded sequnces.}
+#' @family sequence models
+#' @seealso \code{\link{seq_predict}} for prediction from a sequence model.
 #' @examples
 #' n <- 50
 #' seqs <- seq_gen(n)
@@ -474,34 +507,47 @@ seq2scale <- function(seqs, response, rnn_type = "lstm", n_hidden = 0, K = 20, K
 }
 
 
-#' Predict binary variable from action sequences
+#' Fitting sequence models with binary responses
 #' 
-#' @param seqs a list of \code{n} action sequences. Each element is an action sequence in the form of a vector of actions.
-#' @param response the binary response variable
-#' @param rnn_type the type of recurrent neural network to be used for modeling action sequences. \code{"lstm"} for long-short term memory. \code{"gru"} for gated recurrent unit.
-#' @param n_hidden the number of hidden layers in the feed-forward neural network.
-#' @param K the latent dimension in the recurrent neural network. 
-#' @param K_hidden a vector of length \code{n_hidden} specifying the number of nodes in each hidden layers.
-#' @param n_epoch the number of epochs to be run in training.
-#' @param batch_size batch size in training.
-#' @param optimizer_name a character string specifies the optimizer to be used for training.
-#' @param step_size step size used in the optimizer
-#' @param index_train a vector of indices specifying the training set
-#' @param index_valid a vector of indices specifying the validation set
-#' @param index_test a vector of indices specifying the test set
-#' @param gpu logical. If TRUE, use gpu (if available) for training
-#' @param return_model logical. If TRUE, the trained keras model will be returned
-#' @param model_output a character string giving the name of the file to save the trained keras model.
-#' @param max_len maximum sequence length
-#' @return a list
-#'   \item{model}{the trained keras model}
-#'   \item{summary}{a vector of length 3 summarizing the prediction accuracy in the training, validation and test sets.}
-#'   \item{trace}{a \code{n_epoch} by 2 matrix giving the trace of model training. The two columns gives the trace for the training set and the validation set, respectively.}
-#'   \item{pred_train}{fitted probabilities for the training set.}
-#'   \item{pred_valid}{predicted probabilities for the validation set.}
-#'   \item{pred_test}{predicted probabilities for the test set.}
-#'   \item{events}{all possible actions}
-#'   \item{max_len}{maximum length of sequnces}
+#' \code{seq2binary} is used to fit a neural network model relating 
+#' action sequences with binary responses.
+#' 
+#' The model consists of an embedding layer, a recurrent layer and one or more 
+#' fully connected layers. The embedding layer takes a action sequence and output a
+#' sequences of \code{K} dimensional numeric vectors to the recurrent layer. The last
+#' output of the recurrent layer is used as the input of the subsequent fully connected
+#' layers. The last layer uses the sigmoid activation to produce a probability of the
+#' response being positive. The dimension of the output of other fully connected layers
+#' (if any) is specified by \code{K_hidden}. 
+#' 
+#' The action sequences are re-coded into integer sequences and padded with zeros so that
+#' every sequene is of length \code{max_len}. If the provided \code{max_len} is smaller
+#' than the length of the longest sequence in \code{seqs}, it will be overridden.
+#' 
+#' @inheritParams seq2feature_seq2seq
+#' @param response the binary response variable.
+#' @param n_hidden the number of hidden fully-connected layers.
+#' @param K the latent dimension of the embedding layer and the recurrent layer. 
+#' @param K_hidden a vector of length \code{n_hidden} specifying
+#'   the number of nodes in each hidden layer.
+#' @param n_epoch the number of training epochs.
+#' @param batch_size the batch size used in training.
+#' @param index_train,index_valid,index_test vectors of indices specifying the training,
+#'   validation, and test sets.
+#' @param return_model logical. If TRUE, the trained keras model is returned.
+#' @param model_output a character string specifying the filename for saving the trained keras model.
+#' @param max_len the maximum length of sequences.
+#' @return \code{seq2binary} returns a list containing
+#'   \item{model}{the trained keras model.}
+#'   \item{summary}{a vector of length 3 summarizing the prediction accuracy on the training, validation, and test sets.}
+#'   \item{trace}{a \code{n_epoch} by 2 matrix giving the trace of training and validation losses in the training process.}
+#'   \item{pred_train}{the fitted probabilities on the training set.}
+#'   \item{pred_valid}{the predicted probabilities for the validation set.}
+#'   \item{pred_test}{the predicted probabilities for the test set.}
+#'   \item{events}{the set of all possible actions.}
+#'   \item{max_len}{the length of padded sequnces.}
+#' @family sequence models
+#' @seealso \code{\link{seq_predict}} for prediction from a sequence model.
 #' @examples
 #' n <- 50
 #' seqs <- seq_gen(n)
@@ -584,16 +630,18 @@ seq2binary <- function(seqs, response, rnn_type = "lstm", n_hidden = 0, K = 20, 
   res  
 } 
 
-#' Sequence model prediction
+#' Sequence model predictions
 #'
-#' \code{seq_predict} predict response variables from a model fit by \code{seq2binary} or \code{seq2scale}.
+#' \code{seq_predict} is a function for predictions from the models fitted by 
+#'   \code{seq2binary} or \code{seq2scale}.
 #'
-#' @param fit_res An object returned by \code{seq2binary} or \code{seq2scale} with return_model=TRUE.
-#' @param new_seqs Sequences that prediction is based on.
+#' @param fit_res an object returned by \code{seq2binary} or \code{seq2scale}
+#'   with \code{return_model=TRUE}.
+#' @param new_seqs action sequences with which to predict.
 #' @param batch_size batch size for computing predicted values
 #' 
-#' @return A vector of predicted values.
-#' 
+#' @return \code{seq_predict} produces a vector of predicted values.
+#' @seealso The model fitting functions \code{\link{seq2binary}} and \code{\link{seq2scale}}.
 #' @examples
 #' n <- 100
 #' seqs <- seq_gen(n)
