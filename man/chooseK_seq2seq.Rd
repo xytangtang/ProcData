@@ -16,6 +16,8 @@ sequence in the form of a vector of actions.}
 action sequences. \code{"lstm"} for the long-short term memory unit. 
 \code{"gru"} for the gated recurrent unit.}
 
+\item{K_cand}{the candidates of the number of features.}
+
 \item{n_epoch}{the number of training epochs for the autoencoder.}
 
 \item{method}{the method for computing features from the output of an

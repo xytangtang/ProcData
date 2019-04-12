@@ -30,7 +30,7 @@
 #' @param p_choose Probability of choosing an answer.
 #' @return A list of \code{n} elements. Each element is a generated action sequence.
 #' @examples 
-#' seqs <- seg_gen(100)
+#' seqs <- seq_gen(100)
 #' 
 #' @family sequence generators
 #' @export

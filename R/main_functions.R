@@ -357,6 +357,7 @@ seq2feature_seq2seq <- function(seqs, K, rnn_type="lstm", n_epoch=50, method="la
 #'  by cross-validation.
 #' 
 #' @inheritParams seq2feature_seq2seq
+#' @param K_cand the candidates of the number of features.
 #' @param n_fold the number of folds for cross-validation.
 #' @param valid_prop the proportion of validation samples in each fold.
 #' @return \code{chooseK_seq2seq} returns a list containing
@@ -429,7 +430,7 @@ chooseK_seq2seq <- function(seqs, rnn_type="lstm", K_cand, n_epoch=50, method="l
 #' index_train <- sample(1:n, round(0.8*n))
 #' index_valid <- sample(setdiff(1:n, index_train), round(0.1*n))
 #' index_test <- setdiff(1:n, c(index_train, index_valid))
-#' res <- seq2scale(seqs, y, index_train = index_train, index_valid = index_valid, index_test = index_valid)
+#' res <- seq2scale(seqs, y, index_train = index_train, index_valid = index_valid, index_test = index_test)
 #' @export
 seq2scale <- function(seqs, response, rnn_type = "lstm", n_hidden = 0, K = 20, K_hidden = NULL, n_epoch=20, batch_size = 16, optimizer_name="rmsprop", step_size=0.001, index_train, index_valid, index_test, gpu=TRUE, return_model=TRUE, model_output = "seq2scale_model.h5", max_len = max(sapply(seqs, length)))
 {
@@ -555,7 +556,7 @@ seq2scale <- function(seqs, response, rnn_type = "lstm", n_hidden = 0, K = 20, K
 #' index_train <- sample(1:n, round(0.8*n))
 #' index_valid <- sample(setdiff(1:n, index_train), round(0.1*n))
 #' index_test <- setdiff(1:n, c(index_train, index_valid))
-#' res <- seq2binary(seqs, y, index_train = index_train, index_valid = index_valid, index_test = index_valid)
+#' res <- seq2binary(seqs, y, index_train = index_train, index_valid = index_valid, index_test = index_test)
 #' @export
 seq2binary <- function(seqs, response, rnn_type = "lstm", n_hidden = 0, K = 20, K_hidden = NULL, n_epoch=20, batch_size = 16, optimizer_name="rmsprop", step_size=0.001, index_train, index_valid, index_test, gpu = TRUE, return_model = TRUE, model_output = "seq2binary_model.h5", max_len = max(sapply(seqs, length)))
 {
@@ -648,10 +649,10 @@ seq2binary <- function(seqs, response, rnn_type = "lstm", n_hidden = 0, K = 20, 
 #' y1 <- sapply(seqs, function(x) "CHECK_A" %in% x)
 #' y2 <- log10(sapply(seqs, length))
 #' index_train <- 1:70
-#' index_valie <- 71:85
+#' index_valid <- 71:85
 #' index_test <- 86:100
-#' res1 <- seq2binary(seqs, y1, index_train = index_train, index_valid = index_valid, index_test = index_valid)
-#' res2 <- seq2scale(seqs, y2, index_train = index_train, index_valid = index_valid, index_test = index_valid)
+#' res1 <- seq2binary(seqs, y1, index_train = index_train, index_valid = index_valid, index_test = index_test)
+#' res2 <- seq2scale(seqs, y2, index_train = index_train, index_valid = index_valid, index_test = index_test)
 #' res1_pred <- seq_predict(res1, seqs[index_test])
 #' res2_pred <- seq_predict(res2, seqs[index_test])
 #' all.equal(res1$pred, res1_pred) 

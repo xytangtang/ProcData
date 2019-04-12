@@ -27,10 +27,10 @@ seqs <- seq_gen(n)
 y1 <- sapply(seqs, function(x) "CHECK_A" \%in\% x)
 y2 <- log10(sapply(seqs, length))
 index_train <- 1:70
-index_valie <- 71:85
+index_valid <- 71:85
 index_test <- 86:100
-res1 <- seq2binary(seqs, y1, index_train = index_train, index_valid = index_valid, index_test = index_valid)
-res2 <- seq2scale(seqs, y2, index_train = index_train, index_valid = index_valid, index_test = index_valid)
+res1 <- seq2binary(seqs, y1, index_train = index_train, index_valid = index_valid, index_test = index_test)
+res2 <- seq2scale(seqs, y2, index_train = index_train, index_valid = index_valid, index_test = index_test)
 res1_pred <- seq_predict(res1, seqs[index_test])
 res2_pred <- seq_predict(res2, seqs[index_test])
 all.equal(res1$pred, res1_pred) 
