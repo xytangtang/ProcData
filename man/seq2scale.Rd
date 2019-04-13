@@ -82,5 +82,6 @@ res <- seq2scale(seqs, y, index_train = index_train, index_valid = index_valid, 
 \seealso{
 \code{\link{seq_predict}} for prediction from a sequence model.
 
-Other sequence models: \code{\link{seq2binary}}
+Other sequence models: \code{\link{seq2binary}},
+  \code{\link{seqm}}
 }

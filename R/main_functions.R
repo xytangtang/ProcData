@@ -678,3 +678,126 @@ seq_predict <- function(fit_res, new_seqs, batch_size=16) {
   predict(model, new_int_seqs, batch_size = batch_size)
   
 }
+
+#' Fitting sequence models
+#'
+#' \code{seqm} is used to fit a neural network model relating action sequences
+#' with a response variable.
+#'
+#' The model consists of an embedding layer, a recurrent layer and one or more
+#' fully connected layers. The embedding layer takes a action sequence and
+#' output a sequences of \code{K} dimensional numeric vectors to the recurrent
+#' layer. The last output of the recurrent layer is used as the input of the
+#' subsequent fully connected layers. If \code{response_type="binary"}, the last
+#' layer uses the sigmoid activation to produce the probability of the response
+#' being positive. If \code{response_type="scale"}, the last layer uses the linear
+#' activation. The dimension of the output of other fully connected layers
+#' (if any) is specified by \code{K_hidden}.
+#'
+#' The action sequences are re-coded into integer sequences and are padded with
+#' zeros to length \code{max_len} before feeding into the model. If the provided
+#' \code{max_len} is smaller than the length of the longest sequence in
+#' \code{seqs}, it will be overridden.
+#'
+#' @inheritParams seq2feature_seq2seq
+#' @param response the binary response variable.
+#' @param response_type "binary" or "scale".
+#' @param n_hidden the number of hidden fully-connected layers.
+#' @param K the latent dimension of the embedding layer and the recurrent layer.
+#' @param K_hidden a vector of length \code{n_hidden} specifying the number of
+#'   nodes in each hidden layer.
+#' @param n_epoch the number of training epochs.
+#' @param batch_size the batch size used in training.
+#' @param index_train,index_valid,index_test vectors of indices specifying the
+#'   training, validation, and test sets.
+#' @param return_model logical. If TRUE, the trained keras model is returned.
+#' @param model_output a character string specifying the filename for saving the
+#'   trained keras model.
+#' @param max_len the maximum length of sequences.
+#' @return \code{seq2binary} returns a list containing \item{model}{the trained
+#'   keras model.} \item{summary}{a vector of length 3 summarizing the
+#'   prediction accuracy on the training, validation, and test sets.}
+#'   \item{trace}{a \code{n_epoch} by 2 matrix giving the trace of training and
+#'   validation losses in the training process.} \item{pred_train}{the fitted
+#'   probabilities on the training set.} \item{pred_valid}{the predicted
+#'   probabilities for the validation set.} \item{pred_test}{the predicted
+#'   probabilities for the test set.} \item{events}{the set of all possible
+#'   actions.} \item{max_len}{the length of padded sequnces.}
+#' @family sequence models
+#' @seealso \code{\link{seq_predict}} for prediction from a sequence model.
+#' @examples
+#' n <- 50
+#' seqs <- seq_gen(n)
+#' y <- sapply(seqs, function(x) "CHECK_A" %in% x)
+#' index_train <- sample(1:n, round(0.8*n))
+#' index_valid <- sample(setdiff(1:n, index_train), round(0.1*n))
+#' index_test <- setdiff(1:n, c(index_train, index_valid))
+#' res <- seq2binary(seqs, y, index_train = index_train, index_valid = index_valid, index_test = index_test)
+#' @export
+seqm <- function(seqs, response, response_type = "scale", rnn_type = "lstm", K = 20, n_hidden = 0, K_hidden = NULL,
+                 index_train=NULL, index_valid=NULL, max_len = max(sapply(seqs, length)),
+                 n_epoch=20, batch_size = 16, optimizer_name="rmsprop", step_size=0.001, gpu = TRUE, model_output = "seq_model.h5")
+{
+  n_person <- length(seqs)
+  events <- unique(unlist(seqs))
+  n_event <- length(events)
+  max_len0 <- max(sapply(seqs, length))
+  if (max_len < max_len0) {
+    warning("max_len is set as the max length in seqs!\n")
+    max_len <- max_len0
+  }
+  int_seqs <- matrix(0, n_person, max_len)
+  
+  for (index_seq in 1:n_person) {
+    my_seq <- seqs[[index_seq]]
+    n_l <- length(my_seq)
+    tmp <- match(my_seq, events)
+    int_seqs[index_seq, 1:n_l] <- tmp
+  }
+  
+  if (!gpu) Sys.setenv(CUDA_VISIBLE_DEVICES = "")
+  
+  # build keras model
+  seq_inputs <- layer_input(shape=list(max_len))
+  seq_emb <- seq_inputs %>% layer_embedding(n_event + 1, K, mask_zero=TRUE)
+  if (rnn_type == "lstm") seq_feature <- seq_emb %>% layer_lstm(units=K)
+  else if (rnn_type == "gru") seq_feature <- seq_emb %>% layer_gru(units=K)
+  
+  n_hidden <- min(n_hidden, length(K_hidden))
+  
+  ff_string <- "prob_outputs <- seq_feature %>% "
+  if (n_hidden > 0)
+  {
+    for (index_hidden in 1:n_hidden) ff_string <- paste(ff_string, "layer_dense(units=", K_hidden[index_hidden], ", activation='tanh') %>% ", sep="")
+  }
+  if (response_type == "binary") last_act_fun <- "'sigmoid'"
+  else if (response_type == "scale") last_act_fun <- "'linear'"
+  
+  ff_string <- paste(ff_string, "layer_dense(units=1, activation=", last_act_fun, ")", sep="")
+  eval(parse(text=ff_string))
+  seq_model <- keras_model(seq_inputs, prob_outputs)
+  
+  if (optimizer_name == "sgd") optimizer <- optimizer_sgd(lr=step_size)
+  else if (optimizer_name == "rmsprop") optimizer <- optimizer_rmsprop(lr=step_size)
+  else if (optimizer_name == "adadelta") optimizer <- optimizer_adadelta(lr=step_size)
+  else if (optimizer_name == "adam") optimizer <- optimizer_adam(lr=step_size)
+  
+  if (response_type == "binary") seq_model %>% compile(optimizer = optimizer, 
+                                                       loss='binary_crossentropy')
+  else if (response_type == "scale") seq_model %>% compile(optimizer = optimizer, 
+                                                           loss='mean_squared_error')
+  
+  model_res <- seq_model %>% fit(int_seqs[index_train, ], response[index_train], 
+                                 epochs=n_epoch, batch_size=batch_size, verbose=FALSE, 
+                                 validation_data=list(int_seqs[index_valid,], response[index_valid]), 
+                                 callbacks=list(callback_model_checkpoint(model_output, monitor="val_loss", save_best_only = TRUE)))
+  
+  trace_res <- cbind(model_res$metrics$loss, model_res$metrics$val_loss)
+  colnames(trace_res) <- c("train", "validation")
+  
+  seq_model <- load_model_hdf5(model_output)
+  
+  res <- list(model = seq_model, actions = events, max_len = max_len, history = trace_res) 
+  
+  res  
+}
