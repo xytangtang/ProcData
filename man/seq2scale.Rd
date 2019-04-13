@@ -6,10 +6,9 @@
 \usage{
 seq2scale(seqs, response, rnn_type = "lstm", n_hidden = 0, K = 20,
   K_hidden = NULL, n_epoch = 20, batch_size = 16,
-  optimizer_name = "rmsprop", step_size = 0.001, index_train,
-  index_valid, index_test, gpu = TRUE, return_model = TRUE,
-  model_output = "seq2scale_model.h5", max_len = max(sapply(seqs,
-  length)))
+  optimizer_name = "rmsprop", step_size = 0.001, index_train, index_valid,
+  index_test, gpu = TRUE, return_model = TRUE,
+  model_output = "seq2scale_model.h5", max_len = max(sapply(seqs, length)))
 }
 \arguments{
 \item{seqs}{a list of \code{n} action sequences. Each element is an action
@@ -85,4 +84,3 @@ res <- seq2scale(seqs, y, index_train = index_train, index_valid = index_valid, 
 
 Other sequence models: \code{\link{seq2binary}}
 }
-\concept{sequence models}

@@ -11,12 +11,32 @@
 #' functions that involve training and evaluating neural networks are wrappers
 #' of functions in keras.
 #'
-#' @section Sequence generator: two generators
+#' @section Sequence generators:
+#' \itemize{
+#'   \item \code{\link{seq_gen}} generates action sequences of an imaginery simulation-based item.
 #'
-#' @section Feature extraction methods: two feature extraction methods
-#'
-#' @section Recurrent neural network based models: binary and scale
+#'   \item \code{\link{seq_gen2}} generates action sequences according to a given probability
+#' transition matrix.
+#' }
+#' @section Feature extraction methods:
+#' \itemize{
+#'   \item \code{\link{seq2feature_mds}} extracts \code{K} features from action sequences by
+#' multidimensional scaling.
 #' 
+#'   \item \code{\link{seq2feature_seq2seq}} extract features from action sequences by action
+#' sequence autoencoder.
+#' }
+#' @section Sequence models:
+#' \itemize{
+#'   \item \code{\link{seq2binary}} fits a neural network model that relates action sequences 
+#'     with binary responses.
+#'     
+#'   \item \code{\link{seq2scale}} fits a neural network model that relates action sequences with
+#'     continuous responses.
+#'     
+#'   \item \code{\link{seq_predict}} makes predictions from the models fitted by \code{seq2binary} or
+#'      \code{seq2scale}.
+#' }
 #' @useDynLib ProcData
 #' @importFrom Rcpp sourceCpp
 #' @import keras
