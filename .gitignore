@@ -1,5 +1,7 @@
 src/RcppExports.*
 src/*.o
 src/*.so
-
+man/.DS_Store
+.DS_Store
+.Rhistory
 .Rproj.user
