@@ -776,19 +776,17 @@ seqm <- function(seqs, response, response_type, actions, rnn_type = "lstm", K = 
   if (rnn_type == "lstm") seq_feature <- seq_emb %>% layer_lstm(units=K)
   else if (rnn_type == "gru") seq_feature <- seq_emb %>% layer_gru(units=K)
   
+  outputs <- seq_feature
   n_hidden <- min(n_hidden, length(K_hidden))
   
-  ff_string <- "prob_outputs <- seq_feature %>% "
-  if (n_hidden > 0)
-  {
-    for (index_hidden in 1:n_hidden) ff_string <- paste(ff_string, "layer_dense(units=", K_hidden[index_hidden], ", activation='tanh') %>% ", sep="")
+  if (n_hidden > 0) {
+    for (index_hidden in 1:n_hidden) outputs <- outputs %>% layer_dense(units=K_hidden[index_hidden], activation='tanh')
   }
-  if (response_type == "binary") last_act_fun <- "'sigmoid'"
-  else if (response_type == "scale") last_act_fun <- "'linear'"
   
-  ff_string <- paste(ff_string, "layer_dense(units=1, activation=", last_act_fun, ")", sep="")
-  eval(parse(text=ff_string))
-  seq_model <- keras_model(seq_inputs, prob_outputs)
+  if (response_type == "binary") outputs <- outputs %>% layer_dense(units=1, activation='sigmoid')
+  else if (response_type == "scale") outputs <- outputs %>% layer_dense(units=1, activation='linear')
+
+  seq_model <- keras_model(seq_inputs, outputs)
   
   if (optimizer_name == "sgd") optimizer <- optimizer_sgd(lr=step_size)
   else if (optimizer_name == "rmsprop") optimizer <- optimizer_rmsprop(lr=step_size)
