@@ -5,10 +5,10 @@
 \title{Action sequence generator}
 \usage{
 seq_gen(n, action_set1 = c("OPT1_1", "OPT1_2", "OPT1_3"),
-  action_set2 = c("OPT2_1", "OPT2_2"), answer_set = c("CHECK_A", "CHECK_B",
-  "CHECK_C", "CHECK_D"), p1 = rep(1, length(action_set1)), p2 = rep(1,
-  length(action_set2)), p_answer = rep(1, length(answer_set)),
-  p_continue = 0.5, p_choose = 0.5)
+  action_set2 = c("OPT2_1", "OPT2_2"), answer_set = c("CHECK_A",
+  "CHECK_B", "CHECK_C", "CHECK_D"), p1 = rep(1, length(action_set1)),
+  p2 = rep(1, length(action_set2)), p_answer = rep(1,
+  length(answer_set)), p_continue = 0.5, p_choose = 0.5)
 }
 \arguments{
 \item{n}{An integer. The number of sequences to be generated.}
@@ -58,3 +58,4 @@ seqs <- seq_gen(100)
 \seealso{
 Other sequence generators: \code{\link{seq_gen2}}
 }
+\concept{sequence generators}

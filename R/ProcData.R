@@ -13,7 +13,7 @@
 #'
 #' @section Read sequences:
 #' \itemize{
-#'   \item \code{\link{csv2seq}} reads action sequences from a csv file.
+#'   \item \code{\link{csv2seqs}} reads action sequences from a csv file.
 #' }
 #' @section Sequence generators:
 #' \itemize{
