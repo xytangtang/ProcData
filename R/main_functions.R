@@ -714,7 +714,7 @@ seq_predict <- function(fit_res, new_seqs, batch_size=16) {
 #' @param model_output a character string specifying the filename for saving the
 #'   trained keras model.
 #' @param max_len the maximum length of sequences.
-#' @return \code{seq2binary} returns a list containing \item{model}{the trained
+#' @return \code{seqm} returns a list containing \item{model}{the trained
 #'   keras model.} \item{summary}{a vector of length 3 summarizing the
 #'   prediction accuracy on the training, validation, and test sets.}
 #'   \item{trace}{a \code{n_epoch} by 2 matrix giving the trace of training and
@@ -734,18 +734,31 @@ seq_predict <- function(fit_res, new_seqs, batch_size=16) {
 #' index_test <- setdiff(1:n, c(index_train, index_valid))
 #' res <- seq2binary(seqs, y, index_train = index_train, index_valid = index_valid, index_test = index_test)
 #' @export
-seqm <- function(seqs, response, response_type = "scale", rnn_type = "lstm", K = 20, n_hidden = 0, K_hidden = NULL,
-                 index_train=NULL, index_valid=NULL, max_len = max(sapply(seqs, length)),
-                 n_epoch=20, batch_size = 16, optimizer_name="rmsprop", step_size=0.001, gpu = TRUE, model_output = "seq_model.h5")
+seqm <- function(seqs, response, response_type, actions, rnn_type = "lstm", K = 20, n_hidden = 0, K_hidden = NULL,
+                 valid_split = 0, index_valid = NULL, max_len = max(sapply(seqs, length)),
+                 n_epoch = 20, batch_size = 16, optimizer_name = "rmsprop", step_size = 0.001, gpu = TRUE)
 {
   n_person <- length(seqs)
-  events <- unique(unlist(seqs))
+  events <- union(unique(unlist(seqs)), actions)
+  if (length(events) > length(actions)) warning("Action set is expanded to include all actions in seqs.\n")
   n_event <- length(events)
+  
   max_len0 <- max(sapply(seqs, length))
   if (max_len < max_len0) {
     warning("max_len is set as the max length in seqs!\n")
     max_len <- max_len0
   }
+
+  if (!is.null(index_valid)) {
+    index_train <- setdiff(1:n_person, index_valid)
+    if (valid_split != 0) warning("Both valid_split and index_valid are set. Use index_valid as validation set.\n")
+  } else if (valid_split !=0) {
+    index_valid <- sample(1:n_person, round(n_person*valid_split))
+    index_train <- setdiff(1:n_person, index_valid)
+  } else {
+    stop("Validation set is empty! Specify either valid_split or index_valid.\n")
+  }
+
   int_seqs <- matrix(0, n_person, max_len)
   
   for (index_seq in 1:n_person) {
@@ -786,18 +799,49 @@ seqm <- function(seqs, response, response_type = "scale", rnn_type = "lstm", K =
                                                        loss='binary_crossentropy')
   else if (response_type == "scale") seq_model %>% compile(optimizer = optimizer, 
                                                            loss='mean_squared_error')
+  best_valid <- Inf
+  trace_res <- matrix(0, n_epoch, 2)
+  colnames(trace_res) <- c("train", "valid")
+  for (index_epoch in 1:n_epoch) {
+    model_res <- seq_model %>% fit(int_seqs[index_train, ], response[index_train], 
+                                 epochs=1, batch_size=batch_size, verbose=FALSE, 
+                                 validation_data=list(int_seqs[index_valid,], response[index_valid]))
+    trace_res[index_epoch, 1] <- model_res$metrics$loss
+    trace_res[index_epoch, 2] <- model_res$metrics$val_loss
+    if (model_res$metrics$val_loss < best_valid) {
+      best_valid <- model_res$metrics$val_loss
+      model_save <- serialize_model(seq_model)
+    }
+  }
   
-  model_res <- seq_model %>% fit(int_seqs[index_train, ], response[index_train], 
-                                 epochs=n_epoch, batch_size=batch_size, verbose=FALSE, 
-                                 validation_data=list(int_seqs[index_valid,], response[index_valid]), 
-                                 callbacks=list(callback_model_checkpoint(model_output, monitor="val_loss", save_best_only = TRUE)))
+  k_clear_session()
   
-  trace_res <- cbind(model_res$metrics$loss, model_res$metrics$val_loss)
-  colnames(trace_res) <- c("train", "validation")
-  
-  seq_model <- load_model_hdf5(model_output)
-  
-  res <- list(model = seq_model, actions = events, max_len = max_len, history = trace_res) 
-  
+  res <- list(model = model_save, actions = events, max_len = max_len, history = trace_res) 
+  class(res) <- "seqm"
+
   res  
 }
+
+#' @export
+predict.seqm <- function(object, new_seqs, batch_size=16) {
+  model <- unserialize_model(object$model)
+  max_len <- object$max_len
+  events <- object$actions
+
+  n <- length(new_seqs)
+  new_int_seqs <- matrix(0, n, max_len)
+  
+  for (index_seq in 1:n) {
+    my_seq <- new_seqs[[index_seq]]
+    n_l <- length(my_seq)
+    tmp <- match(my_seq, events)
+    new_int_seqs[index_seq, 1:n_l] <- tmp
+  }
+
+  pred_res <- predict(model, new_int_seqs, batch_size = batch_size)
+  
+  k_clear_session()
+  
+  pred_res
+}
+
