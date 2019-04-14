@@ -4,11 +4,10 @@
 \alias{seqm}
 \title{Fitting sequence models}
 \usage{
-seqm(seqs, response, response_type = "scale", rnn_type = "lstm", K = 20,
-  n_hidden = 0, K_hidden = NULL, index_train = NULL, index_valid = NULL,
+seqm(seqs, response, response_type, actions, rnn_type = "lstm", K = 20,
+  n_hidden = 0, K_hidden = NULL, valid_split = 0, index_valid = NULL,
   max_len = max(sapply(seqs, length)), n_epoch = 20, batch_size = 16,
-  optimizer_name = "rmsprop", step_size = 0.001, gpu = TRUE,
-  model_output = "seq_model.h5")
+  optimizer_name = "rmsprop", step_size = 0.001, gpu = TRUE)
 }
 \arguments{
 \item{seqs}{a list of \code{n} action sequences. Each element is an action
@@ -17,6 +16,9 @@ sequence in the form of a vector of actions.}
 \item{response}{the binary response variable.}
 
 \item{response_type}{"binary" or "scale".}
+
+\item{actions}{a character vector gives all possible actions. It is will be
+expanded to include all actions appear in \code{seqs} if necessary.}
 
 \item{rnn_type}{the type of recurrent unit to be used for modeling
 action sequences. \code{"lstm"} for the long-short term memory unit. 
@@ -29,10 +31,11 @@ action sequences. \code{"lstm"} for the long-short term memory unit.
 \item{K_hidden}{a vector of length \code{n_hidden} specifying the number of
 nodes in each hidden layer.}
 
-\item{index_train, index_valid, index_test}{vectors of indices specifying the
-training, validation, and test sets.}
+\item{valid_split}{proportion of sequences used as the validation set.}
 
-\item{max_len}{the maximum length of sequences.}
+\item{index_valid}{a vector of indices specifying the validation set.}
+
+\item{max_len}{the maximum length of input sequences.}
 
 \item{n_epoch}{the number of training epochs.}
 
@@ -45,22 +48,15 @@ for training. Availabel options are \code{"sgd"}, \code{"rmsprop"},
 \item{step_size}{the learning rate of optimizer.}
 
 \item{gpu}{logical. If TRUE, use gpu for training if available.}
-
-\item{model_output}{a character string specifying the filename for saving the
-trained keras model.}
-
-\item{return_model}{logical. If TRUE, the trained keras model is returned.}
 }
 \value{
-\code{seq2binary} returns a list containing \item{model}{the trained
-  keras model.} \item{summary}{a vector of length 3 summarizing the
-  prediction accuracy on the training, validation, and test sets.}
-  \item{trace}{a \code{n_epoch} by 2 matrix giving the trace of training and
-  validation losses in the training process.} \item{pred_train}{the fitted
-  probabilities on the training set.} \item{pred_valid}{the predicted
-  probabilities for the validation set.} \item{pred_test}{the predicted
-  probabilities for the test set.} \item{events}{the set of all possible
-  actions.} \item{max_len}{the length of padded sequnces.}
+\code{seqm} returns an object of class \code{"seqm"}, which is a list containing 
+  \item{model}{a vector of class \code{"raw"}. It is the serialized version of 
+    the trained keras model.} 
+  \item{actions}{all possible actions.}
+  \item{max_len}{the maximum length of action sequences.}
+  \item{history}{a \code{n_epoch} by 2 matrix giving the training and
+  validation losses at the end of each epoch.}
 }
 \description{
 \code{seqm} is used to fit a neural network model relating action sequences
@@ -83,17 +79,26 @@ zeros to length \code{max_len} before feeding into the model. If the provided
 \code{seqs}, it will be overridden.
 }
 \examples{
-n <- 50
+n <- 100
 seqs <- seq_gen(n)
-y <- sapply(seqs, function(x) "CHECK_A" \%in\% x)
-index_train <- sample(1:n, round(0.8*n))
-index_valid <- sample(setdiff(1:n, index_train), round(0.1*n))
-index_test <- setdiff(1:n, c(index_train, index_valid))
-res <- seq2binary(seqs, y, index_train = index_train, index_valid = index_valid, index_test = index_test)
+y1 <- sapply(seqs, function(x) "CHECK_A" \%in\% x)
+y2 <- sapply(seqs, function(x) log10(length(x)))
+
+index_test <- 91:100
+index_train <- 1:90
+
+actions <- unique(unlist(seqs))
+
+res1 <- seqm(seqs[index_train], y1[index_train], "binary", actions=actions, valid_split=0.2)
+predict(res1, new_seqs = seqs[index_test])
+
+res1_more <- seqm(seqs[index_train], y1[index_train], "binary", actions=actions, valid_split=0.2, K=20, n_hidden=2, K_hidden=c(10,5))
+predict(res1_more, new_seqs = seqs[index_test])
+
+res2 <- seqm(seqs[index_train], y2[index_train], "scale", actions=actions, valid_split=0.2)
+predict(res2, new_seqs = seqs[index_test])
+
 }
 \seealso{
-\code{\link{seq_predict}} for prediction from a sequence model.
-
-Other sequence models: \code{\link{seq2binary}},
-  \code{\link{seq2scale}}
+\code{\link{predict.seqm}} for the \code{predict} method for \code{seqm} objects.
 }

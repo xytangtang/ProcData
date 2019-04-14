@@ -396,288 +396,6 @@ chooseK_seq2seq <- function(seqs, rnn_type="lstm", K_cand, n_epoch=50, method="l
   res <- list(K=K_cand[which.min(cv_loss)], K_cand=K_cand, cv_loss=cv_loss)
 }
 
-#' Fitting sequence models with numeric responses
-#' 
-#' \code{seq2scale} is used to fit a neural network model relating 
-#' action sequences with numeric responses.
-#'
-#' The model fitted in this function is the same as that in \code{seq2binary} except
-#' that the last fully-connected layer has a linear activation.
-#' 
-#' @inheritParams seq2feature_seq2seq
-#' @inheritParams seq2binary
-#' @param response the continuous response variable.
-#' @param index_train,index_valid,index_test vectors of indices specifying the training,
-#'   validation, and test sets.
-#' @return \code{seq2scale} returns a list containing
-#'   \item{model}{the trained keras model}
-#'   \item{summary}{a 3 by 2 matrix summarizing the prediction performance. 
-#'     The rows correspond to the training, validation, and test sets. 
-#'     The two columns gives the mean squared error and the R-square.}
-#'   \item{trace}{a \code{n_epoch} by 2 matrix giving the trace of training 
-#'     and validation losses in the training process.}
-#'   \item{pred_train}{the fitted probabilities on the training set.}
-#'   \item{pred_valid}{the predicted probabilities for the validation set.}
-#'   \item{pred_test}{the predicted probabilities for the test set.}
-#'   \item{events}{the set of all possible actions.}
-#'   \item{max_len}{the length of padded sequnces.}
-#' @family sequence models
-#' @seealso \code{\link{seq_predict}} for prediction from a sequence model.
-#' @examples
-#' n <- 50
-#' seqs <- seq_gen(n)
-#' y <- log10(sapply(seqs, length))
-#' index_train <- sample(1:n, round(0.8*n))
-#' index_valid <- sample(setdiff(1:n, index_train), round(0.1*n))
-#' index_test <- setdiff(1:n, c(index_train, index_valid))
-#' res <- seq2scale(seqs, y, index_train = index_train, index_valid = index_valid, index_test = index_test)
-#' @export
-seq2scale <- function(seqs, response, rnn_type = "lstm", n_hidden = 0, K = 20, K_hidden = NULL, n_epoch=20, batch_size = 16, optimizer_name="rmsprop", step_size=0.001, index_train, index_valid, index_test, gpu=TRUE, return_model=TRUE, model_output = "seq2scale_model.h5", max_len = max(sapply(seqs, length)))
-{
-  n_person <- length(seqs)
-  events <- unique(unlist(seqs))
-  n_event <- length(events)
-  max_len <- max(sapply(seqs, length))
-  
-  int_seqs <- matrix(0, n_person, max_len)
-  
-  for (index_seq in 1:n_person) {
-    my_seq <- seqs[[index_seq]]
-    n_l <- length(my_seq)
-    tmp <- match(my_seq, events)
-    int_seqs[index_seq, 1:n_l] <- tmp
-  }
-  
-  if (!gpu) Sys.setenv(CUDA_VISIBLE_DEVICES = "")
-  
-  # build keras model
-  seq_inputs <- layer_input(shape=list(max_len))
-  seq_emb <- seq_inputs %>% layer_embedding(n_event + 1, K, mask_zero=TRUE)
-  if (rnn_type == "lstm") seq_feature <- seq_emb %>% layer_lstm(units=K)
-  else if (rnn_type == "gru") seq_feature <- seq_emb %>% layer_gru(units=K)
-  
-  n_hidden <- min(n_hidden, length(K_hidden))
-  
-  ff_string <- "scale_outputs <- seq_feature %>% "
-  if (n_hidden > 0)
-  {
-    for (index_hidden in 1:n_hidden) ff_string <- paste(ff_string, "layer_dense(units=", K_hidden[index_hidden], ", activation='tanh') %>% ", sep="")
-  }
-  ff_string <- paste(ff_string, "layer_dense(units=1, activation='linear')", sep="")
-  eval(parse(text=ff_string))
-  
-  seq2scale_model <- keras_model(seq_inputs, scale_outputs)
-  
-  if (optimizer_name == "sgd") optimizer <- optimizer_sgd(lr=step_size)
-  else if (optimizer_name == "rmsprop") optimizer <- optimizer_rmsprop(lr=step_size)
-  else if (optimizer_name == "adadelta") optimizer <- optimizer_adadelta(lr=step_size)
-  else if (optimizer_name == "adam") optimizer <- optimizer_adam(lr=step_size)
-  
-  seq2scale_model %>% compile(optimizer = optimizer, loss='mean_squared_error')
-  
-  model_res <- seq2scale_model %>% fit(int_seqs[index_train, ], response[index_train], epochs=n_epoch, batch_size=batch_size, verbose=FALSE, validation_data=list(int_seqs[index_valid,], response[index_valid]), callbacks=list(callback_model_checkpoint(model_output, monitor="val_loss", save_best_only = TRUE)))
-  
-  trace_res <- cbind(model_res$metrics$loss, model_res$metrics$val_loss)
-  colnames(trace_res) <- c("train", "validation")
-  
-  seq2scale_model <- load_model_hdf5(model_output)
-  
-  pred_train <- predict(seq2scale_model, int_seqs[index_train,], batch_size = batch_size)
-  pred_valid <- predict(seq2scale_model, int_seqs[index_valid,], batch_size = batch_size)
-  pred_test <- predict(seq2scale_model, int_seqs[index_test,], batch_size = batch_size)
-  
-  summary_res <- matrix(0, 3, 2)
-  summary_res[1,1] <- mean((pred_train - response[index_train])^2)
-  summary_res[2,1] <- mean((pred_valid - response[index_valid])^2)
-  summary_res[3,1] <- mean((pred_test - response[index_test])^2)
-  summary_res[1,2] <- cor(pred_train, response[index_train])^2
-  summary_res[2,2] <- cor(pred_valid, response[index_valid])^2
-  summary_res[3,2] <- cor(pred_test, response[index_test])^2
-  colnames(summary_res) <- c("mse", "rsq")
-  rownames(summary_res) <- c("train", "valid", "test")
-  
-  if (return_model) {
-    res <- list(model = seq2scale_model, summary = summary_res, trace = trace_res, pred = pred_test, events=events, max_len = max_len)
-  } else {
-      res <- list(summary = summary_res, trace = trace_res, pred = pred_test)
-      k_clear_session()
-  }
-  
-  res  
-    
-}
-
-
-#' Fitting sequence models with binary responses
-#' 
-#' \code{seq2binary} is used to fit a neural network model relating 
-#' action sequences with binary responses.
-#' 
-#' The model consists of an embedding layer, a recurrent layer and one or more 
-#' fully connected layers. The embedding layer takes a action sequence and output a
-#' sequences of \code{K} dimensional numeric vectors to the recurrent layer. The last
-#' output of the recurrent layer is used as the input of the subsequent fully connected
-#' layers. The last layer uses the sigmoid activation to produce a probability of the
-#' response being positive. The dimension of the output of other fully connected layers
-#' (if any) is specified by \code{K_hidden}. 
-#' 
-#' The action sequences are re-coded into integer sequences and padded with zeros so that
-#' every sequene is of length \code{max_len}. If the provided \code{max_len} is smaller
-#' than the length of the longest sequence in \code{seqs}, it will be overridden.
-#' 
-#' @inheritParams seq2feature_seq2seq
-#' @param response the binary response variable.
-#' @param n_hidden the number of hidden fully-connected layers.
-#' @param K the latent dimension of the embedding layer and the recurrent layer. 
-#' @param K_hidden a vector of length \code{n_hidden} specifying
-#'   the number of nodes in each hidden layer.
-#' @param n_epoch the number of training epochs.
-#' @param batch_size the batch size used in training.
-#' @param index_train,index_valid,index_test vectors of indices specifying the training,
-#'   validation, and test sets.
-#' @param return_model logical. If TRUE, the trained keras model is returned.
-#' @param model_output a character string specifying the filename for saving the trained keras model.
-#' @param max_len the maximum length of sequences.
-#' @return \code{seq2binary} returns a list containing
-#'   \item{model}{the trained keras model.}
-#'   \item{summary}{a vector of length 3 summarizing the prediction accuracy on the training, validation, and test sets.}
-#'   \item{trace}{a \code{n_epoch} by 2 matrix giving the trace of training and validation losses in the training process.}
-#'   \item{pred_train}{the fitted probabilities on the training set.}
-#'   \item{pred_valid}{the predicted probabilities for the validation set.}
-#'   \item{pred_test}{the predicted probabilities for the test set.}
-#'   \item{events}{the set of all possible actions.}
-#'   \item{max_len}{the length of padded sequnces.}
-#' @family sequence models
-#' @seealso \code{\link{seq_predict}} for prediction from a sequence model.
-#' @examples
-#' n <- 50
-#' seqs <- seq_gen(n)
-#' y <- sapply(seqs, function(x) "CHECK_A" %in% x)
-#' index_train <- sample(1:n, round(0.8*n))
-#' index_valid <- sample(setdiff(1:n, index_train), round(0.1*n))
-#' index_test <- setdiff(1:n, c(index_train, index_valid))
-#' res <- seq2binary(seqs, y, index_train = index_train, index_valid = index_valid, index_test = index_test)
-#' @export
-seq2binary <- function(seqs, response, rnn_type = "lstm", n_hidden = 0, K = 20, K_hidden = NULL, n_epoch=20, batch_size = 16, optimizer_name="rmsprop", step_size=0.001, index_train, index_valid, index_test, gpu = TRUE, return_model = TRUE, model_output = "seq2binary_model.h5", max_len = max(sapply(seqs, length)))
-{
-  n_person <- length(seqs)
-  events <- unique(unlist(seqs))
-  n_event <- length(events)
-  max_len0 <- max(sapply(seqs, length))
-  if (max_len < max_len0) {
-    warning("max_len is set as the max length in seqs!\n")
-    max_len <- max_len0
-  }
-  int_seqs <- matrix(0, n_person, max_len)
-  
-  for (index_seq in 1:n_person) {
-    my_seq <- seqs[[index_seq]]
-    n_l <- length(my_seq)
-    tmp <- match(my_seq, events)
-    int_seqs[index_seq, 1:n_l] <- tmp
-  }
-  
-  if (!gpu) Sys.setenv(CUDA_VISIBLE_DEVICES = "")
-  
-  # build keras model
-  seq_inputs <- layer_input(shape=list(max_len))
-  seq_emb <- seq_inputs %>% layer_embedding(n_event + 1, K, mask_zero=TRUE)
-  if (rnn_type == "lstm") seq_feature <- seq_emb %>% layer_lstm(units=K)
-  else if (rnn_type == "gru") seq_feature <- seq_emb %>% layer_gru(units=K)
-  
-  n_hidden <- min(n_hidden, length(K_hidden))
-  
-  ff_string <- "prob_outputs <- seq_feature %>% "
-  if (n_hidden > 0)
-  {
-    for (index_hidden in 1:n_hidden) ff_string <- paste(ff_string, "layer_dense(units=", K_hidden[index_hidden], ", activation='tanh') %>% ", sep="")
-  }
-  ff_string <- paste(ff_string, "layer_dense(units=1, activation='sigmoid')", sep="")
-  eval(parse(text=ff_string))
-  seq2binary_model <- keras_model(seq_inputs, prob_outputs)
-  
-  if (optimizer_name == "sgd") optimizer <- optimizer_sgd(lr=step_size)
-  else if (optimizer_name == "rmsprop") optimizer <- optimizer_rmsprop(lr=step_size)
-  else if (optimizer_name == "adadelta") optimizer <- optimizer_adadelta(lr=step_size)
-  else if (optimizer_name == "adam") optimizer <- optimizer_adam(lr=step_size)
-  
-  seq2binary_model %>% compile(optimizer = optimizer, loss='binary_crossentropy', metrics='accuracy')
-  
-  model_res <- seq2binary_model %>% fit(int_seqs[index_train, ], response[index_train], epochs=n_epoch, batch_size=batch_size, verbose=FALSE, metrics='accuracy', validation_data=list(int_seqs[index_valid,], response[index_valid]), callbacks=list(callback_model_checkpoint(model_output, monitor="val_acc", save_best_only = TRUE)))
-  
-  trace_res <- cbind(model_res$metrics$acc, model_res$metrics$val_acc)
-  colnames(trace_res) <- c("train", "validation")
-  
-  seq2binary_model <- load_model_hdf5(model_output)
-  
-  pred_train <- predict(seq2binary_model, int_seqs[index_train,], batch_size = batch_size)
-  pred_valid <- predict(seq2binary_model, int_seqs[index_valid,], batch_size = batch_size)
-  pred_test <- predict(seq2binary_model, int_seqs[index_test,], batch_size = batch_size)
-  
-  summary_res <- rep(0, 3)
-  summary_res[1] <- mean(as.numeric(pred_train > 0.5) == response[index_train])
-  summary_res[2] <- mean(as.numeric(pred_valid > 0.5) == response[index_valid])
-  summary_res[3] <- mean(as.numeric(pred_test > 0.5) == response[index_test])
-  
-  names(summary_res) <- c("train", "valid", "test")
-  
-  if (return_model) {
-    res <- list(model = seq2binary_model, summary = summary_res, trace = trace_res, pred = pred_test, events = events, max_len = max_len)
-  } else {
-      res <- list(summary = summary_res, trace = trace_res, pred = pred_test)
-      k_clear_session()
-  }
-  
-  res  
-} 
-
-#' Sequence model predictions
-#'
-#' \code{seq_predict} is a function for predictions from the models fitted by 
-#'   \code{seq2binary} or \code{seq2scale}.
-#'
-#' @param fit_res an object returned by \code{seq2binary} or \code{seq2scale}
-#'   with \code{return_model=TRUE}.
-#' @param new_seqs action sequences with which to predict.
-#' @param batch_size batch size for computing predicted values
-#' 
-#' @return \code{seq_predict} produces a vector of predicted values.
-#' @seealso The model fitting functions \code{\link{seq2binary}} and \code{\link{seq2scale}}.
-#' @examples
-#' n <- 100
-#' seqs <- seq_gen(n)
-#' y1 <- sapply(seqs, function(x) "CHECK_A" %in% x)
-#' y2 <- log10(sapply(seqs, length))
-#' index_train <- 1:70
-#' index_valid <- 71:85
-#' index_test <- 86:100
-#' res1 <- seq2binary(seqs, y1, index_train = index_train, index_valid = index_valid, index_test = index_test)
-#' res2 <- seq2scale(seqs, y2, index_train = index_train, index_valid = index_valid, index_test = index_test)
-#' res1_pred <- seq_predict(res1, seqs[index_test])
-#' res2_pred <- seq_predict(res2, seqs[index_test])
-#' all.equal(res1$pred, res1_pred) 
-#' all.equal(res2$pred, res2_pred)
-#'
-#' @export
-seq_predict <- function(fit_res, new_seqs, batch_size=16) {
-  model = fit_res$model
-  if (is.null(model)) stop("No model is available for prediction! Set return_model=TRUE in seq2binary or seq2scale.\n")
-  max_len <- fit_res$max_len
-  events <- fit_res$events
-
-  n <- length(new_seqs)
-  new_int_seqs <- matrix(0, n, max_len)
-  
-  for (index_seq in 1:n) {
-    my_seq <- new_seqs[[index_seq]]
-    n_l <- length(my_seq)
-    tmp <- match(my_seq, events)
-    new_int_seqs[index_seq, 1:n_l] <- tmp
-  }
-
-  predict(model, new_int_seqs, batch_size = batch_size)
-  
-}
 
 #' Fitting sequence models
 #'
@@ -702,37 +420,46 @@ seq_predict <- function(fit_res, new_seqs, batch_size=16) {
 #' @inheritParams seq2feature_seq2seq
 #' @param response the binary response variable.
 #' @param response_type "binary" or "scale".
+#' @param actions a character vector gives all possible actions. It is will be
+#'   expanded to include all actions appear in \code{seqs} if necessary.
 #' @param n_hidden the number of hidden fully-connected layers.
 #' @param K the latent dimension of the embedding layer and the recurrent layer.
 #' @param K_hidden a vector of length \code{n_hidden} specifying the number of
 #'   nodes in each hidden layer.
 #' @param n_epoch the number of training epochs.
 #' @param batch_size the batch size used in training.
-#' @param index_train,index_valid,index_test vectors of indices specifying the
-#'   training, validation, and test sets.
-#' @param return_model logical. If TRUE, the trained keras model is returned.
-#' @param model_output a character string specifying the filename for saving the
-#'   trained keras model.
-#' @param max_len the maximum length of sequences.
-#' @return \code{seqm} returns a list containing \item{model}{the trained
-#'   keras model.} \item{summary}{a vector of length 3 summarizing the
-#'   prediction accuracy on the training, validation, and test sets.}
-#'   \item{trace}{a \code{n_epoch} by 2 matrix giving the trace of training and
-#'   validation losses in the training process.} \item{pred_train}{the fitted
-#'   probabilities on the training set.} \item{pred_valid}{the predicted
-#'   probabilities for the validation set.} \item{pred_test}{the predicted
-#'   probabilities for the test set.} \item{events}{the set of all possible
-#'   actions.} \item{max_len}{the length of padded sequnces.}
-#' @family sequence models
-#' @seealso \code{\link{seq_predict}} for prediction from a sequence model.
+#' @param valid_split proportion of sequences used as the validation set. 
+#' @param index_valid a vector of indices specifying the validation set.
+#' @param max_len the maximum length of input sequences.
+#' @return \code{seqm} returns an object of class \code{"seqm"}, which is a list containing 
+#'   \item{model}{a vector of class \code{"raw"}. It is the serialized version of 
+#'     the trained keras model.} 
+#'   \item{actions}{all possible actions.}
+#'   \item{max_len}{the maximum length of action sequences.}
+#'   \item{history}{a \code{n_epoch} by 2 matrix giving the training and
+#'   validation losses at the end of each epoch.} 
+#'
+#' @seealso \code{\link{predict.seqm}} for the \code{predict} method for \code{seqm} objects.
 #' @examples
-#' n <- 50
+#' n <- 100
 #' seqs <- seq_gen(n)
-#' y <- sapply(seqs, function(x) "CHECK_A" %in% x)
-#' index_train <- sample(1:n, round(0.8*n))
-#' index_valid <- sample(setdiff(1:n, index_train), round(0.1*n))
-#' index_test <- setdiff(1:n, c(index_train, index_valid))
-#' res <- seq2binary(seqs, y, index_train = index_train, index_valid = index_valid, index_test = index_test)
+#' y1 <- sapply(seqs, function(x) "CHECK_A" %in% x)
+#' y2 <- sapply(seqs, function(x) log10(length(x)))
+#' 
+#' index_test <- 91:100
+#' index_train <- 1:90
+#' 
+#' actions <- unique(unlist(seqs))
+#' 
+#' res1 <- seqm(seqs[index_train], y1[index_train], "binary", actions=actions, valid_split=0.2)
+#' predict(res1, new_seqs = seqs[index_test])
+#' 
+#' res1_more <- seqm(seqs[index_train], y1[index_train], "binary", actions=actions, valid_split=0.2, K=20, n_hidden=2, K_hidden=c(10,5))
+#' predict(res1_more, new_seqs = seqs[index_test])
+#' 
+#' res2 <- seqm(seqs[index_train], y2[index_train], "scale", actions=actions, valid_split=0.2)
+#' predict(res2, new_seqs = seqs[index_test])
+#' 
 #' @export
 seqm <- function(seqs, response, response_type, actions, rnn_type = "lstm", K = 20, n_hidden = 0, K_hidden = NULL,
                  valid_split = 0, index_valid = NULL, max_len = max(sapply(seqs, length)),
@@ -820,8 +547,23 @@ seqm <- function(seqs, response, response_type, actions, rnn_type = "lstm", K = 
   res  
 }
 
+#' Predict method for sequence models
+#' 
+#' Obtains predictions from a fitted sequence model object.
+#' 
+#' It unserialize object$model to obtain a keras model of class 
+#' \code{"keras.engin.training.Model"} and then calls \code{predict} for this class
+#' to obtain predictions.
+#' 
+#' @param object a fitted object of class \code{"seqm"} from \code{seqm}.
+#' @param new_seqs a list of action sequences with which to predict.
+#' @param ... further arguments to be passed to \code{predict.keras.engine.training.Model}.
+#' 
+#' @return a vector of predictions. If \code{response_type="binary"}, predictions are
+#'   probabilities of the response variable being 1.
+#' @seealso \code{\link{seqm}} for fitting sequence models.
 #' @export
-predict.seqm <- function(object, new_seqs, batch_size=16) {
+predict.seqm <- function(object, new_seqs, ...) {
   model <- unserialize_model(object$model)
   max_len <- object$max_len
   events <- object$actions
@@ -836,7 +578,7 @@ predict.seqm <- function(object, new_seqs, batch_size=16) {
     new_int_seqs[index_seq, 1:n_l] <- tmp
   }
 
-  pred_res <- predict(model, new_int_seqs, batch_size = batch_size)
+  pred_res <- predict(model, new_int_seqs, ...)
   
   k_clear_session()
   

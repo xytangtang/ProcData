@@ -11,6 +11,10 @@
 #' functions that involve training and evaluating neural networks are wrappers
 #' of functions in keras.
 #'
+#' @section Read sequences:
+#' \itemize{
+#'   \item \code{\link{csv2seq}} reads action sequences from a csv file.
+#' }
 #' @section Sequence generators:
 #' \itemize{
 #'   \item \code{\link{seq_gen}} generates action sequences of an imaginery simulation-based item.
@@ -28,14 +32,10 @@
 #' }
 #' @section Sequence models:
 #' \itemize{
-#'   \item \code{\link{seq2binary}} fits a neural network model that relates action sequences 
-#'     with binary responses.
+#'   \item \code{\link{seqm}} fits a neural network model that relates action sequences 
+#'     with a response variable.
 #'     
-#'   \item \code{\link{seq2scale}} fits a neural network model that relates action sequences with
-#'     continuous responses.
-#'     
-#'   \item \code{\link{seq_predict}} makes predictions from the models fitted by \code{seq2binary} or
-#'      \code{seq2scale}.
+#'   \item \code{\link{predict.seqm}} makes predictions from the models fitted by \code{seqm}.
 #' }
 #' @useDynLib ProcData
 #' @importFrom Rcpp sourceCpp
