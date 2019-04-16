@@ -5,8 +5,7 @@
 \title{Choose the number of multidimensional scaling features}
 \usage{
 chooseK_mds(seqs = NULL, K_cand, method = "oss", n_fold = 5,
-  max_epoch = 100, step_size = 0.01, tot = 1e-06,
-  return_dist = FALSE)
+  max_epoch = 100, step_size = 0.01, tot = 1e-06, return_dist = FALSE)
 }
 \arguments{
 \item{seqs}{a list or a square matrix. If a list is provided, each of its
