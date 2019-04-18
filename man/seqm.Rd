@@ -5,9 +5,10 @@
 \title{Fitting sequence models}
 \usage{
 seqm(seqs, response, response_type, actions, rnn_type = "lstm", K = 20,
-  n_hidden = 0, K_hidden = NULL, valid_split = 0, index_valid = NULL,
-  max_len = max(sapply(seqs, length)), n_epoch = 20, batch_size = 16,
-  optimizer_name = "rmsprop", step_size = 0.001, gpu = TRUE)
+  n_hidden = 0, K_hidden = NULL, valid_split = 0,
+  index_valid = NULL, max_len = max(sapply(seqs, length)),
+  n_epoch = 20, batch_size = 16, optimizer_name = "rmsprop",
+  step_size = 0.001, gpu = TRUE)
 }
 \arguments{
 \item{seqs}{a list of \code{n} action sequences. Each element is an action

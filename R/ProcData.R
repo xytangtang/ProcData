@@ -21,6 +21,8 @@
 #'
 #'   \item \code{\link{seq_gen2}} generates action sequences according to a given probability
 #' transition matrix.
+#'
+#'   \item \code{\link{seq_gen3}} generates action sequences according to a recurrent neural network.
 #' }
 #' @section Feature extraction methods:
 #' \itemize{

@@ -108,6 +108,95 @@ seq_gen2 <- function(n, Pmat = NULL, events = letters, start_index=1, end_index=
   seqs
 }
 
+# Check if two lists have the same shape
+same_shape <- function(target, current) {
+  if (length(current) != length(target)) return(FALSE)
+  n <- length(target)
+  for (i in 1:n) {
+    target_i <- target[[i]]
+    current_i <- current[[i]]
+    if (is.array(target_i)) {
+      if (any(dim(current_i) != dim(target_i))) return(FALSE)
+    } else {
+      if (length(current_i) != length(target_i)) return(FALSE)
+    }
+  }
+
+  return(TRUE)
+}
+ 
+#' RNN action sequence generator
+#' 
+#' \code{seq_gen3} generates action sequences according to a reccurent neural network
+#' 
+#' @inheritParams seq_gen2
+#' @param rnn_type the type of recurrent unit to be used for generating sequences. \code{"lstm"} for the long-short term memory unit. \code{"gru"} for the gated recurrent unit.
+#' @param K the latent dimension of the recurrent unit.
+#' @param weights a list containing the weights in the embedding layer, the recurrent unit, the fully connected layer. If not (properly) specified, randomly generated weights are used.
+#' @param initial_state a list containing the initial state of the recurrent neural network. If \code{rnn_type="lstm"}, it contains two 1 by \code{K} matrices. If \code{rnn_type="gru"}, it contains one 1 by \code{K} matrix. If not specified, all the elements are set to zero.
+#' @return A list containing the following elements
+#'     \item{seqs}{a list of \code{n} elements. Each element is a generated action sequence.}
+#'     \item{weights}{a list containing the weights used for generating sequences.}
+#' @family sequence generators
+#' @export
+seq_gen3 <- function(n, events = letters, rnn_type = "lstm", K = 10, weights=NULL, max_len = 100, initial_state = NULL, start_index=1, end_index=length(events)) {
+  n_event <- length(events)
+
+  if (!(rnn_type) %in% c("lstm", "gru")) stop("Undefined type of RNN! Available options: lstm and gru.\n")
+
+  if (rnn_type == "lstm") {
+    state_c_inputs <- layer_input(shape=list(K))
+    state_h_inputs <- layer_input(shape=list(K))
+    state_inputs <- c(state_c_inputs, state_h_inputs)
+  } else if (rnn_type == "gru") {
+    state_inputs <- layer_input(shape=list(K))
+  }
+  seq_inputs <- layer_input(shape=list(NULL))
+  emb <- seq_inputs %>% layer_embedding(n_event, K)
+  if (rnn_type == "lstm") rnn_unit <- layer_lstm(units = K, return_sequences = FALSE, return_state=TRUE)
+  else if (rnn_type == "gru") rnn_unit <- layer_gru(units = K, return_sequences = FALSE, return_state=TRUE)
+  rnn_outputs <- rnn_unit(emb, initial_state=state_inputs)
+  prob_outputs <- rnn_outputs[[1]] %>% layer_dense(n_event, activation="softmax", bias_initializer=initializer_random_uniform(minval=-5, maxval=5))
+  if (rnn_type == "lstm") state_outputs <- rnn_outputs[2:3]
+  else if (rnn_type == "gru") state_outputs <- rnn_outputs[2]
+  seq_pred_model <- keras_model(c(seq_inputs, state_inputs), c(prob_outputs, state_outputs))
+
+  if (!is.null(weights)) {
+    curr_weights <- get_weights(seq_pred_model)
+    if (same_shape(curr_weights, weights)) set_weights(seq_pred_model, weights)
+    else warning("Provided weights does not match the model! Use randomly generated weights.\n")
+  }
+  
+  seqs <- list()
+
+  for (i in 1:n) {
+
+    seq_index <- start_index - 1
+    int_seqs <- c(seq_index + 1)
+    if (is.null(initial_state)) {
+      if (rnn_type == "lstm") initial_state <- list(array(0, dim=c(1, K)), array(0, dim=c(1,K)))
+      else if (rnn_type == "gru") initial_state <- list(array(0, dim=c(1,K)))
+    }
+    while (seq_index != end_index - 1 && length(int_seqs) < max_len) {
+      pred_res <- predict(seq_pred_model, c(list(matrix(seq_index, 1,1)), initial_state))
+      prob_vec <- pred_res[[1]]
+      if (rnn_type == "lstm") initial_state <- pred_res[2:3]
+      else if (rnn_type == "gru") initial_state <- pred_res[2]
+      seq_index <- sample(c(0:(n_event-1))[-start_index], 1, prob=prob_vec[-start_index])
+      int_seqs <- c(int_seqs, seq_index + 1)
+    }
+
+    if (seq_index != end_index - 1) int_seqs <- c(int_seqs, end_index)
+    
+    seqs[[i]] <- events[int_seqs]
+  } 
+  weights = get_weights(seq_pred_model)
+  k_clear_session()
+
+  list(seqs=seqs, weights = weights)
+
+}
+
 #' Action counts in a sequence
 #' 
 #' @param x an action sequences

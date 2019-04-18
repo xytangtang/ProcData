@@ -4,8 +4,9 @@
 \alias{seq2feature_mds}
 \title{Feature extraction via multidimensional scaling}
 \usage{
-seq2feature_mds(seqs = NULL, K = 2, method = "oss", max_epoch = 100,
-  step_size = 0.01, pca = TRUE, tot = 1e-06, return_dist = FALSE)
+seq2feature_mds(seqs = NULL, K = 2, method = "oss",
+  max_epoch = 100, step_size = 0.01, pca = TRUE, tot = 1e-06,
+  return_dist = FALSE)
 }
 \arguments{
 \item{seqs}{a list or a square matrix. If a list is provided, each of its
@@ -64,3 +65,4 @@ Gomez-Alonso, C. and Valls, A. (2008). A similarity measure for sequences of
 
 Other feature extraction methods: \code{\link{seq2feature_seq2seq}}
 }
+\concept{feature extraction methods}
