@@ -461,13 +461,16 @@ chooseK_seq2seq <- function(seqs, rnn_type="lstm", K_cand, n_epoch=50, method="l
 #' predict(res2, new_seqs = seqs[index_test])
 #' 
 #' @export
-seqm <- function(seqs, response, response_type, actions, rnn_type = "lstm", K = 20, n_hidden = 0, K_hidden = NULL,
+seqm <- function(formula, response_type, seqs, actions = NULL, data, rnn_type = "lstm", K_emb = 20, K_rnn = 20, n_hidden = 0, K_hidden = NULL,
                  valid_split = 0, index_valid = NULL, max_len = max(sapply(seqs, length)),
                  n_epoch = 20, batch_size = 16, optimizer_name = "rmsprop", step_size = 0.001, gpu = TRUE)
 {
   n_person <- length(seqs)
-  events <- union(unique(unlist(seqs)), actions)
-  if (length(events) > length(actions)) warning("Action set is expanded to include all actions in seqs.\n")
+  if (is.null(actions)) events <- unique(unlist(seqs))
+  else {
+    events <- union(unique(unlist(seqs)), actions)
+    if (length(events) > length(actions)) warning("Action set is expanded to include all actions in seqs.\n")
+  }
   n_event <- length(events)
   
   max_len0 <- max(sapply(seqs, length))
@@ -497,11 +500,19 @@ seqm <- function(seqs, response, response_type, actions, rnn_type = "lstm", K = 
   
   if (!gpu) Sys.setenv(CUDA_VISIBLE_DEVICES = "")
   
+  # organize covariates
+  covariates <- model.matrix(formula, data)[,-1,drop=FALSE]
+  response <- model.extract(model.frame(formula, data), "response")
   # build keras model
   seq_inputs <- layer_input(shape=list(max_len))
-  seq_emb <- seq_inputs %>% layer_embedding(n_event + 1, K, mask_zero=TRUE)
-  if (rnn_type == "lstm") seq_feature <- seq_emb %>% layer_lstm(units=K)
-  else if (rnn_type == "gru") seq_feature <- seq_emb %>% layer_gru(units=K)
+  seq_emb <- seq_inputs %>% layer_embedding(n_event + 1, K_emb, mask_zero=TRUE)
+  
+  K_cov <- ncol(covariates)
+  cov_inputs <- layer_input(shape=list(K_cov))
+  cov_expand <- cov_inputs %>% layer_repeat_vector(n=max_len)
+  seq_plus_cov <- layer_concatenate(inputs=c(seq_emb, cov_expand), axis=-1)
+  if (rnn_type == "lstm") seq_feature <- seq_plus_cov %>% layer_lstm(units=K_rnn)
+  else if (rnn_type == "gru") seq_feature <- seq_plus_cov %>% layer_gru(units=K_rnn)
   
   outputs <- seq_feature
   n_hidden <- min(n_hidden, length(K_hidden))
@@ -513,7 +524,7 @@ seqm <- function(seqs, response, response_type, actions, rnn_type = "lstm", K = 
   if (response_type == "binary") outputs <- outputs %>% layer_dense(units=1, activation='sigmoid')
   else if (response_type == "scale") outputs <- outputs %>% layer_dense(units=1, activation='linear')
 
-  seq_model <- keras_model(seq_inputs, outputs)
+  seq_model <- keras_model(c(seq_inputs, cov_inputs), outputs)
   
   if (optimizer_name == "sgd") optimizer <- optimizer_sgd(lr=step_size)
   else if (optimizer_name == "rmsprop") optimizer <- optimizer_rmsprop(lr=step_size)
@@ -528,9 +539,9 @@ seqm <- function(seqs, response, response_type, actions, rnn_type = "lstm", K = 
   trace_res <- matrix(0, n_epoch, 2)
   colnames(trace_res) <- c("train", "valid")
   for (index_epoch in 1:n_epoch) {
-    model_res <- seq_model %>% fit(int_seqs[index_train, ], response[index_train], 
+    model_res <- seq_model %>% fit(list(int_seqs[index_train, ], covariates[index_train,]), response[index_train], 
                                  epochs=1, batch_size=batch_size, verbose=FALSE, 
-                                 validation_data=list(int_seqs[index_valid,], response[index_valid]))
+                                 validation_data=list(list(int_seqs[index_valid,], covariates[index_valid,]), response[index_valid]))
     trace_res[index_epoch, 1] <- model_res$metrics$loss
     trace_res[index_epoch, 2] <- model_res$metrics$val_loss
     if (model_res$metrics$val_loss < best_valid) {
@@ -541,7 +552,7 @@ seqm <- function(seqs, response, response_type, actions, rnn_type = "lstm", K = 
   
   k_clear_session()
   
-  res <- list(model = model_save, actions = events, max_len = max_len, history = trace_res) 
+  res <- list(formula = formula, model_fit = model_save, actions = events, max_len = max_len, history = trace_res) 
   class(res) <- "seqm"
 
   res  
@@ -557,17 +568,19 @@ seqm <- function(seqs, response, response_type, actions, rnn_type = "lstm", K = 
 #' 
 #' @param object a fitted object of class \code{"seqm"} from \code{seqm}.
 #' @param new_seqs a list of action sequences with which to predict.
+#' @param new_data 
 #' @param ... further arguments to be passed to \code{predict.keras.engine.training.Model}.
 #' 
 #' @return a vector of predictions. If \code{response_type="binary"}, predictions are
 #'   probabilities of the response variable being 1.
 #' @seealso \code{\link{seqm}} for fitting sequence models.
 #' @export
-predict.seqm <- function(object, new_seqs, ...) {
+predict.seqm <- function(object, new_seqs, new_data, ...) {
   model <- unserialize_model(object$model)
   max_len <- object$max_len
   events <- object$actions
-
+  ff <- object$formula
+  
   n <- length(new_seqs)
   new_int_seqs <- matrix(0, n, max_len)
   
@@ -577,8 +590,9 @@ predict.seqm <- function(object, new_seqs, ...) {
     tmp <- match(my_seq, events)
     new_int_seqs[index_seq, 1:n_l] <- tmp
   }
-
-  pred_res <- predict(model, new_int_seqs, ...)
+  new_covariates <- model.matrix(ff, new_data)[,-1,drop=FALSE]
+  
+  pred_res <- predict(model, list(new_int_seqs, new_covariates), ...)
   
   k_clear_session()
   
