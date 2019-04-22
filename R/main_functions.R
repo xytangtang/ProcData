@@ -418,12 +418,15 @@ chooseK_seq2seq <- function(seqs, rnn_type="lstm", K_cand, n_epoch=50, method="l
 #' \code{seqs}, it will be overridden.
 #'
 #' @inheritParams seq2feature_seq2seq
-#' @param response the binary response variable.
+#' @param formula an object of class \code{"\link{formula}"} (or one that can be coerced
+#'   to that class): a symbolic description of the model to be fitted.
 #' @param response_type "binary" or "scale".
 #' @param actions a character vector gives all possible actions. It is will be
 #'   expanded to include all actions appear in \code{seqs} if necessary.
+#' @param data a dataframe containing the variables in the model.
 #' @param n_hidden the number of hidden fully-connected layers.
-#' @param K the latent dimension of the embedding layer and the recurrent layer.
+#' @param K_emb the latent dimension of the embedding layer.
+#' @param K_rnn the latent dimension of the recurrent neural network.
 #' @param K_hidden a vector of length \code{n_hidden} specifying the number of
 #'   nodes in each hidden layer.
 #' @param n_epoch the number of training epochs.
@@ -431,8 +434,9 @@ chooseK_seq2seq <- function(seqs, rnn_type="lstm", K_cand, n_epoch=50, method="l
 #' @param valid_split proportion of sequences used as the validation set. 
 #' @param index_valid a vector of indices specifying the validation set.
 #' @param max_len the maximum length of input sequences.
-#' @return \code{seqm} returns an object of class \code{"seqm"}, which is a list containing 
-#'   \item{model}{a vector of class \code{"raw"}. It is the serialized version of 
+#' @return \code{seqm} returns an object of class \code{"seqm"}, which is a list containing
+#'   \item{formula}{the model formula.}
+#'   \item{model_fit}{a vector of class \code{"raw"}. It is the serialized version of 
 #'     the trained keras model.} 
 #'   \item{actions}{all possible actions.}
 #'   \item{max_len}{the maximum length of action sequences.}
@@ -445,20 +449,22 @@ chooseK_seq2seq <- function(seqs, rnn_type="lstm", K_cand, n_epoch=50, method="l
 #' seqs <- seq_gen(n)
 #' y1 <- sapply(seqs, function(x) "CHECK_A" %in% x)
 #' y2 <- sapply(seqs, function(x) log10(length(x)))
+#' x <- rnorm(n)
+#' mydata <- data.frame(x=x, y1=y1, y2=y2)
 #' 
 #' index_test <- 91:100
 #' index_train <- 1:90
 #' 
 #' actions <- unique(unlist(seqs))
 #' 
-#' res1 <- seqm(seqs[index_train], y1[index_train], "binary", actions=actions, valid_split=0.2)
-#' predict(res1, new_seqs = seqs[index_test])
+#' res1 <- seqm(y1 ~ x, "binary", seqs[index_train], actions=actions, data=mydata[index_train, ], K_emb = 5, K_rnn = 5, valid_split=0.2, n_epoch = 5)
+#' predict(res1, new_seqs = seqs[index_test], new_data=mydata[index_test, ])
 #' 
-#' res1_more <- seqm(seqs[index_train], y1[index_train], "binary", actions=actions, valid_split=0.2, K=20, n_hidden=2, K_hidden=c(10,5))
-#' predict(res1_more, new_seqs = seqs[index_test])
+#' res1_more <- seqm(y1 ~ x, "binary", seqs[index_train], actions=actions, data=mydata[index_train, ], K_emb = 5, K_rnn = 5, valid_split=0.2, n_hidden=2, K_hidden=c(10,5), n_epoch = 5)
+#' predict(res1_more, new_seqs = seqs[index_test], new_data=mydata[index_test, ])
 #' 
-#' res2 <- seqm(seqs[index_train], y2[index_train], "scale", actions=actions, valid_split=0.2)
-#' predict(res2, new_seqs = seqs[index_test])
+#' res2 <- seqm(y2 ~ x, "scale", seqs[index_train], actions=actions, data=mydata[index_train, ], K_emb = 5, K_rnn = 5, valid_split=0.2, n_epoch = 5)
+#' predict(res2, new_seqs = seqs[index_test], new_data=mydata[index_test, ])
 #' 
 #' @export
 seqm <- function(formula, response_type, seqs, actions = NULL, data, rnn_type = "lstm", K_emb = 20, K_rnn = 20, n_hidden = 0, K_hidden = NULL,
@@ -568,7 +574,7 @@ seqm <- function(formula, response_type, seqs, actions = NULL, data, rnn_type = 
 #' 
 #' @param object a fitted object of class \code{"seqm"} from \code{seqm}.
 #' @param new_seqs a list of action sequences with which to predict.
-#' @param new_data 
+#' @param new_data a dataframe in which to look for variables with which to predict.
 #' @param ... further arguments to be passed to \code{predict.keras.engine.training.Model}.
 #' 
 #' @return a vector of predictions. If \code{response_type="binary"}, predictions are

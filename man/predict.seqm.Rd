@@ -4,12 +4,14 @@
 \alias{predict.seqm}
 \title{Predict method for sequence models}
 \usage{
-\method{predict}{seqm}(object, new_seqs, ...)
+\method{predict}{seqm}(object, new_seqs, new_data, ...)
 }
 \arguments{
 \item{object}{a fitted object of class \code{"seqm"} from \code{seqm}.}
 
 \item{new_seqs}{a list of action sequences with which to predict.}
+
+\item{new_data}{a dataframe in which to look for variables with which to predict.}
 
 \item{...}{further arguments to be passed to \code{predict.keras.engine.training.Model}.}
 }

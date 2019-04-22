@@ -4,28 +4,33 @@
 \alias{seqm}
 \title{Fitting sequence models}
 \usage{
-seqm(seqs, response, response_type, actions, rnn_type = "lstm", K = 20,
-  n_hidden = 0, K_hidden = NULL, valid_split = 0,
-  index_valid = NULL, max_len = max(sapply(seqs, length)),
-  n_epoch = 20, batch_size = 16, optimizer_name = "rmsprop",
+seqm(formula, response_type, seqs, actions = NULL, data, rnn_type = "lstm",
+  K_emb = 20, K_rnn = 20, n_hidden = 0, K_hidden = NULL,
+  valid_split = 0, index_valid = NULL, max_len = max(sapply(seqs,
+  length)), n_epoch = 20, batch_size = 16, optimizer_name = "rmsprop",
   step_size = 0.001, gpu = TRUE)
 }
 \arguments{
-\item{seqs}{a list of \code{n} action sequences. Each element is an action
-sequence in the form of a vector of actions.}
-
-\item{response}{the binary response variable.}
+\item{formula}{an object of class \code{"\link{formula}"} (or one that can be coerced
+to that class): a symbolic description of the model to be fitted.}
 
 \item{response_type}{"binary" or "scale".}
 
+\item{seqs}{a list of \code{n} action sequences. Each element is an action
+sequence in the form of a vector of actions.}
+
 \item{actions}{a character vector gives all possible actions. It is will be
 expanded to include all actions appear in \code{seqs} if necessary.}
+
+\item{data}{a dataframe containing the variables in the model.}
 
 \item{rnn_type}{the type of recurrent unit to be used for modeling
 action sequences. \code{"lstm"} for the long-short term memory unit. 
 \code{"gru"} for the gated recurrent unit.}
 
-\item{K}{the latent dimension of the embedding layer and the recurrent layer.}
+\item{K_emb}{the latent dimension of the embedding layer.}
+
+\item{K_rnn}{the latent dimension of the recurrent neural network.}
 
 \item{n_hidden}{the number of hidden fully-connected layers.}
 
@@ -51,8 +56,9 @@ for training. Availabel options are \code{"sgd"}, \code{"rmsprop"},
 \item{gpu}{logical. If TRUE, use gpu for training if available.}
 }
 \value{
-\code{seqm} returns an object of class \code{"seqm"}, which is a list containing 
-  \item{model}{a vector of class \code{"raw"}. It is the serialized version of 
+\code{seqm} returns an object of class \code{"seqm"}, which is a list containing
+  \item{formula}{the model formula.}
+  \item{model_fit}{a vector of class \code{"raw"}. It is the serialized version of 
     the trained keras model.} 
   \item{actions}{all possible actions.}
   \item{max_len}{the maximum length of action sequences.}
@@ -84,20 +90,22 @@ n <- 100
 seqs <- seq_gen(n)
 y1 <- sapply(seqs, function(x) "CHECK_A" \%in\% x)
 y2 <- sapply(seqs, function(x) log10(length(x)))
+x <- rnorm(n)
+mydata <- data.frame(x=x, y1=y1, y2=y2)
 
 index_test <- 91:100
 index_train <- 1:90
 
 actions <- unique(unlist(seqs))
 
-res1 <- seqm(seqs[index_train], y1[index_train], "binary", actions=actions, valid_split=0.2)
-predict(res1, new_seqs = seqs[index_test])
+res1 <- seqm(y1 ~ x, "binary", seqs[index_train], actions=actions, data=mydata[index_train, ], K_emb = 5, K_rnn = 5, valid_split=0.2, n_epoch = 5)
+predict(res1, new_seqs = seqs[index_test], new_data=mydata[index_test, ])
 
-res1_more <- seqm(seqs[index_train], y1[index_train], "binary", actions=actions, valid_split=0.2, K=20, n_hidden=2, K_hidden=c(10,5))
-predict(res1_more, new_seqs = seqs[index_test])
+res1_more <- seqm(y1 ~ x, "binary", seqs[index_train], actions=actions, data=mydata[index_train, ], K_emb = 5, K_rnn = 5, valid_split=0.2, n_hidden=2, K_hidden=c(10,5), n_epoch = 5)
+predict(res1_more, new_seqs = seqs[index_test], new_data=mydata[index_test, ])
 
-res2 <- seqm(seqs[index_train], y2[index_train], "scale", actions=actions, valid_split=0.2)
-predict(res2, new_seqs = seqs[index_test])
+res2 <- seqm(y2 ~ x, "scale", seqs[index_train], actions=actions, data=mydata[index_train, ], K_emb = 5, K_rnn = 5, valid_split=0.2, n_epoch = 5)
+predict(res2, new_seqs = seqs[index_test], new_data=mydata[index_test, ])
 
 }
 \seealso{
