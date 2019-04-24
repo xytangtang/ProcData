@@ -4,9 +4,9 @@
 \alias{seq_gen3}
 \title{RNN action sequence generator}
 \usage{
-seq_gen3(n, events = letters, rnn_type = "lstm", K = 10, weights = NULL,
-  max_len = 100, initial_state = NULL, start_index = 1,
-  end_index = length(events))
+seq_gen3(n, events = letters, rnn_type = "lstm", K = 10,
+  weights = NULL, max_len = 100, initial_state = NULL,
+  start_index = 1, end_index = length(events))
 }
 \arguments{
 \item{n}{An integer. The number of sequences to be generated.}
@@ -42,3 +42,4 @@ A list containing the following elements
 Other sequence generators: \code{\link{seq_gen2}},
   \code{\link{seq_gen}}
 }
+\concept{sequence generators}

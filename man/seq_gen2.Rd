@@ -46,3 +46,4 @@ seqs <- seq_gen2(100)
 Other sequence generators: \code{\link{seq_gen3}},
   \code{\link{seq_gen}}
 }
+\concept{sequence generators}

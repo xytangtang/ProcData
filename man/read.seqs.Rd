@@ -4,8 +4,8 @@
 \alias{read.seqs}
 \title{Reading action sequences}
 \usage{
-read.seqs(file, style, id_vars = "ID", seq_var = "Event", seq_sep = ",",
-  ...)
+read.seqs(file, style, id_vars = "ID", seq_var = "Event",
+  seq_sep = ",", ...)
 }
 \arguments{
 \item{file}{the name of the csv file from which the action sequences are to be read.}

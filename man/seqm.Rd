@@ -4,11 +4,11 @@
 \alias{seqm}
 \title{Fitting sequence models}
 \usage{
-seqm(formula, response_type, seqs, actions = NULL, data, rnn_type = "lstm",
-  K_emb = 20, K_rnn = 20, n_hidden = 0, K_hidden = NULL,
-  valid_split = 0, index_valid = NULL, max_len = max(sapply(seqs,
-  length)), n_epoch = 20, batch_size = 16, optimizer_name = "rmsprop",
-  step_size = 0.001, gpu = TRUE)
+seqm(formula, response_type, seqs, actions = NULL, data,
+  rnn_type = "lstm", K_emb = 20, K_rnn = 20, n_hidden = 0,
+  K_hidden = NULL, valid_split = 0, index_valid = NULL,
+  max_len = max(sapply(seqs, length)), n_epoch = 20, batch_size = 16,
+  optimizer_name = "rmsprop", step_size = 0.001, gpu = TRUE)
 }
 \arguments{
 \item{formula}{an object of class \code{"\link{formula}"} (or one that can be coerced
@@ -58,6 +58,8 @@ for training. Availabel options are \code{"sgd"}, \code{"rmsprop"},
 \value{
 \code{seqm} returns an object of class \code{"seqm"}, which is a list containing
   \item{formula}{the model formula.}
+  \item{structure}{neural network structure.}
+  \item{coefficients}{a list of fitted coefficients.}
   \item{model_fit}{a vector of class \code{"raw"}. It is the serialized version of 
     the trained keras model.} 
   \item{actions}{all possible actions.}

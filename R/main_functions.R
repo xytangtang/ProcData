@@ -397,6 +397,19 @@ chooseK_seq2seq <- function(seqs, rnn_type="lstm", K_cand, n_epoch=50, method="l
 }
 
 
+K2string <- function(K_emb, K_rnn, K_hidden = NULL, rnn_type) {
+ emb_string <- paste("Embed(K=", K_emb, ")", sep="")
+ if (rnn_type == "lstm") rnn_string <- paste("LSTM(K=", K_rnn, ")", sep="") 
+ else if (rnn_type == "gru") rnn_string <- paste("GRU(K=", K_rnn, ")", sep="") 
+ 
+ dense_strings <- character(0)
+ if (!is.null(K_hidden)) dense_strings <- c(dense_strings, paste("Dense(K=", K_hidden, ")", sep=""))
+ dense_strings <- c(dense_strings, "Dense(K=1)")
+ model_string <- paste(emb_string, rnn_string, paste(dense_strings, collapse=","), sep=",")
+
+ model_string 
+}
+ 
 #' Fitting sequence models
 #'
 #' \code{seqm} is used to fit a neural network model relating action sequences
@@ -436,6 +449,8 @@ chooseK_seq2seq <- function(seqs, rnn_type="lstm", K_cand, n_epoch=50, method="l
 #' @param max_len the maximum length of input sequences.
 #' @return \code{seqm} returns an object of class \code{"seqm"}, which is a list containing
 #'   \item{formula}{the model formula.}
+#'   \item{structure}{neural network structure.}
+#'   \item{coefficients}{a list of fitted coefficients.}
 #'   \item{model_fit}{a vector of class \code{"raw"}. It is the serialized version of 
 #'     the trained keras model.} 
 #'   \item{actions}{all possible actions.}
@@ -515,12 +530,11 @@ seqm <- function(formula, response_type, seqs, actions = NULL, data, rnn_type = 
   
   K_cov <- ncol(covariates)
   cov_inputs <- layer_input(shape=list(K_cov))
-  cov_expand <- cov_inputs %>% layer_repeat_vector(n=max_len)
-  seq_plus_cov <- layer_concatenate(inputs=c(seq_emb, cov_expand), axis=-1)
-  if (rnn_type == "lstm") seq_feature <- seq_plus_cov %>% layer_lstm(units=K_rnn)
-  else if (rnn_type == "gru") seq_feature <- seq_plus_cov %>% layer_gru(units=K_rnn)
   
-  outputs <- seq_feature
+  if (rnn_type == "lstm") seq_feature <- seq_emb %>% layer_lstm(units=K_rnn)
+  else if (rnn_type == "gru") seq_feature <- seq_emb %>% layer_gru(units=K_rnn)
+  
+  outputs <- layer_concatenate(inputs=c(seq_feature, cov_inputs), axis=-1)
   n_hidden <- min(n_hidden, length(K_hidden))
   
   if (n_hidden > 0) {
@@ -555,10 +569,10 @@ seqm <- function(formula, response_type, seqs, actions = NULL, data, rnn_type = 
       model_save <- serialize_model(seq_model)
     }
   }
-  
+  weights <- get_weights(seq_model)
   k_clear_session()
-  
-  res <- list(formula = formula, model_fit = model_save, actions = events, max_len = max_len, history = trace_res) 
+  model_string <- K2string(K_emb, K_rnn, K_hidden[1:n_hidden], rnn_type)  
+  res <- list(formula = formula, structure = model_string, coefficients = weights, model_fit = model_save, actions = events, max_len = max_len, history = trace_res) 
   class(res) <- "seqm"
 
   res  
@@ -582,7 +596,7 @@ seqm <- function(formula, response_type, seqs, actions = NULL, data, rnn_type = 
 #' @seealso \code{\link{seqm}} for fitting sequence models.
 #' @export
 predict.seqm <- function(object, new_seqs, new_data, ...) {
-  model <- unserialize_model(object$model)
+  model <- unserialize_model(object$model_fit)
   max_len <- object$max_len
   events <- object$actions
   ff <- object$formula

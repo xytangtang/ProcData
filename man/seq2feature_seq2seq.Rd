@@ -77,3 +77,4 @@ lines(seq2seq_res$valid_loss, col="red")
 
 Other feature extraction methods: \code{\link{seq2feature_mds}}
 }
+\concept{feature extraction methods}
