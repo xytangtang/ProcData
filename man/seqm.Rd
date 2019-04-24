@@ -58,8 +58,11 @@ for training. Availabel options are \code{"sgd"}, \code{"rmsprop"},
 \value{
 \code{seqm} returns an object of class \code{"seqm"}, which is a list containing
   \item{formula}{the model formula.}
-  \item{structure}{neural network structure.}
-  \item{coefficients}{a list of fitted coefficients.}
+  \item{structure}{a string describing the neural network structure.}
+  \item{coefficients}{a list of fitted coefficients. The length of the list is 6 + 2 * \code{n_hidden}. 
+    The first element gives the action embedding. Elements 2-4 are parameters in the recurrent unit.
+    The rest of the elements are for the fully connected layers. Elements 4 + (2 * i - 1) and 4 + 2 * i
+    give the parameters for the i-th fully connected layer.}
   \item{model_fit}{a vector of class \code{"raw"}. It is the serialized version of 
     the trained keras model.} 
   \item{actions}{all possible actions.}

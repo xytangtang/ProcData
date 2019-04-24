@@ -449,8 +449,11 @@ K2string <- function(K_emb, K_rnn, K_hidden = NULL, rnn_type) {
 #' @param max_len the maximum length of input sequences.
 #' @return \code{seqm} returns an object of class \code{"seqm"}, which is a list containing
 #'   \item{formula}{the model formula.}
-#'   \item{structure}{neural network structure.}
-#'   \item{coefficients}{a list of fitted coefficients.}
+#'   \item{structure}{a string describing the neural network structure.}
+#'   \item{coefficients}{a list of fitted coefficients. The length of the list is 6 + 2 * \code{n_hidden}. 
+#'     The first element gives the action embedding. Elements 2-4 are parameters in the recurrent unit.
+#'     The rest of the elements are for the fully connected layers. Elements 4 + (2 * i - 1) and 4 + 2 * i
+#'     give the parameters for the i-th fully connected layer.}
 #'   \item{model_fit}{a vector of class \code{"raw"}. It is the serialized version of 
 #'     the trained keras model.} 
 #'   \item{actions}{all possible actions.}
@@ -582,7 +585,7 @@ seqm <- function(formula, response_type, seqs, actions = NULL, data, rnn_type = 
 #' 
 #' Obtains predictions from a fitted sequence model object.
 #' 
-#' It unserialize object$model to obtain a keras model of class 
+#' It unserialize \code{object$model_fit} to obtain a keras model of class 
 #' \code{"keras.engin.training.Model"} and then calls \code{predict} for this class
 #' to obtain predictions.
 #' 

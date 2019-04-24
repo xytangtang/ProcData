@@ -1,7 +1,7 @@
 Package: ProcData
 Type: Package
 Title: Process Data Analysis
-Version: 1.0
+Version: 0.1.0
 Date: 2019-04-12
 Authors@R: person("Xueying", "Tang", email = "xueyingtang1989@gmail.com", role = c("aut", "cre"))
 Description: General tools for exploratory process data analysis. Process data refers to the data describing 

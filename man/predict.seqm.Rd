@@ -23,7 +23,7 @@ a vector of predictions. If \code{response_type="binary"}, predictions are
 Obtains predictions from a fitted sequence model object.
 }
 \details{
-It unserialize object$model to obtain a keras model of class 
+It unserialize \code{object$model_fit} to obtain a keras model of class 
 \code{"keras.engin.training.Model"} and then calls \code{predict} for this class
 to obtain predictions.
 }
