@@ -51,8 +51,10 @@ for training. Availabel options are \code{"sgd"}, \code{"rmsprop"},
 \examples{
 n <- 50
 seqs <- seq_gen(n)
-K_res <- chooseK_seq2seq(seqs, K_cand=c(5, 10), rnn_type="lstm", n_epoch=5, n_fold=2, valid_prop=0.2)
-seq2seq_res <- seq2feature_seq2seq(seqs, K_res$K, rnn_type="lstm", n_epoch=10, samples_train=1:40, samples_valid=41:50)
+K_res <- chooseK_seq2seq(seqs, K_cand=c(5, 10), rnn_type="lstm", 
+                         n_epoch=5, n_fold=2, valid_prop=0.2)
+seq2seq_res <- seq2feature_seq2seq(seqs, K_res$K, rnn_type="lstm", 
+                       n_epoch=10, samples_train=1:40, samples_valid=41:50)
 theta <- seq2seq_res$theta
 }
 \seealso{

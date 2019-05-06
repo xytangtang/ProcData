@@ -67,4 +67,10 @@ Useful links:
 \author{
 \strong{Maintainer}: Xueying Tang \email{xueyingtang1989@gmail.com}
 
+Authors:
+\itemize{
+  \item Jingchen Liu \email{jcliu@stat.columbia.edu}
+  \item Zhiliang Ying \email{zying@stat.columbia.edu}
+}
+
 }

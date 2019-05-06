@@ -103,13 +103,19 @@ index_train <- 1:90
 
 actions <- unique(unlist(seqs))
 
-res1 <- seqm(y1 ~ x, "binary", seqs[index_train], actions=actions, data=mydata[index_train, ], K_emb = 5, K_rnn = 5, valid_split=0.2, n_epoch = 5)
+res1 <- seqm(y1 ~ x, "binary", seqs[index_train], actions=actions,
+             data=mydata[index_train, ], K_emb = 5, K_rnn = 5, 
+             valid_split=0.2, n_epoch = 5)
 predict(res1, new_seqs = seqs[index_test], new_data=mydata[index_test, ])
 
-res1_more <- seqm(y1 ~ x, "binary", seqs[index_train], actions=actions, data=mydata[index_train, ], K_emb = 5, K_rnn = 5, valid_split=0.2, n_hidden=2, K_hidden=c(10,5), n_epoch = 5)
+res1_more <- seqm(y1 ~ x, "binary", seqs[index_train], actions=actions, 
+                  data=mydata[index_train, ], K_emb = 5, K_rnn = 5, 
+                  valid_split=0.2, n_hidden=2, K_hidden=c(10,5), n_epoch = 5)
 predict(res1_more, new_seqs = seqs[index_test], new_data=mydata[index_test, ])
 
-res2 <- seqm(y2 ~ x, "scale", seqs[index_train], actions=actions, data=mydata[index_train, ], K_emb = 5, K_rnn = 5, valid_split=0.2, n_epoch = 5)
+res2 <- seqm(y2 ~ x, "scale", seqs[index_train], actions=actions, 
+             data=mydata[index_train, ], K_emb = 5, K_rnn = 5, 
+             valid_split=0.2, n_epoch = 5)
 predict(res2, new_seqs = seqs[index_test], new_data=mydata[index_test, ])
 
 }

@@ -194,7 +194,8 @@ chooseK_mds <- function(seqs=NULL, K_cand, method="oss", n_fold=5, max_epoch=100
 #' @examples
 #' n <- 50
 #' seqs <- seq_gen(n)
-#' seq2seq_res <- seq2feature_seq2seq(seqs, 5, rnn_type="lstm", n_epoch=5, samples_train=1:40, samples_valid=41:50)
+#' seq2seq_res <- seq2feature_seq2seq(seqs, 5, rnn_type="lstm", n_epoch=5, 
+#'                                    samples_train=1:40, samples_valid=41:50)
 #' features <- seq2seq_res$theta
 #' plot(seq2seq_res$train_loss, col="blue", type="l")
 #' lines(seq2seq_res$valid_loss, col="red")
@@ -368,8 +369,10 @@ seq2feature_seq2seq <- function(seqs, K, rnn_type="lstm", n_epoch=50, method="la
 #' @examples 
 #' n <- 50
 #' seqs <- seq_gen(n)
-#' K_res <- chooseK_seq2seq(seqs, K_cand=c(5, 10), rnn_type="lstm", n_epoch=5, n_fold=2, valid_prop=0.2)
-#' seq2seq_res <- seq2feature_seq2seq(seqs, K_res$K, rnn_type="lstm", n_epoch=10, samples_train=1:40, samples_valid=41:50)
+#' K_res <- chooseK_seq2seq(seqs, K_cand=c(5, 10), rnn_type="lstm", 
+#'                          n_epoch=5, n_fold=2, valid_prop=0.2)
+#' seq2seq_res <- seq2feature_seq2seq(seqs, K_res$K, rnn_type="lstm", 
+#'                        n_epoch=10, samples_train=1:40, samples_valid=41:50)
 #' theta <- seq2seq_res$theta
 #' @export
 chooseK_seq2seq <- function(seqs, rnn_type="lstm", K_cand, n_epoch=50, method="last", step_size=0.0001, optimizer_name="adam", n_fold=5, valid_prop=0.1, gpu = FALSE, verbose=TRUE) {
@@ -475,13 +478,19 @@ K2string <- function(K_emb, K_rnn, K_hidden = NULL, rnn_type) {
 #' 
 #' actions <- unique(unlist(seqs))
 #' 
-#' res1 <- seqm(y1 ~ x, "binary", seqs[index_train], actions=actions, data=mydata[index_train, ], K_emb = 5, K_rnn = 5, valid_split=0.2, n_epoch = 5)
+#' res1 <- seqm(y1 ~ x, "binary", seqs[index_train], actions=actions,
+#'              data=mydata[index_train, ], K_emb = 5, K_rnn = 5, 
+#'              valid_split=0.2, n_epoch = 5)
 #' predict(res1, new_seqs = seqs[index_test], new_data=mydata[index_test, ])
 #' 
-#' res1_more <- seqm(y1 ~ x, "binary", seqs[index_train], actions=actions, data=mydata[index_train, ], K_emb = 5, K_rnn = 5, valid_split=0.2, n_hidden=2, K_hidden=c(10,5), n_epoch = 5)
+#' res1_more <- seqm(y1 ~ x, "binary", seqs[index_train], actions=actions, 
+#'                   data=mydata[index_train, ], K_emb = 5, K_rnn = 5, 
+#'                   valid_split=0.2, n_hidden=2, K_hidden=c(10,5), n_epoch = 5)
 #' predict(res1_more, new_seqs = seqs[index_test], new_data=mydata[index_test, ])
 #' 
-#' res2 <- seqm(y2 ~ x, "scale", seqs[index_train], actions=actions, data=mydata[index_train, ], K_emb = 5, K_rnn = 5, valid_split=0.2, n_epoch = 5)
+#' res2 <- seqm(y2 ~ x, "scale", seqs[index_train], actions=actions, 
+#'              data=mydata[index_train, ], K_emb = 5, K_rnn = 5, 
+#'              valid_split=0.2, n_epoch = 5)
 #' predict(res2, new_seqs = seqs[index_test], new_data=mydata[index_test, ])
 #' 
 #' @export

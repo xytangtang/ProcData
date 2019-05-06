@@ -3,7 +3,10 @@ Type: Package
 Title: Process Data Analysis
 Version: 0.1.0
 Date: 2019-04-12
-Authors@R: person("Xueying", "Tang", email = "xueyingtang1989@gmail.com", role = c("aut", "cre"))
+Authors@R: c(
+    person("Xueying", "Tang", email = "xueyingtang1989@gmail.com", role = c("aut", "cre")),
+    person("Jingchen", "Liu", email = "jcliu@stat.columbia.edu", role=c("aut")),
+    person("Zhiliang", "Ying", email = "zying@stat.columbia.edu", role=c("aut")))
 Description: General tools for exploratory process data analysis. Process data refers to the data describing 
     participants' problem solving processes in computer-based assessments. It is often recorded in computer
     log files. This package provides two action sequence generators and implements two automatic feature extraction methods that compress the information
@@ -13,10 +16,10 @@ Description: General tools for exploratory process data analysis. Process data r
     of functions in keras.
 BugReports: https://github.com/xytangtang/ProcData/issues
 License: GPL (>= 2)
-Depends: R (>= 3.2)
+Depends: R (>= 3.5)
 Imports: 
     Rcpp (>= 0.12.16),
-    keras
+    keras (>= 2.2.4)
 LinkingTo: Rcpp
 SystemRequirements: Keras >= 2.0 (https://keras.io)
 RoxygenNote: 6.1.1
