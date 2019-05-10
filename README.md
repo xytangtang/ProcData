@@ -15,7 +15,7 @@ ProcData: An R Package for Process Data Analysis
 Installation
 ------------
 
-Download the package from [the download page](www.scientifichpc.com/ProcData/download.html) and execute the following command in `R`
+Download the package from [the download page](https://www.scientifichpc.com/ProcData/download.html) and execute the following command in `R`
 
 ``` r
 install.packages(FILENAME, repos = NULL, dependencies = TRUE)
@@ -62,7 +62,7 @@ For data stored in csv files, `read.seqs` can be used to read the action sequenc
 
 ### Feature Extraction Methods
 
-`ProcData` implements two feature extraction methods that compress varying length categorical sequences into fixed dimension numeric vectors. One of the methods is based on multidimensional scaling (MDS) and the other one is based on sequence-to-sequence autoencoders (seq2seq AE). Details of the two methods can be found [here](www.scientifichpc.com/processdata/method.html).
+`ProcData` implements two feature extraction methods that compress varying length categorical sequences into fixed dimension numeric vectors. One of the methods is based on multidimensional scaling (MDS) and the other one is based on sequence-to-sequence autoencoders (seq2seq AE). Details of the two methods can be found [here](https://www.scientifichpc.com/processdata/method.html).
 
 #### MDS
 
