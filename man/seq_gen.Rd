@@ -32,7 +32,7 @@ from \code{answer_set}.}
 A list of \code{n} elements. Each element is a generated action sequence.
 }
 \description{
-\code{seq_gen} generates action sequences of an imaginery simulation-based item.
+\code{seq_gen} generates action sequences of an imaginary simulation-based item.
 }
 \details{
 The format of the generated sequences resembles that of the response processes of 
