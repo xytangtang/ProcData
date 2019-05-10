@@ -1,6 +1,6 @@
 #' Action sequence generator
 #'
-#' \code{seq_gen} generates action sequences of an imaginery simulation-based item.
+#' \code{seq_gen} generates action sequences of an imaginary simulation-based item.
 #' 
 #' The format of the generated sequences resembles that of the response processes of 
 #' simulation-based items. In these items, participants are asked to answer
