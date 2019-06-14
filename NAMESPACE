@@ -3,6 +3,7 @@
 S3method(predict,seqm)
 export(chooseK_mds)
 export(chooseK_seq2seq)
+export(read.seqs)
 export(seq2feature_mds)
 export(seq2feature_seq2seq)
 export(seq_gen)

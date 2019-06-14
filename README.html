@@ -54,7 +54,9 @@ body {
 <li><code>seqs</code> is a list containing the action sequences,</li>
 <li><code>responses</code> is a numeric vector containing the binary item responses.</li>
 </ul>
-<p>For data stored in csv files, <code>read.seqs</code> can be used to read the action sequences and organize them into a list of sequences.</p>
+<p>For data stored in csv files, <code>read.seqs</code> can be used to read the action sequences and organize them into a list of sequences. In the input csv file, each sequence can be stored in a single line or multiple lines. The sample files for the two styles are example_single.csv and example_multiple.csv. The sequences in the two files can be read by running</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">seqs1 &lt;-<span class="st"> </span><span class="kw">read.seqs</span>(<span class="dt">file=</span><span class="st">&quot;example_single.csv&quot;</span>, <span class="dt">style=</span><span class="st">&quot;single&quot;</span>, <span class="dt">id_vars=</span><span class="st">&quot;ID&quot;</span>, <span class="dt">seq_var=</span><span class="st">&quot;Action&quot;</span>, <span class="dt">seq_sep=</span><span class="st">&quot;, &quot;</span>)
+seqs2 &lt;-<span class="st"> </span><span class="kw">read.seqs</span>(<span class="dt">file=</span><span class="st">&quot;example_multiple.csv&quot;</span>, <span class="dt">style=</span><span class="st">&quot;multiple&quot;</span>, <span class="dt">id_vars=</span><span class="st">&quot;ID&quot;</span>, <span class="dt">seq_var=</span><span class="st">&quot;Action&quot;</span>)</code></pre></div>
 <p><code>ProcData</code> also provides three action sequences generators:</p>
 <ul>
 <li><code>seq_gen</code> generates action sequences of an imaginary simulation-experiment-based item;</li>

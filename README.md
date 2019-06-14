@@ -52,7 +52,12 @@ data(cc_data)
 -   `seqs` is a list containing the action sequences,
 -   `responses` is a numeric vector containing the binary item responses.
 
-For data stored in csv files, `read.seqs` can be used to read the action sequences and organize them into a list of sequences.
+For data stored in csv files, `read.seqs` can be used to read the action sequences and organize them into a list of sequences. In the input csv file, each sequence can be stored in a single line or multiple lines. The sample files for the two styles are example\_single.csv and example\_multiple.csv. The sequences in the two files can be read by running
+
+``` r
+seqs1 <- read.seqs(file="example_single.csv", style="single", id_vars="ID", seq_var="Action", seq_sep=", ")
+seqs2 <- read.seqs(file="example_multiple.csv", style="multiple", id_vars="ID", seq_var="Action")
+```
 
 `ProcData` also provides three action sequences generators:
 

@@ -18,6 +18,7 @@
 #' @param seq_sep the action separator characters. It is only used if \code{style="single"}.
 #' @param ... further arguments to be passed to \code{read.csv}.
 #' @return A list containing action sequences. Each element is an action sequence.
+#' @export
 read.seqs <- function(file, style, id_vars="ID", seq_var="Event", seq_sep = ",", ...) {
   if (!(style %in% c("multiple", "single")))
     stop("Invalid file style! Available options: multiple, and single.\n")
