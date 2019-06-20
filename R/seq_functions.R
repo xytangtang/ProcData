@@ -98,11 +98,11 @@ seq_gen2 <- function(n, Pmat = NULL, events = letters, start_index=1, end_index=
   {
     int_seq <- start_index
     event_index <- start_index
-    while(event_index != end_index)
-    {
-      event_index <- sample(1:n_event, 1, prob=Pmat[event_index,])
+    while (event_index != end_index & length(int_seq) < max_len) {
+      event_index <- sample(1:n_event, 1, prob = Pmat[event_index, ])
       int_seq <- c(int_seq, event_index)
     }
+    if (tail(int_seq, 1) != end_index) int_seq <- c(int_seq, end_index)
     seqs[[i]] <- events[int_seq]
   }
   seqs
@@ -127,7 +127,7 @@ same_shape <- function(target, current) {
  
 #' RNN action sequence generator
 #' 
-#' \code{seq_gen3} generates action sequences according to a reccurent neural network
+#' \code{seq_gen3} generates action sequences according to a recurrent neural network
 #' 
 #' @inheritParams seq_gen2
 #' @param rnn_type the type of recurrent unit to be used for generating sequences. \code{"lstm"} for the long-short term memory unit. \code{"gru"} for the gated recurrent unit.
