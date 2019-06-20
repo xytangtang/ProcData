@@ -36,7 +36,7 @@ A list containing the following elements
     \item{weights}{a list containing the weights used for generating sequences.}
 }
 \description{
-\code{seq_gen3} generates action sequences according to a reccurent neural network
+\code{seq_gen3} generates action sequences according to a recurrent neural network
 }
 \seealso{
 Other sequence generators: \code{\link{seq_gen2}},

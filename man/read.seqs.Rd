@@ -2,37 +2,45 @@
 % Please edit documentation in R/read_seqs.R
 \name{read.seqs}
 \alias{read.seqs}
-\title{Reading action sequences}
+\title{Reading response processes from csv files}
 \usage{
-read.seqs(file, style, id_vars = "ID", seq_var = "Event",
-  seq_sep = ",", ...)
+read.seqs(file, style, id_var = "ID", action_var = "Event",
+  time_var = "Time", seq_sep = ",", ...)
 }
 \arguments{
-\item{file}{the name of the csv file from which the action sequences are to be read.}
+\item{file}{the name of the csv file from which the response processes are to be read.}
 
-\item{style}{the style that the action sequences are stored. \code{"single"}
-means each sequence occupies a single line. Actions are separated by \code{seq_sep}.
-\code{"multiple"} means that each sequence occupies multiple lines, each action in
-a line.}
+\item{style}{the style that the response processes and are stored. See 'Details'.}
 
-\item{id_vars}{a string or a vector of strings giving the names of the variables
-identify different sequences.}
+\item{id_var}{a string giving the name of the variable storing the process identifier.}
 
-\item{seq_var}{a string giving the name of the variable storing action sequences.}
+\item{action_var}{a string giving the name of the variable storing action sequences.}
 
-\item{seq_sep}{the action separator characters. It is only used if \code{style="single"}.}
+\item{time_var}{a string giving the name of the variable storing timestamp sequences.}
 
 \item{...}{further arguments to be passed to \code{read.csv}.}
+
+\item{step_sep}{the step separator characters. It is only used if \code{style="single"}.}
 }
 \value{
-A list containing action sequences. Each element is an action sequence.
+\code{read.seqs} returns an object of class \code{"proc"}. An object of 
+class \code{"proc"} is a list containing the following components:
+  \item{action_seqs}{a list of action sequences.}
+  \item{time_seqs}{a list of timestamp sequences.}
+ The names of elements in \code{action_seqs} and \code{time_seqs} are process identifier given 
+ by \code{id_var}.
 }
 \description{
-Reads a csv file and creates a list of action sequences.
+Reads a csv file and creates response process data.
 }
 \details{
-This function first calls \code{read.csv} to read in data in the csv file and then
-organize the action sequences stored in \code{seq_var} as a list of action sequences.
-Each action sequence in the list is a vector of actions and is named by the concatenation
-of the corresponsing values in \code{id_vars}.
+\code{read.seqs} calls \code{read.csv} to read process data stored in a csv file into \code{R}.
+The csv file to be read should at least include an identifier of distinct response processes, 
+and action sequences. It can also include timestamp sequences.
+
+The response processes (action sequences and timestamp sequences) stored in csv files can 
+be in one of the two styles, \code{"single"} and \code{"multiple"}. In \code{"single"} style,
+each response process occupies a single line. Actions and timestamps at different steps 
+are separated by \code{step_sep}. In \code{"multiple"} stype, each response process occupies 
+multiple lines with each step taking up one line.
 }
