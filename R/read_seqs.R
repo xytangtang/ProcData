@@ -68,7 +68,7 @@ read.seqs <- function(file, style, id_var=NULL, action_var=NULL, time_var=NULL, 
     
     if (is.null(time_var)) times <- NULL
     else {
-      times <- strsplit(csv_data[, time_var], split = step_sep, fixed=TRUE)
+      times <- sapply(strsplit(csv_data[, time_var], split = step_sep, fixed=TRUE), as.numeric)
       names(times) <- csv_data[, id_var]
     }
   }

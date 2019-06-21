@@ -233,7 +233,7 @@ chooseK_mds <- function(seqs=NULL, K_cand, method="oss_action", n_fold=5, max_ep
 #' @examples
 #' n <- 50
 #' seqs <- seq_gen(n)
-#' seq2seq_res <- seq2feature_seq2seq(seqs, 5, rnn_type="lstm", n_epoch=5, 
+#' seq2seq_res <- seq2feature_seq2seq(seqs$action_seqs, 5, rnn_type="lstm", n_epoch=5, 
 #'                                    samples_train=1:40, samples_valid=41:50)
 #' features <- seq2seq_res$theta
 #' plot(seq2seq_res$train_loss, col="blue", type="l")
@@ -408,9 +408,9 @@ seq2feature_seq2seq <- function(seqs, K, rnn_type="lstm", n_epoch=50, method="la
 #' @examples 
 #' n <- 50
 #' seqs <- seq_gen(n)
-#' K_res <- chooseK_seq2seq(seqs, K_cand=c(5, 10), rnn_type="lstm", 
+#' K_res <- chooseK_seq2seq(seqs$action_seqs, K_cand=c(5, 10), rnn_type="lstm", 
 #'                          n_epoch=5, n_fold=2, valid_prop=0.2)
-#' seq2seq_res <- seq2feature_seq2seq(seqs, K_res$K, rnn_type="lstm", 
+#' seq2seq_res <- seq2feature_seq2seq(seqs$action_seqs, K_res$K, rnn_type="lstm", 
 #'                        n_epoch=10, samples_train=1:40, samples_valid=41:50)
 #' theta <- seq2seq_res$theta
 #' @export

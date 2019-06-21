@@ -95,8 +95,8 @@ Similar to MDS, the seq2seq AE method is implemented by two functions. Both func
 
 ```{r seq2seq, eval=FALSE}
 seqs <- seq_gen(100)
-K_res <- chooseK_seq2seq(seqs, K_cand=c(5, 10), valid_prop=0.2)
-seq2seq_res <- seq2feature_seq2seq(seqs, K_res$K, samples_train=1:80, samples_valid=81:100)
+K_res <- chooseK_seq2seq(seqs$action_seqs, K_cand=c(5, 10), valid_prop=0.2)
+seq2seq_res <- seq2feature_seq2seq(seqs$action_seqs, K_res$K, samples_train=1:80, samples_valid=81:100)
 theta <- seq2seq_res$theta
 ```
 
@@ -113,8 +113,8 @@ Both `seqm` and `predict.seqm` depends on `keras`.
 ``` {r seqm, eval=FALSE}
 n <- 100
 seqs <- seq_gen(n)
-y1 <- sapply(seqs, function(x) "CHECK_A" %in% x)
-y2 <- sapply(seqs, function(x) log10(length(x)))
+y1 <- sapply(seqs$action_seqs, function(x) "CHECK_A" %in% x)
+y2 <- sapply(seqs$action_seqs, function(x) log10(length(x)))
 x <- rnorm(n)
 mydata <- data.frame(x=x, y1=y1, y2=y2)
 
@@ -124,14 +124,14 @@ index_train <- setdiff(1:n, index_test)
 actions <- unique(unlist(seqs))
 
 # a simple sequence model for a binary response variable
-seqm_res1 <- seqm(y1 ~ x, "binary", seqs[index_train], actions=actions,
-             data=mydata[index_train, ], K_emb = 5, K_rnn = 5, 
-             valid_split=0.2, n_epoch = 5)
-pred_res1 <- predict(seqm_res1, new_seqs = seqs[index_test], new_data=mydata[index_test, ])
+seqm_res1 <- seqm(y1 ~ x, "binary", seqs$action_seqs[index_train], 
+             actions=actions, data=mydata[index_train, ], 
+             K_emb = 5, K_rnn = 5, valid_split=0.2, n_epoch = 5)
+pred_res1 <- predict(seqm_res1, new_seqs = seqs$action_seqs[index_test], new_data=mydata[index_test, ])
 
 # a simple sequence model for a numeric response variable
-seqm_res2 <- seqm(y2 ~ x, "scale", seqs[index_train], actions=actions, 
-             data=mydata[index_train, ], K_emb = 5, K_rnn = 5, 
-              valid_split=0.2, n_epoch = 5)
-pred_res2 <- predict(seqm_res2, new_seqs = seqs[index_test], new_data=mydata[index_test, ])
+seqm_res2 <- seqm(y2 ~ x, "scale", seqs$action_seqs[index_train], 
+             actions=actions, data=mydata[index_train, ],
+             K_emb = 5, K_rnn = 5, valid_split=0.2, n_epoch = 5)
+pred_res2 <- predict(seqm_res2, new_seqs = seqs$action_seqs[index_test], new_data=mydata[index_test, ])
 ```

@@ -81,8 +81,8 @@ theta &lt;-<span class="st"> </span><span class="kw">seq2feature_mds</span>(K_re
 <li><code>chooseK_seq2seq</code> selects the number of features to be extracted by cross-validation.</li>
 </ul>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">seqs &lt;-<span class="st"> </span><span class="kw">seq_gen</span>(<span class="dv">100</span>)
-K_res &lt;-<span class="st"> </span><span class="kw">chooseK_seq2seq</span>(seqs, <span class="dt">K_cand=</span><span class="kw">c</span>(<span class="dv">5</span>, <span class="dv">10</span>), <span class="dt">valid_prop=</span><span class="fl">0.2</span>)
-seq2seq_res &lt;-<span class="st"> </span><span class="kw">seq2feature_seq2seq</span>(seqs, K_res<span class="op">$</span>K, <span class="dt">samples_train=</span><span class="dv">1</span><span class="op">:</span><span class="dv">80</span>, <span class="dt">samples_valid=</span><span class="dv">81</span><span class="op">:</span><span class="dv">100</span>)
+K_res &lt;-<span class="st"> </span><span class="kw">chooseK_seq2seq</span>(seqs<span class="op">$</span>action_seqs, <span class="dt">K_cand=</span><span class="kw">c</span>(<span class="dv">5</span>, <span class="dv">10</span>), <span class="dt">valid_prop=</span><span class="fl">0.2</span>)
+seq2seq_res &lt;-<span class="st"> </span><span class="kw">seq2feature_seq2seq</span>(seqs<span class="op">$</span>action_seqs, K_res<span class="op">$</span>K, <span class="dt">samples_train=</span><span class="dv">1</span><span class="op">:</span><span class="dv">80</span>, <span class="dt">samples_valid=</span><span class="dv">81</span><span class="op">:</span><span class="dv">100</span>)
 theta &lt;-<span class="st"> </span>seq2seq_res<span class="op">$</span>theta</code></pre></div>
 <p>Note that if the number of candidates of <code>K</code> is large and a large number of epochs is needed for training the seq2seq AE, <code>chooseK_seq2seq</code> can be slow. One can parallel the selection procedure via multiple independent calls of <code>seq2feature_seq2seq</code> with properly specified training, validation, and test sets.</p>
 <h3 id="sequence-models">Sequence Models</h3>
@@ -93,8 +93,8 @@ theta &lt;-<span class="st"> </span>seq2seq_res<span class="op">$</span>theta</c
 </ul>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">n &lt;-<span class="st"> </span><span class="dv">100</span>
 seqs &lt;-<span class="st"> </span><span class="kw">seq_gen</span>(n)
-y1 &lt;-<span class="st"> </span><span class="kw">sapply</span>(seqs, <span class="cf">function</span>(x) <span class="st">&quot;CHECK_A&quot;</span> <span class="op">%in%</span><span class="st"> </span>x)
-y2 &lt;-<span class="st"> </span><span class="kw">sapply</span>(seqs, <span class="cf">function</span>(x) <span class="kw">log10</span>(<span class="kw">length</span>(x)))
+y1 &lt;-<span class="st"> </span><span class="kw">sapply</span>(seqs<span class="op">$</span>action_seqs, <span class="cf">function</span>(x) <span class="st">&quot;CHECK_A&quot;</span> <span class="op">%in%</span><span class="st"> </span>x)
+y2 &lt;-<span class="st"> </span><span class="kw">sapply</span>(seqs<span class="op">$</span>action_seqs, <span class="cf">function</span>(x) <span class="kw">log10</span>(<span class="kw">length</span>(x)))
 x &lt;-<span class="st"> </span><span class="kw">rnorm</span>(n)
 mydata &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="dt">x=</span>x, <span class="dt">y1=</span>y1, <span class="dt">y2=</span>y2)
 
@@ -104,16 +104,16 @@ index_train &lt;-<span class="st"> </span><span class="kw">setdiff</span>(<span 
 actions &lt;-<span class="st"> </span><span class="kw">unique</span>(<span class="kw">unlist</span>(seqs))
 
 <span class="co"># a simple sequence model for a binary response variable</span>
-seqm_res1 &lt;-<span class="st"> </span><span class="kw">seqm</span>(y1 <span class="op">~</span><span class="st"> </span>x, <span class="st">&quot;binary&quot;</span>, seqs[index_train], <span class="dt">actions=</span>actions,
-             <span class="dt">data=</span>mydata[index_train, ], <span class="dt">K_emb =</span> <span class="dv">5</span>, <span class="dt">K_rnn =</span> <span class="dv">5</span>, 
-             <span class="dt">valid_split=</span><span class="fl">0.2</span>, <span class="dt">n_epoch =</span> <span class="dv">5</span>)
-pred_res1 &lt;-<span class="st"> </span><span class="kw">predict</span>(seqm_res1, <span class="dt">new_seqs =</span> seqs[index_test], <span class="dt">new_data=</span>mydata[index_test, ])
+seqm_res1 &lt;-<span class="st"> </span><span class="kw">seqm</span>(y1 <span class="op">~</span><span class="st"> </span>x, <span class="st">&quot;binary&quot;</span>, seqs<span class="op">$</span>action_seqs[index_train], 
+             <span class="dt">actions=</span>actions, <span class="dt">data=</span>mydata[index_train, ], 
+             <span class="dt">K_emb =</span> <span class="dv">5</span>, <span class="dt">K_rnn =</span> <span class="dv">5</span>, <span class="dt">valid_split=</span><span class="fl">0.2</span>, <span class="dt">n_epoch =</span> <span class="dv">5</span>)
+pred_res1 &lt;-<span class="st"> </span><span class="kw">predict</span>(seqm_res1, <span class="dt">new_seqs =</span> seqs<span class="op">$</span>action_seqs[index_test], <span class="dt">new_data=</span>mydata[index_test, ])
 
 <span class="co"># a simple sequence model for a numeric response variable</span>
-seqm_res2 &lt;-<span class="st"> </span><span class="kw">seqm</span>(y2 <span class="op">~</span><span class="st"> </span>x, <span class="st">&quot;scale&quot;</span>, seqs[index_train], <span class="dt">actions=</span>actions, 
-             <span class="dt">data=</span>mydata[index_train, ], <span class="dt">K_emb =</span> <span class="dv">5</span>, <span class="dt">K_rnn =</span> <span class="dv">5</span>, 
-              <span class="dt">valid_split=</span><span class="fl">0.2</span>, <span class="dt">n_epoch =</span> <span class="dv">5</span>)
-pred_res2 &lt;-<span class="st"> </span><span class="kw">predict</span>(seqm_res2, <span class="dt">new_seqs =</span> seqs[index_test], <span class="dt">new_data=</span>mydata[index_test, ])</code></pre></div>
+seqm_res2 &lt;-<span class="st"> </span><span class="kw">seqm</span>(y2 <span class="op">~</span><span class="st"> </span>x, <span class="st">&quot;scale&quot;</span>, seqs<span class="op">$</span>action_seqs[index_train], 
+             <span class="dt">actions=</span>actions, <span class="dt">data=</span>mydata[index_train, ],
+             <span class="dt">K_emb =</span> <span class="dv">5</span>, <span class="dt">K_rnn =</span> <span class="dv">5</span>, <span class="dt">valid_split=</span><span class="fl">0.2</span>, <span class="dt">n_epoch =</span> <span class="dv">5</span>)
+pred_res2 &lt;-<span class="st"> </span><span class="kw">predict</span>(seqm_res2, <span class="dt">new_seqs =</span> seqs<span class="op">$</span>action_seqs[index_test], <span class="dt">new_data=</span>mydata[index_test, ])</code></pre></div>
 
 </body>
 </html>
