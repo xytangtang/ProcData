@@ -1,3 +1,10 @@
+#' @useDynLib ProcData
+#' @importFrom Rcpp sourceCpp
+#' @import keras
+#' @import stats
+#' @import utils
+NULL
+
 #' ProcData: A package for process data analysis
 #'
 #' General tools for exploratory process data analysis. Process data refers to
@@ -39,9 +46,4 @@
 #'     
 #'   \item \code{\link{predict.seqm}} makes predictions from the models fitted by \code{seqm}.
 #' }
-#' @useDynLib ProcData
-#' @importFrom Rcpp sourceCpp
-#' @import keras
-#' @import stats
-#' @import utils
 "_PACKAGE"
