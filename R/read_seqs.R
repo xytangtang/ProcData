@@ -26,42 +26,52 @@
 #'  The names of elements in \code{action_seqs} and \code{time_seqs} are process identifier given 
 #'  by \code{id_var}.
 #' @export
-read.seqs <- function(file, style, id_var="ID", action_var="Event", time_var="Time", seq_sep = ",", ...) {
+read.seqs <- function(file, style, id_var=NULL, action_var=NULL, time_var=NULL, step_sep = ",", ...) {
   if (!(style %in% c("multiple", "single")))
     stop("Invalid file style! Available options: multiple, and single.\n")
   
   csv_data <- read.csv(file = file, header = TRUE, stringsAsFactors = FALSE, ...)
   
+  
   if (length(id_var) > 1) {
     warning("More than one variable is given in 'id_var'. Only the first one will be used\n")
     id_var <- id_var[1]
-  } 
+  }
+  if (is.null(id_var)) stop("id_var should be provided!\n")
   if (!(id_var %in% names(csv_data))) stop("Variables in 'id_var' do not exist!\n")
   
   if (length(action_var) > 1) {
     warning("More than one variable is given in 'action_var'. Only the first one will be used\n")
     action_var <- action_var[1]
   }
+  if (is.null(action_var)) stop("action_var should be provided!\n")
   if (!(action_var %in% names(csv_data))) stop("Variable in 'action_var' does not exist!\n")
   
   if (length(time_var) > 1) {
     warning("More than one variable is given in 'time_var'. Only the first one will be used\n")
     time_var <- time_var[1]
   }
-  if (!(time_var %in% names(csv_data))) stop("Variable in 'time_var' does not exist!\n")
+  if (!(is.null(time_var)) && !(time_var %in% names(csv_data))) {
+    warning("Ignoring time_var as the variable does not exist!\n")
+    time_var <- NULL
+  }
   
   if (style == "multiple") {
     logfiles <- split(csv_data, csv_data[, id_var])
     actions <- sapply(logfiles, function(x) x[, action_var])
-    times <- sapply(logfiles, function(x) x[, time_var])
+    if (is.null(time_var)) times <- NULL
+    else times <- sapply(logfiles, function(x) x[, time_var])
   } else if (style == "single") {
-    actions <- strsplit(csv_data[, action_var], split = step_sep, fixed=TRUE)
-    times <- strsplit(csv_data[, time_var], split = step_sep, fixed=TRUE)
-    
     if (length(unique(csv_data[, id_var])) < length(csv_data[, id_var])) 
       warning("Repeated IDs detected!\n")
+    actions <- strsplit(csv_data[, action_var], split = step_sep, fixed=TRUE)
     names(actions) <- csv_data[, id_var]
-    names(times) <- csv_data[, id_var]
+    
+    if (is.null(time_var)) times <- NULL
+    else {
+      times <- strsplit(csv_data[, time_var], split = step_sep, fixed=TRUE)
+      names(times) <- csv_data[, id_var]
+    }
   }
   
   res <- list(action_seqs = actions, time_seqs = times)
