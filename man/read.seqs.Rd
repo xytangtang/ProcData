@@ -4,13 +4,13 @@
 \alias{read.seqs}
 \title{Reading response processes from csv files}
 \usage{
-read.seqs(file, style, id_var = "ID", action_var = "Event",
-  time_var = "Time", seq_sep = ",", ...)
+read.seqs(file, style, id_var = NULL, action_var = NULL,
+  time_var = NULL, step_sep = ",", ...)
 }
 \arguments{
 \item{file}{the name of the csv file from which the response processes are to be read.}
 
-\item{style}{the style that the response processes and are stored. See 'Details'.}
+\item{style}{the style that the response processes are stored. See 'Details'.}
 
 \item{id_var}{a string giving the name of the variable storing the process identifier.}
 
@@ -18,17 +18,17 @@ read.seqs(file, style, id_var = "ID", action_var = "Event",
 
 \item{time_var}{a string giving the name of the variable storing timestamp sequences.}
 
-\item{...}{further arguments to be passed to \code{read.csv}.}
-
 \item{step_sep}{the step separator characters. It is only used if \code{style="single"}.}
+
+\item{...}{further arguments to be passed to \code{read.csv}.}
 }
 \value{
 \code{read.seqs} returns an object of class \code{"proc"}. An object of 
 class \code{"proc"} is a list containing the following components:
   \item{action_seqs}{a list of action sequences.}
   \item{time_seqs}{a list of timestamp sequences.}
- The names of elements in \code{action_seqs} and \code{time_seqs} are process identifier given 
- by \code{id_var}.
+ The names of elements in \code{action_seqs} and \code{time_seqs} are process identifier
+ given by \code{id_var}.
 }
 \description{
 Reads a csv file and creates response process data.
@@ -41,6 +41,6 @@ and action sequences. It can also include timestamp sequences.
 The response processes (action sequences and timestamp sequences) stored in csv files can 
 be in one of the two styles, \code{"single"} and \code{"multiple"}. In \code{"single"} style,
 each response process occupies a single line. Actions and timestamps at different steps 
-are separated by \code{step_sep}. In \code{"multiple"} stype, each response process occupies 
+are separated by \code{step_sep}. In \code{"multiple"} style, each response process occupies 
 multiple lines with each step taking up one line.
 }

@@ -18,7 +18,7 @@
 #' answer will be chosen. The chosen answer is randomly sampled from \code{answer_set} 
 #' according to \code{p_answer}. All generated sequences end with "End".
 #' 
-#' @param n An integer. The number of sequences to be generated.
+#' @param n An integer. The number of action sequences to be generated.
 #' @param action_set1,action_set2 Character vectors giving the choices for 
 #'   the first and the second conditions.
 #' @param answer_set A character vector giving the choices for the answer. 
@@ -28,7 +28,7 @@
 #'   from \code{answer_set}.
 #' @param p_continue Probability of running an/another experiment.
 #' @param p_choose Probability of choosing an answer.
-#' @return A list of \code{n} elements. Each element is a generated action sequence.
+#' @return An object of class \code{"proc"} with \code{time_seqs = NULL}.
 #' @examples 
 #' seqs <- seq_gen(100)
 #' 
@@ -53,7 +53,10 @@ seq_gen <- function(n, action_set1 = c("OPT1_1", "OPT1_2", "OPT1_3"),
     seqs[[i]] <- cur_seq
   }
   
-  seqs
+  res <- list(action_seqs=seqs, time_seqs=NULL)
+  class(res) <- "proc"
+  
+  res
 }
 
 #' Markov action sequence generator
@@ -67,7 +70,7 @@ seq_gen <- function(n, action_set1 = c("OPT1_1", "OPT1_2", "OPT1_3"),
 #' \code{Pmat} is not supplied, actions is uniformly drawn from
 #' \code{events[-start_index]} until \code{events[end_index]} appears.
 #'
-#' @param n An integer. The number of sequences to be generated.
+#' @param n An integer. The number of action sequences to be generated.
 #' @param events A character vector specifying the set of \code{N} possible
 #'   actions. Default is \code{letters}.
 #' @param Pmat An \code{N} by \code{N} probability transition matrix.
@@ -76,8 +79,7 @@ seq_gen <- function(n, action_set1 = c("OPT1_1", "OPT1_2", "OPT1_3"),
 #' @param end_index Index of the action indicating the end of an item in
 #'   \code{events}.
 #' @param max_len Maximum length of generated sequences.
-#' @return A list of \code{n} elements. Each element is a generated action
-#'   sequence.
+#' @return An object of class \code{"proc"} with \code{time_seqs = NULL}.
 #' @examples 
 #' seqs <- seq_gen2(100)
 #' 
@@ -105,7 +107,11 @@ seq_gen2 <- function(n, Pmat = NULL, events = letters, start_index=1, end_index=
     if (tail(int_seq, 1) != end_index) int_seq <- c(int_seq, end_index)
     seqs[[i]] <- events[int_seq]
   }
-  seqs
+  
+  res <- list(action_seqs=seqs, time_seqs=NULL)
+  class(res) <- "proc"
+  
+  res
 }
 
 # Check if two lists have the same shape
@@ -130,19 +136,29 @@ same_shape <- function(target, current) {
 #' \code{seq_gen3} generates action sequences according to a recurrent neural network
 #' 
 #' @inheritParams seq_gen2
-#' @param rnn_type the type of recurrent unit to be used for generating sequences. \code{"lstm"} for the long-short term memory unit. \code{"gru"} for the gated recurrent unit.
+#' @param rnn_type the type of recurrent unit to be used for generating sequences. 
+#'   \code{"lstm"} for the long-short term memory unit. \code{"gru"} for the gated
+#'   recurrent unit.
 #' @param K the latent dimension of the recurrent unit.
-#' @param weights a list containing the weights in the embedding layer, the recurrent unit, the fully connected layer. If not (properly) specified, randomly generated weights are used.
-#' @param initial_state a list containing the initial state of the recurrent neural network. If \code{rnn_type="lstm"}, it contains two 1 by \code{K} matrices. If \code{rnn_type="gru"}, it contains one 1 by \code{K} matrix. If not specified, all the elements are set to zero.
+#' @param weights a list containing the weights in the embedding layer, the recurrent 
+#'   unit, the fully connected layer. If not (properly) specified, randomly generated 
+#'   weights are used.
+#' @param initial_state a list containing the initial state of the recurrent neural 
+#'   network. If \code{rnn_type="lstm"}, it contains two 1 by \code{K} matrices. If
+#'   \code{rnn_type="gru"}, it contains one 1 by \code{K} matrix. If not specified, 
+#'   all the elements are set to zero.
 #' @return A list containing the following elements
-#'     \item{seqs}{a list of \code{n} elements. Each element is a generated action sequence.}
+#'     \item{seqs}{an object of class \code{"proc"} with \code{time_seqs=NULL}.}
 #'     \item{weights}{a list containing the weights used for generating sequences.}
 #' @family sequence generators
 #' @export
-seq_gen3 <- function(n, events = letters, rnn_type = "lstm", K = 10, weights=NULL, max_len = 100, initial_state = NULL, start_index=1, end_index=length(events)) {
+seq_gen3 <- function(n, events = letters, rnn_type = "lstm", K = 10, weights=NULL, 
+                     max_len = 100, initial_state = NULL, start_index=1, 
+                     end_index=length(events)) {
   n_event <- length(events)
 
-  if (!(rnn_type) %in% c("lstm", "gru")) stop("Undefined type of RNN! Available options: lstm and gru.\n")
+  if (!(rnn_type) %in% c("lstm", "gru")) 
+    stop("Undefined type of RNN! Available options: lstm and gru.\n")
 
   if (rnn_type == "lstm") {
     state_c_inputs <- layer_input(shape=list(K))
@@ -193,7 +209,9 @@ seq_gen3 <- function(n, events = letters, rnn_type = "lstm", K = 10, weights=NUL
   weights = get_weights(seq_pred_model)
   k_clear_session()
 
-  list(seqs=seqs, weights = weights)
+  seqs_res <- list(action_seqs=seqs, time_seqs=NULL)
+  class(seqs_res) <- "proc"
+  list(seqs=seqs_res, weights = weights)
 
 }
 

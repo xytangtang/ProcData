@@ -8,7 +8,7 @@ seq_gen2(n, Pmat = NULL, events = letters, start_index = 1,
   end_index = length(events), max_len = 200)
 }
 \arguments{
-\item{n}{An integer. The number of sequences to be generated.}
+\item{n}{An integer. The number of action sequences to be generated.}
 
 \item{Pmat}{An \code{N} by \code{N} probability transition matrix.}
 
@@ -24,8 +24,7 @@ actions. Default is \code{letters}.}
 \item{max_len}{Maximum length of generated sequences.}
 }
 \value{
-A list of \code{n} elements. Each element is a generated action
-  sequence.
+An object of class \code{"proc"} with \code{time_seqs = NULL}.
 }
 \description{
 \code{seq_gen2} generates action sequences according to a given probability

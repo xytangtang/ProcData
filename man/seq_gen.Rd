@@ -11,7 +11,7 @@ seq_gen(n, action_set1 = c("OPT1_1", "OPT1_2", "OPT1_3"),
   length(answer_set)), p_continue = 0.5, p_choose = 0.5)
 }
 \arguments{
-\item{n}{An integer. The number of sequences to be generated.}
+\item{n}{An integer. The number of action sequences to be generated.}
 
 \item{action_set1, action_set2}{Character vectors giving the choices for 
 the first and the second conditions.}
@@ -29,7 +29,7 @@ from \code{answer_set}.}
 \item{p_choose}{Probability of choosing an answer.}
 }
 \value{
-A list of \code{n} elements. Each element is a generated action sequence.
+An object of class \code{"proc"} with \code{time_seqs = NULL}.
 }
 \description{
 \code{seq_gen} generates action sequences of an imaginary simulation-based item.

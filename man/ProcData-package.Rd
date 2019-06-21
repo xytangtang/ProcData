@@ -69,6 +69,7 @@ Useful links:
 
 Authors:
 \itemize{
+  \item Susu Zhang \email{susu.zhang1992@gmail.com}
   \item Jingchen Liu \email{jcliu@stat.columbia.edu}
   \item Zhiliang Ying \email{zying@stat.columbia.edu}
 }

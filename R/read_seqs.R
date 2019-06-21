@@ -9,11 +9,11 @@
 #' The response processes (action sequences and timestamp sequences) stored in csv files can 
 #' be in one of the two styles, \code{"single"} and \code{"multiple"}. In \code{"single"} style,
 #' each response process occupies a single line. Actions and timestamps at different steps 
-#' are separated by \code{step_sep}. In \code{"multiple"} stype, each response process occupies 
+#' are separated by \code{step_sep}. In \code{"multiple"} style, each response process occupies 
 #' multiple lines with each step taking up one line.
 #' 
 #' @param file the name of the csv file from which the response processes are to be read.
-#' @param style the style that the response processes and are stored. See 'Details'.
+#' @param style the style that the response processes are stored. See 'Details'.
 #' @param id_var a string giving the name of the variable storing the process identifier. 
 #' @param action_var a string giving the name of the variable storing action sequences.
 #' @param time_var a string giving the name of the variable storing timestamp sequences.
@@ -23,15 +23,14 @@
 #' class \code{"proc"} is a list containing the following components:
 #'   \item{action_seqs}{a list of action sequences.}
 #'   \item{time_seqs}{a list of timestamp sequences.}
-#'  The names of elements in \code{action_seqs} and \code{time_seqs} are process identifier given 
-#'  by \code{id_var}.
+#'  The names of elements in \code{action_seqs} and \code{time_seqs} are process identifier
+#'  given by \code{id_var}.
 #' @export
 read.seqs <- function(file, style, id_var=NULL, action_var=NULL, time_var=NULL, step_sep = ",", ...) {
   if (!(style %in% c("multiple", "single")))
     stop("Invalid file style! Available options: multiple, and single.\n")
   
   csv_data <- read.csv(file = file, header = TRUE, stringsAsFactors = FALSE, ...)
-  
   
   if (length(id_var) > 1) {
     warning("More than one variable is given in 'id_var'. Only the first one will be used\n")

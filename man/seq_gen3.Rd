@@ -9,20 +9,27 @@ seq_gen3(n, events = letters, rnn_type = "lstm", K = 10,
   start_index = 1, end_index = length(events))
 }
 \arguments{
-\item{n}{An integer. The number of sequences to be generated.}
+\item{n}{An integer. The number of action sequences to be generated.}
 
 \item{events}{A character vector specifying the set of \code{N} possible
 actions. Default is \code{letters}.}
 
-\item{rnn_type}{the type of recurrent unit to be used for generating sequences. \code{"lstm"} for the long-short term memory unit. \code{"gru"} for the gated recurrent unit.}
+\item{rnn_type}{the type of recurrent unit to be used for generating sequences. 
+\code{"lstm"} for the long-short term memory unit. \code{"gru"} for the gated
+recurrent unit.}
 
 \item{K}{the latent dimension of the recurrent unit.}
 
-\item{weights}{a list containing the weights in the embedding layer, the recurrent unit, the fully connected layer. If not (properly) specified, randomly generated weights are used.}
+\item{weights}{a list containing the weights in the embedding layer, the recurrent 
+unit, the fully connected layer. If not (properly) specified, randomly generated 
+weights are used.}
 
 \item{max_len}{Maximum length of generated sequences.}
 
-\item{initial_state}{a list containing the initial state of the recurrent neural network. If \code{rnn_type="lstm"}, it contains two 1 by \code{K} matrices. If \code{rnn_type="gru"}, it contains one 1 by \code{K} matrix. If not specified, all the elements are set to zero.}
+\item{initial_state}{a list containing the initial state of the recurrent neural 
+network. If \code{rnn_type="lstm"}, it contains two 1 by \code{K} matrices. If
+\code{rnn_type="gru"}, it contains one 1 by \code{K} matrix. If not specified, 
+all the elements are set to zero.}
 
 \item{start_index}{Index of the action indicating the start of an item in
 \code{events}.}
@@ -32,7 +39,7 @@ actions. Default is \code{letters}.}
 }
 \value{
 A list containing the following elements
-    \item{seqs}{a list of \code{n} elements. Each element is a generated action sequence.}
+    \item{seqs}{an object of class \code{"proc"} with \code{time_seqs=NULL}.}
     \item{weights}{a list containing the weights used for generating sequences.}
 }
 \description{
