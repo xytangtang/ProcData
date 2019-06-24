@@ -51,10 +51,10 @@ body {
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">data</span>(cc_data)</code></pre></div>
 <p><code>cc_data</code> is a list of two elements:</p>
 <ul>
-<li><code>seqs</code> is a list containing the action sequences,</li>
-<li><code>responses</code> is a numeric vector containing the binary item responses.</li>
+<li><code>seqs</code> is a list containing the action sequences and the timestamp sequences.</li>
+<li><code>responses</code> is a numeric vector containing the binary responses outcomes.</li>
 </ul>
-<p>For data stored in csv files, <code>read.seqs</code> can be used to read the action sequences and organize them into a list of sequences. In the input csv file, each sequence can be stored in a single line or multiple lines. The sample files for the two styles are example_single.csv and example_multiple.csv. The sequences in the two files can be read by running</p>
+<p>For data stored in csv files, <code>read.seqs</code> can be used to read response processes. In the input csv file, each process can be stored in a single line or multiple lines. The sample files for the two styles are example_single.csv and example_multiple.csv. The processes in the two files can be read by running</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">seqs1 &lt;-<span class="st"> </span><span class="kw">read.seqs</span>(<span class="dt">file=</span><span class="st">&quot;example_single.csv&quot;</span>, <span class="dt">style=</span><span class="st">&quot;single&quot;</span>, <span class="dt">id_var=</span><span class="st">&quot;ID&quot;</span>, <span class="dt">action_var=</span><span class="st">&quot;Action&quot;</span>, <span class="dt">time_var=</span><span class="st">&quot;Time&quot;</span>, <span class="dt">seq_sep=</span><span class="st">&quot;, &quot;</span>)
 seqs2 &lt;-<span class="st"> </span><span class="kw">read.seqs</span>(<span class="dt">file=</span><span class="st">&quot;example_multiple.csv&quot;</span>, <span class="dt">style=</span><span class="st">&quot;multiple&quot;</span>, <span class="dt">id_var=</span><span class="st">&quot;ID&quot;</span>, <span class="dt">action_var=</span><span class="st">&quot;Action&quot;</span>, <span class="dt">time_var=</span><span class="st">&quot;Time&quot;</span>)</code></pre></div>
 <p><code>ProcData</code> also provides three action sequences generators:</p>
@@ -64,11 +64,11 @@ seqs2 &lt;-<span class="st"> </span><span class="kw">read.seqs</span>(<span clas
 <li><code>seq_gen3</code> generates action sequences from a recurrent neural network. It depends on <code>keras</code>.</li>
 </ul>
 <h3 id="feature-extraction-methods">Feature Extraction Methods</h3>
-<p><code>ProcData</code> implements two feature extraction methods that compress varying length categorical sequences into fixed dimension numeric vectors. One of the methods is based on multidimensional scaling (MDS) and the other one is based on sequence-to-sequence autoencoders (seq2seq AE). Details of the two methods can be found <a href="http://www.scientifichpc.com/processdata/method.html">here</a>.</p>
+<p><code>ProcData</code> implements two feature extraction methods that compress varying length response processes into fixed dimension numeric vectors. One of the methods is based on multidimensional scaling (MDS) and the other one is based on sequence-to-sequence autoencoders (seq2seq AE). Details of the two methods can be found <a href="http://www.scientifichpc.com/processdata/method.html">here</a>.</p>
 <h4 id="mds">MDS</h4>
 <p>The following functions implement the MDS methods.</p>
 <ul>
-<li><code>seq2feature_mds</code> extracts <code>K</code> features from a given list of action sequences or a dissimilarity matrix.</li>
+<li><code>seq2feature_mds</code> extracts <code>K</code> features from a given list of response processes or their dissimilarity matrix.</li>
 <li><code>chooseK_mds</code> selects the number of features to be extracted by cross-validation.</li>
 </ul>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">seqs &lt;-<span class="st"> </span><span class="kw">seq_gen</span>(<span class="dv">100</span>)
@@ -77,7 +77,7 @@ theta &lt;-<span class="st"> </span><span class="kw">seq2feature_mds</span>(K_re
 <h4 id="seq2seq-ae">seq2seq AE</h4>
 <p>Similar to MDS, the seq2seq AE method is implemented by two functions. Both functions depend on <code>keras</code>.</p>
 <ul>
-<li><code>seq2feature_seq2seq</code> extracts <code>K</code> features from a given list of action sequences.</li>
+<li><code>seq2feature_seq2seq</code> extracts <code>K</code> features from a given list of response processes.</li>
 <li><code>chooseK_seq2seq</code> selects the number of features to be extracted by cross-validation.</li>
 </ul>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">seqs &lt;-<span class="st"> </span><span class="kw">seq_gen</span>(<span class="dv">100</span>)

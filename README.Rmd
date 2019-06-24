@@ -55,10 +55,10 @@ data(cc_data)
 ```
 `cc_data` is a list of two elements:
 
-- `seqs` is a list containing the action sequences,
-- `responses` is a numeric vector containing the binary item responses.
+- `seqs` is a list containing the action sequences and the timestamp sequences.
+- `responses` is a numeric vector containing the binary responses outcomes.
 
-For data stored in csv files, `read.seqs` can be used to read the action sequences and organize them into a list of sequences. In the input csv file, each sequence can be stored in a single line or multiple lines. The sample files for the two styles are example_single.csv and example_multiple.csv. The sequences in the two files can be read by running
+For data stored in csv files, `read.seqs` can be used to read response processes. In the input csv file, each process can be stored in a single line or multiple lines. The sample files for the two styles are example_single.csv and example_multiple.csv. The processes in the two files can be read by running
 ``` {r read, eval=FALSE}
 seqs1 <- read.seqs(file="example_single.csv", style="single", id_var="ID", action_var="Action", time_var="Time", seq_sep=", ")
 seqs2 <- read.seqs(file="example_multiple.csv", style="multiple", id_var="ID", action_var="Action", time_var="Time")
@@ -72,13 +72,13 @@ seqs2 <- read.seqs(file="example_multiple.csv", style="multiple", id_var="ID", a
 
 ### Feature Extraction Methods
 
-`ProcData` implements two feature extraction methods that compress varying length categorical sequences into fixed dimension numeric vectors. 
+`ProcData` implements two feature extraction methods that compress varying length response processes into fixed dimension numeric vectors. 
 One of the methods is based on multidimensional scaling (MDS) and the other one is based on sequence-to-sequence autoencoders (seq2seq AE). Details of the two methods can be found [here](http://www.scientifichpc.com/processdata/method.html).
 
 #### MDS
 The following functions implement the MDS methods.
 
-- `seq2feature_mds` extracts `K` features from a given list of action sequences or a dissimilarity matrix. 
+- `seq2feature_mds` extracts `K` features from a given list of response processes or their dissimilarity matrix. 
 - `chooseK_mds` selects the number of features to be extracted by cross-validation. 
 ``` {r mds, eval=FALSE}
 seqs <- seq_gen(100)
@@ -90,7 +90,7 @@ theta <- seq2feature_mds(K_res$dist_mat, K_res$K)$theta
 
 Similar to MDS, the seq2seq AE method is implemented by two functions. Both functions depend on `keras`.
 
-- `seq2feature_seq2seq` extracts `K` features from a given list of action sequences.
+- `seq2feature_seq2seq` extracts `K` features from a given list of response processes.
 - `chooseK_seq2seq` selects the number of features to be extracted by cross-validation.
 
 ```{r seq2seq, eval=FALSE}
