@@ -23,12 +23,7 @@ read.seqs(file, style, id_var = NULL, action_var = NULL,
 \item{...}{further arguments to be passed to \code{read.csv}.}
 }
 \value{
-\code{read.seqs} returns an object of class \code{"proc"}. An object of 
-class \code{"proc"} is a list containing the following components:
-  \item{action_seqs}{a list of action sequences.}
-  \item{time_seqs}{a list of timestamp sequences.}
- The names of elements in \code{action_seqs} and \code{time_seqs} are process identifier
- given by \code{id_var}.
+\code{read.seqs} returns an object of class \code{\link{"proc"}}.
 }
 \description{
 Reads a csv file and creates response process data.

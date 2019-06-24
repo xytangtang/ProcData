@@ -20,7 +20,7 @@ of functions in keras.
 \section{Read sequences}{
 
 \itemize{
-  \item \code{\link{read.seqs}} reads action sequences from a csv file.
+  \item \code{\link{read.seqs}} reads response processes from a csv file.
 }
 }
 
@@ -39,18 +39,17 @@ transition matrix.
 \section{Feature extraction methods}{
 
 \itemize{
-  \item \code{\link{seq2feature_mds}} extracts \code{K} features from action sequences by
+  \item \code{\link{seq2feature_mds}} extracts \code{K} features from response processes by
 multidimensional scaling.
 
-  \item \code{\link{seq2feature_seq2seq}} extract features from action sequences by action
-sequence autoencoder.
+  \item \code{\link{seq2feature_seq2seq}} extract features from response processes by autoencoder.
 }
 }
 
 \section{Sequence models}{
 
 \itemize{
-  \item \code{\link{seqm}} fits a neural network model that relates action sequences 
+  \item \code{\link{seqm}} fits a neural network model that relates response processes 
     with a response variable.
     
   \item \code{\link{predict.seqm}} makes predictions from the models fitted by \code{seqm}.

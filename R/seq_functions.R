@@ -1,281 +1,91 @@
-#' Action sequence generator
-#'
-#' \code{seq_gen} generates action sequences of an imaginary simulation-based item.
+
+#' count appearances of actions in \code{actions} in an action sequence
 #' 
-#' The format of the generated sequences resembles that of the response processes of 
-#' simulation-based items. In these items, participants are asked to answer
-#' a question by running simulated experiments in which two conditions can 
-#' be controlled. A simulated experiment can be run by setting the two conditions
-#' at one of the given choices and click "Run" button.
-#' 
-#' The possible actions are "Start", "End", "Run", and the elements in \code{action_set1}, 
-#' \code{action_set2}, and \code{answer_set}. The generated sequences begin with "Start"
-#' and continue with groups of three actions. Each group of three actions, representing 
-#' one experiment, consists of an action chosen from \code{action_set1} according to 
-#' \code{p1}, an action chosen from \code{action_set2} according to \code{p2}, and "Run".
-#' The probability of performing an experiment after "Start" or one experiment is 
-#' \code{p_continue}. After the experiment process, with probability \code{p_choose}, an 
-#' answer will be chosen. The chosen answer is randomly sampled from \code{answer_set} 
-#' according to \code{p_answer}. All generated sequences end with "End".
-#' 
-#' @param n An integer. The number of action sequences to be generated.
-#' @param action_set1,action_set2 Character vectors giving the choices for 
-#'   the first and the second conditions.
-#' @param answer_set A character vector giving the choices for the answer. 
-#' @param p1,p2 Nonnegative numeric vectors. They are the weights for sampling 
-#'   from \code{action_set1} and \code{action_set2}.
-#' @param p_answer A nonnegative numeric vector giving the weights for sampling
-#'   from \code{answer_set}.
-#' @param p_continue Probability of running an/another experiment.
-#' @param p_choose Probability of choosing an answer.
-#' @return An object of class \code{"proc"} with \code{time_seqs = NULL}.
-#' @examples 
-#' seqs <- seq_gen(100)
-#' 
-#' @family sequence generators
-#' @export
-seq_gen <- function(n, action_set1 = c("OPT1_1", "OPT1_2", "OPT1_3"), 
-                    action_set2 = c("OPT2_1", "OPT2_2"), 
-                    answer_set = c("CHECK_A", "CHECK_B", "CHECK_C", "CHECK_D"), 
-                    p1 = rep(1,length(action_set1)), p2 = rep(1, length(action_set2)), 
-                    p_answer = rep(1, length(answer_set)), p_continue = 0.5, p_choose = 0.5)
-{
-  seqs <- list()
-  for (i in 1:n)
-  {
-    cur_seq <- c("Start")
-    while(runif(1) < p_continue)
-    {
-      cur_seq <- c(cur_seq, sample(action_set1, size = 1, prob = p1), sample(action_set2, size = 1, prob = p2), "RUN")
-    }
-    if (runif(1) < p_choose) cur_seq <- c(cur_seq, sample(answer_set, size = 1, prob=p_answer))
-    cur_seq <- c(cur_seq, "End")
-    seqs[[i]] <- cur_seq
-  }
-  
-  res <- list(action_seqs=seqs, time_seqs=NULL)
-  class(res) <- "proc"
-  
-  res
-}
-
-#' Markov action sequence generator
-#'
-#' \code{seq_gen2} generates action sequences according to a given probability
-#' transition matrix.
-#'
-#' This function generates \code{n} action sequences according \code{Pmat}. The
-#' set of possible actions is \code{events}. All generated sequences start with
-#' \code{events[start_index]} and end with \code{events[end_index]}. If
-#' \code{Pmat} is not supplied, actions is uniformly drawn from
-#' \code{events[-start_index]} until \code{events[end_index]} appears.
-#'
-#' @param n An integer. The number of action sequences to be generated.
-#' @param events A character vector specifying the set of \code{N} possible
-#'   actions. Default is \code{letters}.
-#' @param Pmat An \code{N} by \code{N} probability transition matrix.
-#' @param start_index Index of the action indicating the start of an item in
-#'   \code{events}.
-#' @param end_index Index of the action indicating the end of an item in
-#'   \code{events}.
-#' @param max_len Maximum length of generated sequences.
-#' @return An object of class \code{"proc"} with \code{time_seqs = NULL}.
-#' @examples 
-#' seqs <- seq_gen2(100)
-#' 
-#' @family sequence generators
-#' @export
-seq_gen2 <- function(n, Pmat = NULL, events = letters, start_index=1, end_index=length(events), max_len=200)
-{
-  n_event <- length(events)
-  if (is.null(Pmat)) {
-    Pmat <- matrix(0, n_event, n_event)
-    Pmat[-end_index, -start_index] <- 1 / (n_event - 1)
-    Pmat[end_index, end_index] <- 1
-  }
-  
-  seqs <- list()
-  
-  for (i in 1:n)
-  {
-    int_seq <- start_index
-    event_index <- start_index
-    while (event_index != end_index & length(int_seq) < max_len) {
-      event_index <- sample(1:n_event, 1, prob = Pmat[event_index, ])
-      int_seq <- c(int_seq, event_index)
-    }
-    if (tail(int_seq, 1) != end_index) int_seq <- c(int_seq, end_index)
-    seqs[[i]] <- events[int_seq]
-  }
-  
-  res <- list(action_seqs=seqs, time_seqs=NULL)
-  class(res) <- "proc"
-  
-  res
-}
-
-# Check if two lists have the same shape
-same_shape <- function(target, current) {
-  if (length(current) != length(target)) return(FALSE)
-  n <- length(target)
-  for (i in 1:n) {
-    target_i <- target[[i]]
-    current_i <- current[[i]]
-    if (is.array(target_i)) {
-      if (any(dim(current_i) != dim(target_i))) return(FALSE)
-    } else {
-      if (length(current_i) != length(target_i)) return(FALSE)
-    }
-  }
-
-  return(TRUE)
-}
- 
-#' RNN action sequence generator
-#' 
-#' \code{seq_gen3} generates action sequences according to a recurrent neural network
-#' 
-#' @inheritParams seq_gen2
-#' @param rnn_type the type of recurrent unit to be used for generating sequences. 
-#'   \code{"lstm"} for the long-short term memory unit. \code{"gru"} for the gated
-#'   recurrent unit.
-#' @param K the latent dimension of the recurrent unit.
-#' @param weights a list containing the weights in the embedding layer, the recurrent 
-#'   unit, the fully connected layer. If not (properly) specified, randomly generated 
-#'   weights are used.
-#' @param initial_state a list containing the initial state of the recurrent neural 
-#'   network. If \code{rnn_type="lstm"}, it contains two 1 by \code{K} matrices. If
-#'   \code{rnn_type="gru"}, it contains one 1 by \code{K} matrix. If not specified, 
-#'   all the elements are set to zero.
-#' @return A list containing the following elements
-#'     \item{seqs}{an object of class \code{"proc"} with \code{time_seqs=NULL}.}
-#'     \item{weights}{a list containing the weights used for generating sequences.}
-#' @family sequence generators
-#' @export
-seq_gen3 <- function(n, events = letters, rnn_type = "lstm", K = 10, weights=NULL, 
-                     max_len = 100, initial_state = NULL, start_index=1, 
-                     end_index=length(events)) {
-  n_event <- length(events)
-
-  if (!(rnn_type) %in% c("lstm", "gru")) 
-    stop("Undefined type of RNN! Available options: lstm and gru.\n")
-
-  if (rnn_type == "lstm") {
-    state_c_inputs <- layer_input(shape=list(K))
-    state_h_inputs <- layer_input(shape=list(K))
-    state_inputs <- c(state_c_inputs, state_h_inputs)
-  } else if (rnn_type == "gru") {
-    state_inputs <- layer_input(shape=list(K))
-  }
-  seq_inputs <- layer_input(shape=list(NULL))
-  emb <- seq_inputs %>% layer_embedding(n_event, K)
-  if (rnn_type == "lstm") rnn_unit <- layer_lstm(units = K, return_sequences = FALSE, return_state=TRUE)
-  else if (rnn_type == "gru") rnn_unit <- layer_gru(units = K, return_sequences = FALSE, return_state=TRUE)
-  rnn_outputs <- rnn_unit(emb, initial_state=state_inputs)
-  prob_outputs <- rnn_outputs[[1]] %>% layer_dense(n_event, activation="softmax", bias_initializer=initializer_random_uniform(minval=-5, maxval=5))
-  if (rnn_type == "lstm") state_outputs <- rnn_outputs[2:3]
-  else if (rnn_type == "gru") state_outputs <- rnn_outputs[2]
-  seq_pred_model <- keras_model(c(seq_inputs, state_inputs), c(prob_outputs, state_outputs))
-
-  if (!is.null(weights)) {
-    curr_weights <- get_weights(seq_pred_model)
-    if (same_shape(curr_weights, weights)) set_weights(seq_pred_model, weights)
-    else warning("Provided weights does not match the model! Use randomly generated weights.\n")
-  }
-  
-  seqs <- list()
-
-  for (i in 1:n) {
-
-    seq_index <- start_index - 1
-    int_seqs <- c(seq_index + 1)
-    if (is.null(initial_state)) {
-      if (rnn_type == "lstm") initial_state <- list(array(0, dim=c(1, K)), array(0, dim=c(1,K)))
-      else if (rnn_type == "gru") initial_state <- list(array(0, dim=c(1,K)))
-    }
-    while (seq_index != end_index - 1 && length(int_seqs) < max_len) {
-      pred_res <- predict(seq_pred_model, c(list(matrix(seq_index, 1,1)), initial_state))
-      prob_vec <- pred_res[[1]]
-      if (rnn_type == "lstm") initial_state <- pred_res[2:3]
-      else if (rnn_type == "gru") initial_state <- pred_res[2]
-      seq_index <- sample(c(0:(n_event-1))[-start_index], 1, prob=prob_vec[-start_index])
-      int_seqs <- c(int_seqs, seq_index + 1)
-    }
-
-    if (seq_index != end_index - 1) int_seqs <- c(int_seqs, end_index)
-    
-    seqs[[i]] <- events[int_seqs]
-  } 
-  weights = get_weights(seq_pred_model)
-  k_clear_session()
-
-  seqs_res <- list(action_seqs=seqs, time_seqs=NULL)
-  class(seqs_res) <- "proc"
-  list(seqs=seqs_res, weights = weights)
-
-}
-
-#' Action counts in a sequence
-#' 
-#' @param x an action sequences
+#' @param x an action sequence
 #' @param actions a set of actions whose number of appearances will be count
-
 count_actions <- function(x, actions) 
 {
 	sapply(actions, function(a) sum(x==a))
 }
 
-#' Find all actions appears in a list of action sequences
+# action transitions
+aseq2atranseqs <- function(x) {
+  l <- length(x)
+  
+  rbind(x[-l], x[-1])
+}
+
+#' Summarize action sequences
 #' 
-#' @param seqs a list of action sequences
-#' @param count logical value. If TRUE, unigram frequence will also be output
-find_unigram <- function(seqs, count)
+#' @param action_seqs a list of action sequences
+#' @return a list containing the following objects:
+#'   \item{n}{number of action sequences}
+#'   \item{action}{action set}
+#'   \item{seq_length}{sequence lengths}
+#'   \item{count}{action counts}
+#'   \item{count_by_seq}{action counts in each sequence}
+#'   \item{seq_count}{counts of number of sequences with a given action}
+#'   \item{seq_count_by_seq}{if actions appears in a sequence}
+#'   \item{trans_count}{action transition counts}
+#' @export
+action_seqs_summary <- function(action_seqs)
 {
-	n_seq <- length(seqs)
-	unigrams <- unique(seqs[[1]])
+	n_seq <- length(action_seqs)
 	
-	for (i in 2:n_seq) unigrams <- union(unigrams, unique(seqs[[i]]))
+	seq_length <- sapply(action_seqs, length)
 	
-	if (!count) return(unigrams)
+	actions <- sort(unique(unlist(action_seqs)))
 	
-	unigram_counts <- count_actions(seqs[[1]], unigrams)
+	action_counts_by_seq <- t(sapply(action_seqs, count_actions, actions=actions))
+	action_counts <- colSums(action_counts_by_seq)
 	
-	for (i in 2:n_seq) unigram_counts <- unigram_counts + count_actions(seqs[[i]], unigrams)
-	
-	list(unigram=unigrams, count=unigram_counts)
-}
-
-seq2bseq <- function(myseq, sep="\t") # given a unigram sequence, output its bigram version
-{
-	seq_len <- length(myseq)
-	
-	paste(myseq[1:(seq_len-1)], myseq[2:seq_len], sep=sep)
-}
-
-count_bigram <- function(seqs) # given a list of sequences, find all appeared bigrams and count frequencies
-{	
-	n_seq <- length(seqs)
-	
-	bigrams <- unique(seq2bseq(seqs[[1]]))
-	
-	for (i in 2:n_seq) bigrams <- union(bigrams, unique(seq2bseq(seqs[[i]])))
-		
-	bigram_counts <- count_actions(seq2bseq(seqs[[1]]), bigrams)
-	for (i in 2:n_seq) bigram_counts <- bigram_counts + count_actions(seq2bseq(seqs[[i]]), bigrams)
-	
-	list(bigram=bigrams, count=bigram_counts)
-}
-
-seq2position <- function(myseq, actions) # given a sequence and a set of actions (unigrams or bigrams or combination), find the position these actions appear in the sequence
-{
-	action_counts <- count_actions(myseq, actions)
-	
-	action_positions <- list()
+	action_seq_counts_by_seq <- array(as.numeric(action_counts_by_seq > 0), 
+	                                  dim=dim(action_counts_by_seq))
+	action_seq_counts <- colSums(action_seq_counts_by_seq)
 	
 	n_action <- length(actions)
+	trans_counts <- matrix(0, n_action, n_action)
+	colnames(trans_counts) <- actions
+	rownames(trans_counts) <- actions
 	
-	for (i in 1:n_action) action_positions[[i]] <- which(myseq == actions[i])
+	action_tran_seqs <- sapply(action_seqs, aseq2atranseqs)
+	all_pairs <- matrix(unlist(action_tran_seqs), nrow=2)
+	n_pair <- ncol(all_pairs)
+	for (i in 1:n_pair) 
+	  trans_counts[all_pairs[1,i], all_pairs[2,i]] <- trans_counts[all_pairs[1,i], all_pairs[2,i]] + 1 
 	
-	list(counts = action_counts, positions = action_positions)
+	list(n=n_seq, action=actions, seq_length=seq_length, 
+	     count=action_counts, count_by_seq=seq_freqs, 
+	     seq_count=action_seq_counts, seq_count_by_seq=action_seq_counts_by_seq,
+	     trans_count = trans_counts)
 }
+
+#' Transform a timestamp sequence to a time interval sequence
+#' @param x a timestamp sequence
+#' @export
+tseq2interval <- function(x) {
+  c(0, diff(x))
+}
+
+#' Summarize timestamp sequences
+#' 
+#' @param time_seqs a list of timestamp sequences
+#' @return a list containing the following objects
+#'   \item{total_time}{total time elapsed}
+#'   \item{time_per_action}{average time between two consecutive actions}
+#'   \item{time_interval_seqs}{time interval sequences}
+#' @export
+time_seqs_summary <- function(time_seqs) {
+  # total time
+  total_time <- sapply(time_seqs, max)
+  # time per action
+  time_per_action <- total_time / sapply(time_seqs, length)
+  # interarrival time seqs
+  time_interval_seqs <- tseq2interval(time_seqs)
+  
+  list(total_time=total_time, time_per_action=time_per_action, 
+       time_interval_seqs=time_interval_seqs)
+}
+
+
 

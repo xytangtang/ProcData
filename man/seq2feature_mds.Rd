@@ -9,7 +9,7 @@ seq2feature_mds(seqs = NULL, K = 2, method = "oss_action",
   return_dist = FALSE)
 }
 \arguments{
-\item{seqs}{a \code{"proc"} object or a square matrix. If a squared matrix is 
+\item{seqs}{a \code{\link{"proc"}} object or a square matrix. If a squared matrix is 
 provided, it is treated as the dissimilary matrix of a group of response processes.}
 
 \item{K}{the number of features to be extracted.}

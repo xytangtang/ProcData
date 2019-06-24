@@ -1,4 +1,4 @@
-
+rm(list=ls())
 
 cc_data_raw <- read.csv("~/Documents/Research/Process_Data/data/PISA_2012_released/climateproc.csv", stringsAsFactors=F)
 
@@ -14,8 +14,10 @@ outcome_split <- split(cc_data_outcome$Correctness, cc_data_outcome$ID)
 
 
 cc_response <- sapply(outcome_split, function(x) x[1])
-cc_seqs <- sapply(cc_logfile, function(x) x$Event)
-
+cc_action_seqs <- sapply(cc_logfile, function(x) x$Event)
+cc_time_seqs <- sapply(cc_logfile, function(x) x$time)
+cc_seqs <- list(action_seqs = cc_action_seqs, time_seqs = cc_time_seqs)
+class(cc_seqs) <- "proc"
 cc_data <- list(seqs = cc_seqs, responses = cc_response)
   
 devtools::use_data(cc_data)

@@ -19,12 +19,7 @@
 #' @param time_var a string giving the name of the variable storing timestamp sequences.
 #' @param step_sep the step separator characters. It is only used if \code{style="single"}.
 #' @param ... further arguments to be passed to \code{read.csv}.
-#' @return \code{read.seqs} returns an object of class \code{"proc"}. An object of 
-#' class \code{"proc"} is a list containing the following components:
-#'   \item{action_seqs}{a list of action sequences.}
-#'   \item{time_seqs}{a list of timestamp sequences.}
-#'  The names of elements in \code{action_seqs} and \code{time_seqs} are process identifier
-#'  given by \code{id_var}.
+#' @return \code{read.seqs} returns an object of class \code{\link{"proc"}}.
 #' @export
 read.seqs <- function(file, style, id_var=NULL, action_var=NULL, time_var=NULL, step_sep = ",", ...) {
   if (!(style %in% c("multiple", "single")))
@@ -73,8 +68,6 @@ read.seqs <- function(file, style, id_var=NULL, action_var=NULL, time_var=NULL, 
     }
   }
   
-  res <- list(action_seqs = actions, time_seqs = times)
-  class(res) <- "proc"
+  proc(action_seqs = actions, time_seqs = times)
   
-  res
 }

@@ -14,7 +14,7 @@
 #' \code{\link{chooseK_mds}}.
 #'
 #' @family feature extraction methods
-#' @param seqs a \code{"proc"} object or a square matrix. If a squared matrix is 
+#' @param seqs a \code{\link{"proc"}} object or a square matrix. If a squared matrix is 
 #'   provided, it is treated as the dissimilary matrix of a group of response processes.
 #' @param K the number of features to be extracted.
 #' @param method a character string specifies the dissimilarity measure for two
