@@ -67,6 +67,8 @@ Gomez-Alonso, C. and Valls, A. (2008). A similarity measure for sequences of
 \seealso{
 \code{\link{chooseK_mds}} for choosing \code{K}.
 
-Other feature extraction methods: \code{\link{seq2feature_seq2seq}}
+Other feature extraction methods: \code{\link{atseq2feature_seq2seq}},
+  \code{\link{seq2feature_seq2seq}},
+  \code{\link{tseq2feature_seq2seq}}
 }
 \concept{feature extraction methods}
