@@ -41,6 +41,9 @@ proc <- function(action_seqs, time_seqs, ids = NULL) {
 #' Summary method for class \code{"proc"}
 #' 
 #' @param seqs an object of class \code{\link{"proc"}}
+#' @return a list 
+#' @seealso \link{action_seqs_summary} and \link{time_seqs_summary}
+#' @export
 summary.proc <- function(seqs) {
   res_action <- action_seqs_summary(seqs$action_seqs)
   

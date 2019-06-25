@@ -80,8 +80,8 @@ time_seqs_summary <- function(time_seqs) {
   total_time <- sapply(time_seqs, max)
   # time per action
   time_per_action <- total_time / sapply(time_seqs, length)
-  # interarrival time seqs
-  time_interval_seqs <- tseq2interval(time_seqs)
+  # inter-arrival time seqs
+  time_interval_seqs <- sapply(time_seqs, tseq2interval)
   
   list(total_time=total_time, time_per_action=time_per_action, 
        time_interval_seqs=time_interval_seqs)

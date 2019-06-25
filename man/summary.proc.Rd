@@ -9,6 +9,12 @@
 \arguments{
 \item{seqs}{an object of class \code{\link{"proc"}}}
 }
+\value{
+a list
+}
 \description{
 Summary method for class \code{"proc"}
+}
+\seealso{
+\link{action_seqs_summary} and \link{time_seqs_summary}
 }

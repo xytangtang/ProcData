@@ -1,20 +1,35 @@
+#' Subset response processes
+#' 
+#' @param seqs an object of class \code{"\link{proc}"}
+#' @param ids a vector of indices 
+#' @return an object of class \code{"\link{proc}"}
 #' @export
 sub_seqs <- function(seqs, ids) {
   proc(seqs$action_seqs[ids], seqs$time_seqs[ids])
 }
 
-# remove
+#' Remove certain actions from response processes
+#' 
+#' Remove actions in \code{actions} and the corresponding timestamps
+#'  in response processes \code{seqs}.
+#'
+#' @param seqs an object of class \code{"\link{proc}"}
+#' @param actions a character vector. Each element is an action to be removed.
+#' @return an object of class \code{"\link{proc}"} with actions in \code{actions} removed.
+#' @export
 remove_action <- function(seqs, actions) {
   
   n_seq <- length(seqs$action_seqs)
   
   for (i in 1:n_seq) {
     aseq <- seqs$action_seqs[[i]]
-    tseq <- seqs$time_seqs[[i]]
     rm_pos <- which(aseq %in% actions)
     if (length(rm_pos) > 0) {
       seqs$action_seqs[[i]] <- aseq[-rm_pos]
-      seqs$time_seqs[[i]] <- tseq[-rm_pos]
+      if (!is.null(seqs$time_seqs)) {
+        tseq <- seqs$time_seqs[[i]]
+        seqs$time_seqs[[i]] <- tseq[-rm_pos]
+      }
     }
   }
   
@@ -22,7 +37,16 @@ remove_action <- function(seqs, actions) {
   
 }
 
-# replace
+#' Replace actions in response processes
+#' 
+#' Replace \code{old_action} with \code{new_action} in \code{seqs}. Timestamp
+#' sequences are not affected.
+#' 
+#' @param seqs an object of class \code{"\link{proc}"}
+#' @param old_action a string giving the action to be replaced.
+#' @param new_action a string giving the action replacing \code{old_action}
+#' @return an object of class \code{"\link{proc}"}
+#' @export
 replace_action <- function(seqs, old_action, new_action) {
   n_seq <- length(seqs$action_seqs)
   
@@ -35,7 +59,69 @@ replace_action <- function(seqs, old_action, new_action) {
   seqs
 }
 
-# combine
-combine_action <- function(seqs, old_actions, new_action) {
+# check if pattern exist in action sequence x
+check_pattern <- function(x, pattern)
+{
+  n <- length(x)
+  l <- length(pattern)
+  if (n < l) return(FALSE)
+  for (i in 1:(n-l+1)) if (all(x[i:(i+l-1)] == pattern)) return(TRUE)
   
+  return(FALSE)
+}
+
+
+#' Combine consecutive actions into a single action
+#' 
+#' Combine the action pattern described in \code{old_actions} into a single action 
+#' \code{new_action}. The timestamp of the combined action can be the timestamp of the
+#' first action in the action pattern, the timestamp of the last action in the action
+#' pattern, or the average of the two timestamps.
+#' 
+#' @param seqs an object of class \code{"\link{proc}"}
+#' @param old_actions a character vector giving consecutive actions to be replaced.
+#' @param new_action a string giving the combined action
+#' @param timestamp "first", "last", or "avg", specifying how the timestamp of the combined
+#'   action should be derived.
+#' @return an object of class \code{"\link{proc}"}
+#' 
+combine_actions <- function(seqs, old_actions, new_action, timestamp="first") {
+  
+  l <- length(old_actions)
+  n_seq <- length(seqs$action_seqs)
+  if (is.null(seqs$time_seqs)) {
+    for (index_seq in 1:n_seq) {
+      aseq <- seqs$action_seqs[[index_seq]]
+      while(check_pattern(x=aseq, pattern=old_actions)) {
+        n <- length(aseq)
+        for (i in 1:(n-l+1)) {
+          if (all(aseq[i:(i+l-1)] == old_actions)) break
+        }
+        aseq <- c(aseq[1:i], aseq[(i+l):n])
+        aseq[i] <- new_action
+      }
+      seqs$action_seqs[[index_seq]] <- aseq
+    }
+  } else {
+    for (index_seq in 1:n_seq) {
+      aseq <- seqs$action_seqs[[index_seq]]
+      tseq <- seqs$time_seqs[[index_seq]]
+      while(check_pattern(x=aseq, pattern=old_actions)) {
+        n <- length(aseq)
+        for (i in 1:(n-l+1)) {
+          if (all(aseq[i:(i+l-1)] == old_actions)) break
+        }
+        aseq <- c(aseq[1:i], aseq[(i+l):n])
+        aseq[i] <- new_action
+        
+        if (timestamp=="last") tseq[i] <- tseq[i+l-1]
+        else if (timestamp == "avg") tseq[i] <- (tseq[i+l-1] + tseq[i]) / 2
+        tseq <- c(tseq[1:i], tseq[(i+l):n])
+      }
+      seqs$action_seqs[[index_seq]] <- aseq
+      seqs$time_seqs[[index_seq]] <- tseq
+    }
+  }
+  
+  seqs
 }
