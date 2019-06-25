@@ -13,23 +13,22 @@
 #' @param ids ids identifiers of 
 #' @export
 proc <- function(action_seqs, time_seqs, ids = NULL) {
-  
+  l_action <- length(action_seqs)
+  ls_action <- sapply(action_seqs, length)
   if (!is.null(time_seqs)) {
-    l_action <- length(action_seqs)
     l_time <- length(time_seqs)
     if (l_action != l_time)
       stop("Number of timestamp sequences does not match the number of action sequences!\n")
-    ls_action <- sapply(action_seqs)
-    ls_time <- sapply(time_seqs)
-    if (any(action_seqs != time_seqs))
+    ls_time <- sapply(time_seqs, length)
+    if (any(ls_time != ls_action))
       stop("Lengths of action sequences and lengths of timestamp sequences do not match!\n")
-    if (any(unlist(sapply(time_seqs, diff))) < 0)
+    if (any(unlist(sapply(time_seqs, diff)) < 0))
       stop("Timestamp sequences are not non-decreasing!\n")
   }  
   if (!is.null(ids)) {
     if (length(ids) != l_action) stop("Number of provided IDs does not match number of sequences!\n")
     names(action_seqs) <- ids
-    names(time_seqs) <- ids
+    if (!is.null(time_seqs)) names(time_seqs) <- ids
   }
   
   res <- list(action_seqs=action_seqs, time_seqs=time_seqs)

@@ -9,7 +9,7 @@
 \arguments{
 \item{object}{a fitted object of class \code{"seqm"} from \code{seqm}.}
 
-\item{new_seqs}{a list of action sequences with which to predict.}
+\item{new_seqs}{an object of class \code{"\link{proc}"} with which to predict.}
 
 \item{new_data}{a dataframe in which to look for variables with which to predict.}
 
@@ -17,14 +17,14 @@
 }
 \value{
 a vector of predictions. If \code{response_type="binary"}, predictions are
-  probabilities of the response variable being 1.
+  probabilities of the response variable being one.
 }
 \description{
 Obtains predictions from a fitted sequence model object.
 }
 \details{
 It unserialize \code{object$model_fit} to obtain a keras model of class 
-\code{"keras.engin.training.Model"} and then calls \code{predict} for this class
+\code{"keras.engin.training.Model"} and then calls \code{predict}
 to obtain predictions.
 }
 \seealso{

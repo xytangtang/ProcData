@@ -5,7 +5,8 @@
 \title{Fitting sequence models}
 \usage{
 seqm(formula, response_type, seqs, actions = NULL, data,
-  rnn_type = "lstm", K_emb = 20, K_rnn = 20, n_hidden = 0,
+  rnn_type = "lstm", include_time = FALSE, time_interval = TRUE,
+  log_time = TRUE, K_emb = 20, K_rnn = 20, n_hidden = 0,
   K_hidden = NULL, valid_split = 0, index_valid = NULL,
   max_len = max(sapply(seqs, length)), n_epoch = 20, batch_size = 16,
   optimizer_name = "rmsprop", step_size = 0.001, gpu = TRUE)
@@ -28,6 +29,13 @@ expanded to include all actions appear in \code{seqs} if necessary.}
 action sequences. \code{"lstm"} for the long-short term memory unit. 
 \code{"gru"} for the gated recurrent unit.}
 
+\item{include_time}{logical. If the timestamp sequence should be included in the model.}
+
+\item{time_interval}{logical. If the timestamp sequence is included as a sequence of 
+inter-arrival time.}
+
+\item{log_time}{logical. If take the logarithm of the time sequence.}
+
 \item{K_emb}{the latent dimension of the embedding layer.}
 
 \item{K_rnn}{the latent dimension of the recurrent neural network.}
@@ -41,7 +49,7 @@ nodes in each hidden layer.}
 
 \item{index_valid}{a vector of indices specifying the validation set.}
 
-\item{max_len}{the maximum length of input sequences.}
+\item{max_len}{the maximum length of response processes.}
 
 \item{n_epoch}{the number of training epochs.}
 
@@ -65,25 +73,29 @@ for training. Availabel options are \code{"sgd"}, \code{"rmsprop"},
     give the parameters for the i-th fully connected layer.}
   \item{model_fit}{a vector of class \code{"raw"}. It is the serialized version of 
     the trained keras model.} 
+  \item{include_time}{if the timestamp sequence is included in the model.}
+  \item{time_interval}{if inter-arrival time is used.}
+  \item{log_time}{if the logarithm time is used.}
   \item{actions}{all possible actions.}
   \item{max_len}{the maximum length of action sequences.}
   \item{history}{a \code{n_epoch} by 2 matrix giving the training and
   validation losses at the end of each epoch.}
 }
 \description{
-\code{seqm} is used to fit a neural network model relating action sequences
-with a response variable.
+\code{seqm} is used to fit a neural network model relating a response process
+with a variable.
 }
 \details{
 The model consists of an embedding layer, a recurrent layer and one or more
-fully connected layers. The embedding layer takes a action sequence and
+fully connected layers. The embedding layer takes an action sequence and
 output a sequences of \code{K} dimensional numeric vectors to the recurrent
-layer. The last output of the recurrent layer is used as the input of the
-subsequent fully connected layers. If \code{response_type="binary"}, the last
-layer uses the sigmoid activation to produce the probability of the response
-being positive. If \code{response_type="scale"}, the last layer uses the linear
-activation. The dimension of the output of other fully connected layers
-(if any) is specified by \code{K_hidden}.
+layer. If desired, the embedding sequence is combined with the timestamp sequence 
+in the response process as the input the recurrent layer. The last output of the
+recurrent layer is used as the input of the subsequent fully connected layer.
+If \code{response_type="binary"}, the last layer uses the sigmoid activation to
+produce the probability of the response being one. If \code{response_type="scale"}, 
+the last layer uses the linear activation. The dimension of the output of other 
+fully connected layers (if any) is specified by \code{K_hidden}.
 
 The action sequences are re-coded into integer sequences and are padded with
 zeros to length \code{max_len} before feeding into the model. If the provided
