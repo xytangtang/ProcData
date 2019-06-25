@@ -65,6 +65,8 @@ K2string <- function(K_emb, K_rnn, K_hidden = NULL, include_time, rnn_type) {
 #'     for the i-th fully connected layer.}
 #'   \item{model_fit}{a vector of class \code{"raw"}. It is the serialized version of 
 #'     the trained keras model.} 
+#'   \item{feature_model}{a vector of class \code{"raw"}. It is the serialized version of the
+#'     keras model for obtaining the rnn outputs.}
 #'   \item{include_time}{if the timestamp sequence is included in the model.}
 #'   \item{time_interval}{if inter-arrival time is used.}
 #'   \item{log_time}{if the logarithm time is used.}
@@ -202,9 +204,14 @@ seqm <- function(formula, response_type, seqs, actions = NULL, data, rnn_type = 
   else if (response_type == "scale") 
     outputs <- outputs %>% layer_dense(units=1, activation='linear')
   
-  if (include_time) 
+  if (include_time) {
     seq_model <- keras_model(c(seq_inputs, time_inputs, cov_inputs), outputs)
-  else seq_model <- keras_model(c(seq_inputs, cov_inputs), outputs)
+    feature_model <- keras_model(c(seq_inputs, time_inputs), seq_feature)
+  }
+  else {
+    seq_model <- keras_model(c(seq_inputs, cov_inputs), outputs)
+    feature_model <- keras_model(seq_inputs, seq_feature)
+  }
   
   if (optimizer_name == "sgd") optimizer <- optimizer_sgd(lr=step_size)
   else if (optimizer_name == "rmsprop") optimizer <- optimizer_rmsprop(lr=step_size)
@@ -243,13 +250,15 @@ seqm <- function(formula, response_type, seqs, actions = NULL, data, rnn_type = 
     if (model_res$metrics$val_loss < best_valid) {
       best_valid <- model_res$metrics$val_loss
       model_save <- serialize_model(seq_model)
+      feature_model_save <- serialize_model(feature_model)
     }
   }
   weights <- get_weights(seq_model)
   k_clear_session()
   model_string <- K2string(K_emb, K_rnn, K_hidden[1:n_hidden], rnn_type, include_time = include_time)  
   res <- list(formula = formula, structure = model_string, coefficients = weights, 
-              model_fit = model_save, include_time = include_time, time_interval = time_interval,
+              model_fit = model_save, feature_model = feature_model_save, 
+              include_time = include_time, time_interval = time_interval,
               log_time = log_time, actions = events, max_len = max_len, history = trace_res) 
   class(res) <- "seqm"
   
@@ -267,20 +276,25 @@ seqm <- function(formula, response_type, seqs, actions = NULL, data, rnn_type = 
 #' @param object a fitted object of class \code{"seqm"} from \code{seqm}.
 #' @param new_seqs an object of class \code{"\link{proc}"} with which to predict.
 #' @param new_data a dataframe in which to look for variables with which to predict.
+#' @param type a string specifying whether to predict responses (\code{"response"}) 
+#'   or features (\code{"feature"}) or both (\code{"both"}).
 #' @param ... further arguments to be passed to \code{predict.keras.engine.training.Model}.
 #' 
-#' @return a vector of predictions. If \code{response_type="binary"}, predictions are
-#'   probabilities of the response variable being one.
+#' @return If \code{type="response"}, a vector of predictions. The vector gives the 
+#'   probabilities of the response variable being one if \code{response_type="binary"}.
+#'   If \code{type="feature"}, a matrix of rnn outputs. If \code{type="both"}, a list 
+#'   containing both the vector of response variable prediction and the rnn output matrix.
 #' @seealso \code{\link{seqm}} for fitting sequence models.
 #' @export
-predict.seqm <- function(object, new_seqs, new_data, ...) {
-  model <- unserialize_model(object$model_fit)
+predict.seqm <- function(object, new_seqs, new_data, type="response", ...) {
+  
   max_len <- object$max_len
   events <- object$actions
   ff <- object$formula
+  if (type=="response" || type=="both") seq_model <- unserialize_model(object$model_fit)
+  if (type=="feature" || type=="both") feature_model <- unserialize_model(object$feature_model)
   
   n <- length(new_seqs$action_seqs)
-  
   new_int_seqs <- matrix(0, n, max_len)
   for (index_seq in 1:n) {
     my_seq <- new_seqs$action_seqs[[index_seq]]
@@ -304,12 +318,23 @@ predict.seqm <- function(object, new_seqs, new_data, ...) {
     stop("Timestamp sequences are not available!\n")
   }
   
-  if (object$include_time) 
-    pred_res <- predict(model, list(new_int_seqs, new_time_seqs, new_covariates), ...)
+  if (object$include_time) {
+    if (type=="response" || type=="both") 
+      response_res <- predict(seq_model, list(new_int_seqs, new_time_seqs, new_covariates), ...)
+    if (type=="feature" || type=="both") 
+      feature_res <- predict(feature_model, list(new_int_seqs, new_time_seqs), ...)
+  }
   else
-    pred_res <- predict(model, list(new_int_seqs, new_covariates), ...)
+    if (type=="response" || type=="both") 
+      response_res <- predict(seq_model, list(new_int_seqs, new_covariates), ...)
+    if (type=="feature" || type=="both")
+      feature_res <- predict(feature_model, new_int_seqs, ...)
 
   k_clear_session()
   
-  pred_res
+  if (type=="response") res <- response_res
+  if (type=="feature") res <- feature_res
+  if (type=="both") res <- list(response=response_res, feature=feature_res)
+  
+  res
 }

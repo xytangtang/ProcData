@@ -79,6 +79,8 @@ for training. Availabel options are \code{"sgd"}, \code{"rmsprop"},
     for the i-th fully connected layer.}
   \item{model_fit}{a vector of class \code{"raw"}. It is the serialized version of 
     the trained keras model.} 
+  \item{feature_model}{a vector of class \code{"raw"}. It is the serialized version of the
+    keras model for obtaining the rnn outputs.}
   \item{include_time}{if the timestamp sequence is included in the model.}
   \item{time_interval}{if inter-arrival time is used.}
   \item{log_time}{if the logarithm time is used.}

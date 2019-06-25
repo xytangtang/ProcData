@@ -4,7 +4,8 @@
 \alias{predict.seqm}
 \title{Predict method for sequence models}
 \usage{
-\method{predict}{seqm}(object, new_seqs, new_data, ...)
+\method{predict}{seqm}(object, new_seqs, new_data, type = "response",
+  ...)
 }
 \arguments{
 \item{object}{a fitted object of class \code{"seqm"} from \code{seqm}.}
@@ -13,11 +14,16 @@
 
 \item{new_data}{a dataframe in which to look for variables with which to predict.}
 
+\item{type}{a string specifying whether to predict responses (\code{"response"}) 
+or features (\code{"feature"}) or both (\code{"both"}).}
+
 \item{...}{further arguments to be passed to \code{predict.keras.engine.training.Model}.}
 }
 \value{
-a vector of predictions. If \code{response_type="binary"}, predictions are
-  probabilities of the response variable being one.
+If \code{type="response"}, a vector of predictions. The vector gives the 
+  probabilities of the response variable being one if \code{response_type="binary"}.
+  If \code{type="feature"}, a matrix of rnn outputs. If \code{type="both"}, a list 
+  containing both the vector of response variable prediction and the rnn output matrix.
 }
 \description{
 Obtains predictions from a fitted sequence model object.
