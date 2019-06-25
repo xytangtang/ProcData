@@ -58,10 +58,11 @@ K2string <- function(K_emb, K_rnn, K_hidden = NULL, include_time, rnn_type) {
 #' @return \code{seqm} returns an object of class \code{"seqm"}, which is a list containing
 #'   \item{formula}{the model formula.}
 #'   \item{structure}{a string describing the neural network structure.}
-#'   \item{coefficients}{a list of fitted coefficients. The length of the list is 6 + 2 * \code{n_hidden}. 
-#'     The first element gives the action embedding. Elements 2-4 are parameters in the recurrent unit.
-#'     The rest of the elements are for the fully connected layers. Elements 4 + (2 * i - 1) and 4 + 2 * i
-#'     give the parameters for the i-th fully connected layer.}
+#'   \item{coefficients}{a list of fitted coefficients. The length of the list is 
+#'     6 + 2 * \code{n_hidden}. The first element gives the action embedding. 
+#'     Elements 2-4 are parameters in the recurrent unit. The rest of the elements are 
+#'     for the fully connected layers. Elements 4 + (2 * i - 1) and 4 + 2 * i give the parameters
+#'     for the i-th fully connected layer.}
 #'   \item{model_fit}{a vector of class \code{"raw"}. It is the serialized version of 
 #'     the trained keras model.} 
 #'   \item{include_time}{if the timestamp sequence is included in the model.}
@@ -105,10 +106,10 @@ K2string <- function(K_emb, K_rnn, K_hidden = NULL, include_time, rnn_type) {
 seqm <- function(formula, response_type, seqs, actions = NULL, data, rnn_type = "lstm", 
                  include_time=FALSE, time_interval=TRUE, log_time=TRUE, 
                  K_emb = 20, K_rnn = 20, n_hidden = 0, K_hidden = NULL, 
-                 valid_split = 0, index_valid = NULL, 
-                 max_len = max(sapply(seqs$action_seqs, length)), n_epoch = 20, batch_size = 16, 
-                 optimizer_name = "rmsprop", step_size = 0.001, gpu = TRUE) {
-  
+                 valid_split = 0.2, index_valid = NULL, max_len = NULL, 
+                 n_epoch = 20, batch_size = 16, optimizer_name = "rmsprop", step_size = 0.001, 
+                 gpu = FALSE, parallel = FALSE, seed = 12345) {
+  use_session_with_seed(seed, disable_gpu = !gpu, disable_parallel_cpu = !parallel)
   n_person <- length(seqs$action_seqs)
   if (is.null(actions)) events <- unique(unlist(seqs$action_seqs))
   else {
@@ -132,14 +133,15 @@ seqm <- function(formula, response_type, seqs, actions = NULL, data, rnn_type = 
   }
   
   max_len0 <- max(sapply(seqs$action_seqs, length))
-  if (max_len < max_len0) {
+  if (is.null(max_len) || max_len < max_len0) {
     warning("max_len is set as the max length in seqs!\n")
     max_len <- max_len0
   }
   
   if (!is.null(index_valid)) {
     index_train <- setdiff(1:n_person, index_valid)
-    if (valid_split != 0) warning("Both valid_split and index_valid are set. Use index_valid as validation set.\n")
+    if (valid_split != 0) 
+      warning("Both valid_split and index_valid are set. Use index_valid as validation set.\n")
   } else if (valid_split !=0) {
     index_valid <- sample(1:n_person, round(n_person*valid_split))
     index_train <- setdiff(1:n_person, index_valid)
@@ -291,7 +293,7 @@ predict.seqm <- function(object, new_seqs, new_data, ...) {
   
   if (object$include_time && !is.null(new_seqs$time_seqs)) {
     new_time_seqs <- array(-1, dim=c(n, max_len, 1))
-    for (index_seq in 1:n_person) {
+    for (index_seq in 1:n) {
       tseq <- new_seqs$time_seqs[[index_seq]]
       n_l <- length(tseq)
       if (object$time_interval) tseq <- tseq2interval(tseq)

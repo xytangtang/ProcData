@@ -6,7 +6,8 @@
 \usage{
 chooseK_seq2seq(seqs, rnn_type = "lstm", K_cand, n_epoch = 50,
   method = "last", step_size = 1e-04, optimizer_name = "adam",
-  n_fold = 5, valid_prop = 0.1, gpu = FALSE, verbose = TRUE)
+  n_fold = 5, valid_prop = 0.1, gpu = FALSE, parallel = FALSE,
+  seed = 12345, verbose = TRUE)
 }
 \arguments{
 \item{seqs}{a list of \code{n} action sequences. Each element is an action
@@ -34,7 +35,11 @@ for training. Availabel options are \code{"sgd"}, \code{"rmsprop"},
 
 \item{valid_prop}{the proportion of validation samples in each fold.}
 
-\item{gpu}{logical. If TRUE, use gpu for training if available.}
+\item{gpu}{logical. If TRUE, use gpu for training when available. Default is FALSE.}
+
+\item{parallel}{logical. If TRUE, allow cpu parallel computing. Default is FALSE.}
+
+\item{seed}{random seed.}
 
 \item{verbose}{logical. If TRUE, training progress is printed.}
 }

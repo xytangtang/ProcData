@@ -27,6 +27,7 @@
 #' @param tot the accuracy tolerance for determining convergence.
 #' @param return_dist logical. If \code{TRUE}, the dissimilarity matrix will be
 #'   returned. Default is \code{FALSE}.
+#' @param seed random seed.
 #' @return \code{seq2feature_mds} returns a list containing 
 #'   \item{theta}{a numeric matrix giving the \code{K} extracted features or principal
 #'   features. Each column is a feature.} 
@@ -41,7 +42,9 @@
 #' seqs <- seq_gen(n)
 #' theta <- seq2feature_mds(seqs, 5)$theta
 #' @export
-seq2feature_mds <- function(seqs=NULL, K=2, method="oss_action", max_epoch=100, step_size=0.01, pca=TRUE, tot=1e-6, return_dist=FALSE) {
+seq2feature_mds <- function(seqs=NULL, K=2, method="oss_action", max_epoch=100, step_size=0.01, 
+                            pca=TRUE, tot=1e-6, return_dist=FALSE, seed=12345) {
+  set.seed(seed)
   if (is.null(seqs)) 
     stop("Either response processes or their dissimilarity matrix should be provided!\n")
   if (is.matrix(seqs)) {
@@ -85,7 +88,7 @@ seq2feature_mds <- function(seqs=NULL, K=2, method="oss_action", max_epoch=100, 
   theta <- cmdscale(dist_mat, K)
   
   # mds
-  mds_res <- MDS(dist_mat, theta, max_epoch, step_size, tot)
+  mds_res <- MDS(dist_mat, theta, max_epoch, step_size, tot, seed)
   if (!mds_res$convergence) warning("MDS does not converge!")
   if (pca) theta <- prcomp(theta, center=TRUE, scale=FALSE)$x
   
@@ -120,7 +123,10 @@ seq2feature_mds <- function(seqs=NULL, K=2, method="oss_action", max_epoch=100, 
 #' theta <- seq2feature_mds(K_res$dist_mat, K_res$K)$theta
 #'
 #' @export 
-chooseK_mds <- function(seqs=NULL, K_cand, method="oss_action", n_fold=5, max_epoch=100, step_size=0.01, tot=1e-6, return_dist=FALSE) {
+chooseK_mds <- function(seqs=NULL, K_cand, method="oss_action", n_fold=5, 
+                        max_epoch=100, step_size=0.01, tot=1e-6, return_dist=FALSE,
+                        seed = 12345) {
+  set.seed(seed)
   if (is.null(seqs)) 
     stop("Either response processes or their dissimilarity matrix should be provided!\n")
   if (is.matrix(seqs)) {
@@ -220,8 +226,10 @@ chooseK_mds <- function(seqs=NULL, K_cand, method="oss_action", n_fold=5, max_ep
 #' @param samples_train,samples_valid,samples_test vectors of indices specifying the
 #'   training, validation and test sets for training autoencoder.
 #' @param pca logical. If TRUE, the principal components of features are
-#'   returned.
-#' @param gpu logical. If TRUE, use gpu for training if available.
+#'   returned. Default is TRUE.
+#' @param gpu logical. If TRUE, use gpu for training when available. Default is FALSE.
+#' @param parallel logical. If TRUE, allow cpu parallel computing. Default is FALSE.
+#' @param seed random seed.
 #' @param verbose logical. If TRUE, training progress is printed.
 #' @param return_theta logical. If TRUE, extracted features are returned.
 #' @return \code{seq2feature_seq2seq} returns a list containing
@@ -239,8 +247,12 @@ chooseK_mds <- function(seqs=NULL, K_cand, method="oss_action", n_fold=5, max_ep
 #' plot(seq2seq_res$train_loss, col="blue", type="l")
 #' lines(seq2seq_res$valid_loss, col="red")
 #' @export
-seq2feature_seq2seq <- function(seqs, K, rnn_type="lstm", n_epoch=50, method="last", step_size=0.0001, optimizer_name="adam", samples_train, samples_valid, samples_test=NULL, pca=TRUE, gpu=FALSE, verbose=TRUE, return_theta=TRUE) {
-  
+seq2feature_seq2seq <- function(seqs, K, rnn_type="lstm", n_epoch=50, method="last", 
+                                step_size=0.0001, optimizer_name="adam", 
+                                samples_train, samples_valid, samples_test=NULL, 
+                                pca=TRUE, gpu=FALSE, parallel=FALSE, seed=12345,
+                                verbose=TRUE, return_theta=TRUE) {
+  use_session_with_seed(seed, disable_gpu = !gpu, disable_parallel_cpu = !parallel)
   if (!(rnn_type %in% c("lstm", "gru"))) 
     stop("Invalid rnn_type! Available options: lstm, gru.\n")
   if (!(method %in% c("last", "avg"))) 
@@ -414,7 +426,10 @@ seq2feature_seq2seq <- function(seqs, K, rnn_type="lstm", n_epoch=50, method="la
 #'                        n_epoch=10, samples_train=1:40, samples_valid=41:50)
 #' theta <- seq2seq_res$theta
 #' @export
-chooseK_seq2seq <- function(seqs, rnn_type="lstm", K_cand, n_epoch=50, method="last", step_size=0.0001, optimizer_name="adam", n_fold=5, valid_prop=0.1, gpu = FALSE, verbose=TRUE) {
+chooseK_seq2seq <- function(seqs, rnn_type="lstm", K_cand, n_epoch=50, method="last", 
+                            step_size=0.0001, optimizer_name="adam", n_fold=5, valid_prop=0.1, 
+                            gpu = FALSE, parallel=FALSE, seed=12345, verbose=TRUE) {
+  set.seed(seed)
   n_K <- length(K_cand)
   n_seq <- length(seqs)
   folds <- sample(1:n_fold, n_seq, replace=TRUE)
@@ -429,7 +444,12 @@ chooseK_seq2seq <- function(seqs, rnn_type="lstm", K_cand, n_epoch=50, method="l
       index_valid <- sample(index_train_valid, round(length(index_train_valid)*valid_prop))
       index_train <- setdiff(index_train_valid, index_valid)
       
-      seq2seq_res <- seq2feature_seq2seq(seqs = seqs, K = K, rnn_type = rnn_type, n_epoch = n_epoch, method = method, step_size = step_size, optimizer_name = optimizer_name, samples_train = index_train, samples_valid = index_valid, samples_test = index_test, pca = FALSE, gpu = gpu, verbose = verbose, return_theta = FALSE)
+      seq2seq_res <- seq2feature_seq2seq(seqs = seqs, K = K, rnn_type = rnn_type, n_epoch = n_epoch, 
+                                         method = method, step_size = step_size, 
+                                         optimizer_name = optimizer_name, 
+                                         samples_train = index_train, samples_valid = index_valid, samples_test = index_test, 
+                                         pca = FALSE, gpu = gpu, parallel = parallel, seed = seed,
+                                         verbose = verbose, return_theta = FALSE)
       
       cv_loss[index_K] <- cv_loss[index_K] + seq2seq_res$test_loss[which.min(seq2seq_res$valid_loss)]
     }

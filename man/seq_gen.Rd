@@ -8,7 +8,8 @@ seq_gen(n, action_set1 = c("OPT1_1", "OPT1_2", "OPT1_3"),
   action_set2 = c("OPT2_1", "OPT2_2"), answer_set = c("CHECK_A",
   "CHECK_B", "CHECK_C", "CHECK_D"), p1 = rep(1, length(action_set1)),
   p2 = rep(1, length(action_set2)), p_answer = rep(1,
-  length(answer_set)), p_continue = 0.5, p_choose = 0.5)
+  length(answer_set)), p_continue = 0.5, p_choose = 0.5,
+  seed = 12345)
 }
 \arguments{
 \item{n}{An integer. The number of action sequences to be generated.}
@@ -27,6 +28,8 @@ from \code{answer_set}.}
 \item{p_continue}{Probability of running an/another experiment.}
 
 \item{p_choose}{Probability of choosing an answer.}
+
+\item{seed}{random seed.}
 }
 \value{
 An object of class \code{\link{"proc"}} with \code{time_seqs = NULL}.

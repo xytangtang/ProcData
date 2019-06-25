@@ -6,8 +6,8 @@
 using namespace Rcpp;
 
 // MDS
-List MDS(NumericMatrix D, NumericMatrix Theta, int n_epoch, double step_size, double tot);
-RcppExport SEXP _ProcData_MDS(SEXP DSEXP, SEXP ThetaSEXP, SEXP n_epochSEXP, SEXP step_sizeSEXP, SEXP totSEXP) {
+List MDS(NumericMatrix D, NumericMatrix Theta, int n_epoch, double step_size, double tot, unsigned int seed);
+RcppExport SEXP _ProcData_MDS(SEXP DSEXP, SEXP ThetaSEXP, SEXP n_epochSEXP, SEXP step_sizeSEXP, SEXP totSEXP, SEXP seedSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -16,7 +16,8 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< int >::type n_epoch(n_epochSEXP);
     Rcpp::traits::input_parameter< double >::type step_size(step_sizeSEXP);
     Rcpp::traits::input_parameter< double >::type tot(totSEXP);
-    rcpp_result_gen = Rcpp::wrap(MDS(D, Theta, n_epoch, step_size, tot));
+    Rcpp::traits::input_parameter< unsigned int >::type seed(seedSEXP);
+    rcpp_result_gen = Rcpp::wrap(MDS(D, Theta, n_epoch, step_size, tot, seed));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -39,7 +40,7 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_ProcData_MDS", (DL_FUNC) &_ProcData_MDS, 5},
+    {"_ProcData_MDS", (DL_FUNC) &_ProcData_MDS, 6},
     {"_ProcData_MDS_subset", (DL_FUNC) &_ProcData_MDS_subset, 7},
     {NULL, NULL, 0}
 };

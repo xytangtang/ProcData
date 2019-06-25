@@ -6,7 +6,7 @@
 \usage{
 chooseK_mds(seqs = NULL, K_cand, method = "oss_action", n_fold = 5,
   max_epoch = 100, step_size = 0.01, tot = 1e-06,
-  return_dist = FALSE)
+  return_dist = FALSE, seed = 12345)
 }
 \arguments{
 \item{seqs}{a \code{\link{"proc"}} object or a square matrix. If a squared matrix is 
@@ -28,6 +28,8 @@ descent.}
 
 \item{return_dist}{logical. If \code{TRUE}, the dissimilarity matrix will be
 returned. Default is \code{FALSE}.}
+
+\item{seed}{random seed.}
 }
 \value{
 \code{chooseK_mds} returns a list containing

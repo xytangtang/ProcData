@@ -7,9 +7,10 @@
 seqm(formula, response_type, seqs, actions = NULL, data,
   rnn_type = "lstm", include_time = FALSE, time_interval = TRUE,
   log_time = TRUE, K_emb = 20, K_rnn = 20, n_hidden = 0,
-  K_hidden = NULL, valid_split = 0, index_valid = NULL,
-  max_len = max(sapply(seqs, length)), n_epoch = 20, batch_size = 16,
-  optimizer_name = "rmsprop", step_size = 0.001, gpu = TRUE)
+  K_hidden = NULL, valid_split = 0.2, index_valid = NULL,
+  max_len = NULL, n_epoch = 20, batch_size = 16,
+  optimizer_name = "rmsprop", step_size = 0.001, gpu = FALSE,
+  parallel = FALSE, seed = 12345)
 }
 \arguments{
 \item{formula}{an object of class \code{"\link{formula}"} (or one that can be coerced
@@ -61,16 +62,21 @@ for training. Availabel options are \code{"sgd"}, \code{"rmsprop"},
 
 \item{step_size}{the learning rate of optimizer.}
 
-\item{gpu}{logical. If TRUE, use gpu for training if available.}
+\item{gpu}{logical. If TRUE, use gpu for training when available. Default is FALSE.}
+
+\item{parallel}{logical. If TRUE, allow cpu parallel computing. Default is FALSE.}
+
+\item{seed}{random seed.}
 }
 \value{
 \code{seqm} returns an object of class \code{"seqm"}, which is a list containing
   \item{formula}{the model formula.}
   \item{structure}{a string describing the neural network structure.}
-  \item{coefficients}{a list of fitted coefficients. The length of the list is 6 + 2 * \code{n_hidden}. 
-    The first element gives the action embedding. Elements 2-4 are parameters in the recurrent unit.
-    The rest of the elements are for the fully connected layers. Elements 4 + (2 * i - 1) and 4 + 2 * i
-    give the parameters for the i-th fully connected layer.}
+  \item{coefficients}{a list of fitted coefficients. The length of the list is 
+    6 + 2 * \code{n_hidden}. The first element gives the action embedding. 
+    Elements 2-4 are parameters in the recurrent unit. The rest of the elements are 
+    for the fully connected layers. Elements 4 + (2 * i - 1) and 4 + 2 * i give the parameters
+    for the i-th fully connected layer.}
   \item{model_fit}{a vector of class \code{"raw"}. It is the serialized version of 
     the trained keras model.} 
   \item{include_time}{if the timestamp sequence is included in the model.}
@@ -105,30 +111,30 @@ zeros to length \code{max_len} before feeding into the model. If the provided
 \examples{
 n <- 100
 seqs <- seq_gen(n)
-y1 <- sapply(seqs, function(x) "CHECK_A" \%in\% x)
-y2 <- sapply(seqs, function(x) log10(length(x)))
+y1 <- sapply(seqs$action_seqs, function(x) as.numeric("CHECK_A" \%in\% x))
+y2 <- sapply(seqs$action_seqs, function(x) log10(length(x)))
 x <- rnorm(n)
 mydata <- data.frame(x=x, y1=y1, y2=y2)
 
 index_test <- 91:100
 index_train <- 1:90
 
-actions <- unique(unlist(seqs))
+actions <- unique(unlist(seqs$action_seqs))
 
-res1 <- seqm(y1 ~ x, "binary", seqs[index_train], actions=actions,
+res1 <- seqm(y1 ~ x, "binary", sub_seqs(seqs, index_train), actions=actions,
              data=mydata[index_train, ], K_emb = 5, K_rnn = 5, 
              valid_split=0.2, n_epoch = 5)
-predict(res1, new_seqs = seqs[index_test], new_data=mydata[index_test, ])
+predict(res1, new_seqs = sub_seqs(seqs, index_test), new_data=mydata[index_test, ])
 
-res1_more <- seqm(y1 ~ x, "binary", seqs[index_train], actions=actions, 
+res1_more <- seqm(y1 ~ x, "binary", sub_seqs(seqs, index_train), actions=actions, 
                   data=mydata[index_train, ], K_emb = 5, K_rnn = 5, 
                   valid_split=0.2, n_hidden=2, K_hidden=c(10,5), n_epoch = 5)
-predict(res1_more, new_seqs = seqs[index_test], new_data=mydata[index_test, ])
+predict(res1_more, new_seqs = sub_seqs(seqs, index_test), new_data=mydata[index_test, ])
 
-res2 <- seqm(y2 ~ x, "scale", seqs[index_train], actions=actions, 
+res2 <- seqm(y2 ~ x, "scale", sub_seqs(seqs, index_train), actions=actions, 
              data=mydata[index_train, ], K_emb = 5, K_rnn = 5, 
              valid_split=0.2, n_epoch = 5)
-predict(res2, new_seqs = seqs[index_test], new_data=mydata[index_test, ])
+predict(res2, new_seqs = sub_seqs(seqs, index_test), new_data=mydata[index_test, ])
 
 }
 \seealso{

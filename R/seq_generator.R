@@ -28,6 +28,7 @@
 #'   from \code{answer_set}.
 #' @param p_continue Probability of running an/another experiment.
 #' @param p_choose Probability of choosing an answer.
+#' @param seed random seed.
 #' @return An object of class \code{\link{"proc"}} with \code{time_seqs = NULL}.
 #' @examples 
 #' seqs <- seq_gen(100)
@@ -38,8 +39,9 @@ seq_gen <- function(n, action_set1 = c("OPT1_1", "OPT1_2", "OPT1_3"),
                     action_set2 = c("OPT2_1", "OPT2_2"), 
                     answer_set = c("CHECK_A", "CHECK_B", "CHECK_C", "CHECK_D"), 
                     p1 = rep(1,length(action_set1)), p2 = rep(1, length(action_set2)), 
-                    p_answer = rep(1, length(answer_set)), p_continue = 0.5, p_choose = 0.5)
-{
+                    p_answer = rep(1, length(answer_set)), p_continue = 0.5, p_choose = 0.5, 
+                    seed = 12345) {
+  set.seed(seed)
   seqs <- list()
   for (i in 1:n)
   {
@@ -82,8 +84,10 @@ seq_gen <- function(n, action_set1 = c("OPT1_1", "OPT1_2", "OPT1_3"),
 #' 
 #' @family sequence generators
 #' @export
-seq_gen2 <- function(n, Pmat = NULL, events = letters, start_index=1, end_index=length(events), max_len=200)
-{
+seq_gen2 <- function(n, Pmat = NULL, events = letters, 
+                     start_index=1, end_index=length(events), 
+                     max_len=200, seed=12345) {
+  set.seed(seed)
   n_event <- length(events)
   if (is.null(Pmat)) {
     Pmat <- matrix(0, n_event, n_event)
@@ -148,7 +152,8 @@ same_shape <- function(target, current) {
 #' @export
 seq_gen3 <- function(n, events = letters, rnn_type = "lstm", K = 10, weights=NULL, 
                      max_len = 100, initial_state = NULL, start_index=1, 
-                     end_index=length(events)) {
+                     end_index=length(events), gpu=FALSE, parallel=FALSE, seed=12345) {
+  use_session_with_seed(seed, disable_gpu = !gpu, disable_parallel_cpu = !parallel)
   n_event <- length(events)
   
   if (!(rnn_type) %in% c("lstm", "gru")) 

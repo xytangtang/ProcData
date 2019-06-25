@@ -135,7 +135,7 @@ double calculate_loss_subset(NumericMatrix D, NumericMatrix Theta, IntegerMatrix
 }
 
 // [[Rcpp::export]]
-List MDS(NumericMatrix D, NumericMatrix Theta, int n_epoch, double step_size, double tot) {
+List MDS(NumericMatrix D, NumericMatrix Theta, int n_epoch, double step_size, double tot, unsigned int seed) {
     int N = Theta.nrow();
     int K = Theta.ncol();
     int i = 0, j = 0, k = 0;

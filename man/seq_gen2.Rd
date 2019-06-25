@@ -5,7 +5,7 @@
 \title{Markov action sequence generator}
 \usage{
 seq_gen2(n, Pmat = NULL, events = letters, start_index = 1,
-  end_index = length(events), max_len = 200)
+  end_index = length(events), max_len = 200, seed = 12345)
 }
 \arguments{
 \item{n}{An integer. The number of action sequences to be generated.}

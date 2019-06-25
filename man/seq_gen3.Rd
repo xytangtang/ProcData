@@ -6,7 +6,8 @@
 \usage{
 seq_gen3(n, events = letters, rnn_type = "lstm", K = 10,
   weights = NULL, max_len = 100, initial_state = NULL,
-  start_index = 1, end_index = length(events))
+  start_index = 1, end_index = length(events), gpu = FALSE,
+  parallel = FALSE, seed = 12345)
 }
 \arguments{
 \item{n}{An integer. The number of action sequences to be generated.}
