@@ -20,6 +20,7 @@ cc_time_interval_seqs <- sapply(cc_time_seqs, diff)
 rm_obs <- which(sapply(cc_time_interval_seqs, function(x) any(x < 0)))
 cc_time_seqs <- cc_time_seqs[-rm_obs]
 cc_action_seqs <- cc_action_seqs[-rm_obs]
+cc_response <- cc_response[-rm_obs]
 
 cc_seqs <- proc(action_seqs = cc_action_seqs, time_seqs = cc_time_seqs)
 cc_data <- list(seqs = cc_seqs, responses = cc_response)
