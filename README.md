@@ -7,8 +7,9 @@ ProcData: An R Package for Process Data Analysis
 <!-- badges: end -->
 `ProcData` provides tools for exploratory process data analysis. It contains an example dataset and functions for
 
--   reading action sequences from a csv file
--   sequence generators
+-   reading responses from a csv file
+-   process manipulation
+-   action sequence generators
 -   feature extraction methods
 -   fitting and making prediction from sequence models
 
@@ -39,7 +40,11 @@ Note that if this step is skipped, `ProcData` can still be installed and loaded,
 Contents
 --------
 
-### Dataset and Data Generator
+### Data Structure
+
+`ProcData` organizes response processes as an object of class `proc` which is a list containing the action sequences and the timestamp sequences. Functions are provided to summarize and manipulate `proc` objects.
+
+### Dataset
 
 `ProcData` includes a dataset `cc_data` of the action sequences and binary item responses of 16920 respondents of item CP025Q01 in PISA 2012. The item interface can be found [here](http://www.oecd.org/pisa/test-2012/testquestions/question3/). To load the dataset, run
 
@@ -49,15 +54,17 @@ data(cc_data)
 
 `cc_data` is a list of two elements:
 
--   `seqs` is a list containing the action sequences and the timestamp sequences.
+-   `seqs` is a \`proc' object.
 -   `responses` is a numeric vector containing the binary responses outcomes.
 
-For data stored in csv files, `read.seqs` can be used to read response processes. In the input csv file, each process can be stored in a single line or multiple lines. The sample files for the two styles are example\_single.csv and example\_multiple.csv. The processes in the two files can be read by running
+For data stored in csv files, `read.seqs` can be used to read response processes into R and to organize them into a `proc` object. In the input csv file, each process can be stored in a single line or multiple lines. The sample files for the two styles are example\_single.csv and example\_multiple.csv. The processes in the two files can be read by running
 
 ``` r
 seqs1 <- read.seqs(file="example_single.csv", style="single", id_var="ID", action_var="Action", time_var="Time", seq_sep=", ")
 seqs2 <- read.seqs(file="example_multiple.csv", style="multiple", id_var="ID", action_var="Action", time_var="Time")
 ```
+
+### Data Generators
 
 `ProcData` also provides three action sequences generators:
 
@@ -73,7 +80,7 @@ seqs2 <- read.seqs(file="example_multiple.csv", style="multiple", id_var="ID", a
 
 The following functions implement the MDS methods.
 
--   `seq2feature_mds` extracts `K` features from a given list of response processes or their dissimilarity matrix.
+-   `seq2feature_mds` extracts `K` features from a given set of response processes or their dissimilarity matrix.
 -   `chooseK_mds` selects the number of features to be extracted by cross-validation.
 
 ``` r
@@ -86,13 +93,13 @@ theta <- seq2feature_mds(K_res$dist_mat, K_res$K)$theta
 
 Similar to MDS, the seq2seq AE method is implemented by two functions. Both functions depend on `keras`.
 
--   `seq2feature_seq2seq` extracts `K` features from a given list of response processes.
+-   `seq2feature_seq2seq` extracts `K` features from a given set of response processes.
 -   `chooseK_seq2seq` selects the number of features to be extracted by cross-validation.
 
 ``` r
 seqs <- seq_gen(100)
-K_res <- chooseK_seq2seq(seqs$action_seqs, K_cand=c(5, 10), valid_prop=0.2)
-seq2seq_res <- seq2feature_seq2seq(seqs$action_seqs, K_res$K, samples_train=1:80, samples_valid=81:100)
+K_res <- chooseK_seq2seq(seqs, K_cand=c(5, 10), valid_prop=0.2)
+seq2seq_res <- seq2feature_seq2seq(seqs, K_res$K, samples_train=1:80, samples_valid=81:100)
 theta <- seq2seq_res$theta
 ```
 
@@ -100,7 +107,7 @@ Note that if the number of candidates of `K` is large and a large number of epoc
 
 ### Sequence Models
 
-A sequence model relates action sequences and covariates with a response variable. The model combines a recurrent neural network and a fully connected neural network.
+A sequence model relates response processes and covariates with a response variable. The model combines a recurrent neural network and a fully connected neural network.
 
 -   `seqm` fits a sequence model. It returns an object of class \`seqm'.
 -   `predict.seqm` predicts the response variable with a given fitted sequence model. Both `seqm` and `predict.seqm` depends on `keras`.
@@ -119,14 +126,16 @@ index_train <- setdiff(1:n, index_test)
 actions <- unique(unlist(seqs))
 
 # a simple sequence model for a binary response variable
-seqm_res1 <- seqm(y1 ~ x, "binary", seqs$action_seqs[index_train], 
+seqm_res1 <- seqm(y1 ~ x, "binary", sub_seqs(seqs,index_train), 
              actions=actions, data=mydata[index_train, ], 
-             K_emb = 5, K_rnn = 5, valid_split=0.2, n_epoch = 5)
-pred_res1 <- predict(seqm_res1, new_seqs = seqs$action_seqs[index_test], new_data=mydata[index_test, ])
+             K_emb = 5, K_rnn = 5, n_epoch = 5)
+pred_res1 <- predict(seqm_res1, new_seqs = sub_seqs(seqs,index_test),
+                     new_data=mydata[index_test, ])
 
 # a simple sequence model for a numeric response variable
-seqm_res2 <- seqm(y2 ~ x, "scale", seqs$action_seqs[index_train], 
+seqm_res2 <- seqm(y2 ~ x, "scale", sub_seqs(seqs,index_train), 
              actions=actions, data=mydata[index_train, ],
-             K_emb = 5, K_rnn = 5, valid_split=0.2, n_epoch = 5)
-pred_res2 <- predict(seqm_res2, new_seqs = seqs$action_seqs[index_test], new_data=mydata[index_test, ])
+             K_emb = 5, K_rnn = 5, n_epoch = 5)
+pred_res2 <- predict(seqm_res2, new_seqs = sub_seqs(seqs,index_test), 
+                     new_data=mydata[index_test, ])
 ```

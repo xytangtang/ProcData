@@ -1,14 +1,19 @@
 
-#' count appearances of actions in \code{actions} in an action sequence
+#' Count action appearances
 #' 
-#' @param x an action sequence
-#' @param actions a set of actions whose number of appearances will be count
+#' This function counts the appearances of each action in \code{actions} in 
+#' action sequence \code{x}.
+#' 
+#' @param x an action sequence.
+#' @param actions a set of actions whose number of appearances will be count.
+#' @return an integer vector of counts.
+#' @export
 count_actions <- function(x, actions) 
 {
 	sapply(actions, function(a) sum(x==a))
 }
 
-# action transitions
+# action transitions each row is an action transition (bigram).
 aseq2atranseqs <- function(x) {
   l <- length(x)
   
@@ -17,16 +22,22 @@ aseq2atranseqs <- function(x) {
 
 #' Summarize action sequences
 #' 
-#' @param action_seqs a list of action sequences
+#' @param action_seqs a list of action sequences.
 #' @return a list containing the following objects:
-#'   \item{n}{number of action sequences}
-#'   \item{action}{action set}
+#'   \item{n}{the number of action sequences}
+#'   \item{action}{the action set}
 #'   \item{seq_length}{sequence lengths}
 #'   \item{count}{action counts}
-#'   \item{count_by_seq}{action counts in each sequence}
-#'   \item{seq_count}{counts of number of sequences with a given action}
-#'   \item{seq_count_by_seq}{if actions appears in a sequence}
-#'   \item{trans_count}{action transition counts}
+#'   \item{count_by_seq}{a \code{n} by \code{length(action)} matrix whose rows 
+#'     give the action counts in the corresponding action sequence.}
+#'   \item{seq_count}{the number of sequences having a given action}
+#'   \item{seq_count_by_seq}{a \code{n} by \code{length(action)} binary matrix whose 
+#'     element in the i-th row and j-th column indicates if \code{action[j]} appears 
+#'     in sequence i.}
+#'   \item{trans_count}{a \code{length(action)} by \code{length(action)} matrix whose
+#'     element in the i-th row and j-th column is the counts of transition from 
+#'     \code{action[i]} to \code{action[j]}.}
+#' @seealso \code{\link{time_seqs_summary}} for summarizing timestamp sequences.
 #' @export
 action_seqs_summary <- function(action_seqs)
 {
@@ -55,13 +66,16 @@ action_seqs_summary <- function(action_seqs)
 	  trans_counts[all_pairs[1,i], all_pairs[2,i]] <- trans_counts[all_pairs[1,i], all_pairs[2,i]] + 1 
 	
 	list(n=n_seq, action=actions, seq_length=seq_length, 
-	     count=action_counts, count_by_seq=seq_freqs, 
+	     count=action_counts, count_by_seq=action_counts_by_seq, 
 	     seq_count=action_seq_counts, seq_count_by_seq=action_seq_counts_by_seq,
 	     trans_count = trans_counts)
 }
 
-#' Transform a timestamp sequence to a time interval sequence
+#' Transform a timestamp sequence into a inter-arrival time sequence
+#' 
 #' @param x a timestamp sequence
+#' @return a numeric vector of the same length as \code{x}. The first element in 
+#'   the returned vector is 0. The t-th returned element is \code{x[t] - x[t-1]}.
 #' @export
 tseq2interval <- function(x) {
   c(0, diff(x))
@@ -73,7 +87,7 @@ tseq2interval <- function(x) {
 #' @return a list containing the following objects
 #'   \item{total_time}{total time elapsed}
 #'   \item{time_per_action}{average time between two consecutive actions}
-#'   \item{time_interval_seqs}{time interval sequences}
+#'   \item{time_interval_seqs}{inter-arrival time sequences}
 #' @export
 time_seqs_summary <- function(time_seqs) {
   # total time

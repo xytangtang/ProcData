@@ -2,7 +2,7 @@
 % Please edit documentation in R/seq_manipulation.R
 \name{remove_action}
 \alias{remove_action}
-\title{Remove certain actions from response processes}
+\title{Remove actions from response processes}
 \usage{
 remove_action(seqs, actions)
 }
@@ -12,9 +12,14 @@ remove_action(seqs, actions)
 \item{actions}{a character vector. Each element is an action to be removed.}
 }
 \value{
-an object of class \code{"\link{proc}"} with actions in \code{actions} removed.
+an object of class \code{"\link{proc}"} with actions in \code{actions}
+  and the corresponding timestamps removed.
 }
 \description{
 Remove actions in \code{actions} and the corresponding timestamps
  in response processes \code{seqs}.
+}
+\examples{
+  seqs <- seq_gen(10)
+  new_seqs <- remove_action(seqs, c("RUN", "Start"))
 }

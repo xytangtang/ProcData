@@ -25,3 +25,9 @@ Combine the action pattern described in \code{old_actions} into a single action
 first action in the action pattern, the timestamp of the last action in the action
 pattern, or the average of the two timestamps.
 }
+\examples{
+seqs <- seq_gen(100)
+new_seqs <- combine_actions(seqs, 
+                            old_actions=c("OPT1_3", "OPT2_2", "RUN"), 
+                            new_action="KEY_ACTION")
+}

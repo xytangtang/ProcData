@@ -9,7 +9,7 @@ seq2feature_mds(seqs = NULL, K = 2, method = "oss_action",
   return_dist = FALSE, seed = 12345)
 }
 \arguments{
-\item{seqs}{a \code{\link{"proc"}} object or a square matrix. If a squared matrix is 
+\item{seqs}{a \code{"\link{proc}"} object or a square matrix. If a squared matrix is 
 provided, it is treated as the dissimilary matrix of a group of response processes.}
 
 \item{K}{the number of features to be extracted.}
@@ -67,7 +67,8 @@ Gomez-Alonso, C. and Valls, A. (2008). A similarity measure for sequences of
 \seealso{
 \code{\link{chooseK_mds}} for choosing \code{K}.
 
-Other feature extraction methods: \code{\link{atseq2feature_seq2seq}},
+Other feature extraction methods: \code{\link{aseq2feature_seq2seq}},
+  \code{\link{atseq2feature_seq2seq}},
   \code{\link{seq2feature_seq2seq}},
   \code{\link{tseq2feature_seq2seq}}
 }

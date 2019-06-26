@@ -17,3 +17,7 @@ an object of class \code{"\link{proc}"}
 \description{
 Subset response processes
 }
+\examples{
+data(cc_data)
+seqs <- sub_seqs(cc_data$seqs, 1:10)
+}

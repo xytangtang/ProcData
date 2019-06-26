@@ -2,15 +2,19 @@
 % Please edit documentation in R/seq_functions.R
 \name{count_actions}
 \alias{count_actions}
-\title{count appearances of actions in \code{actions} in an action sequence}
+\title{Count action appearances}
 \usage{
 count_actions(x, actions)
 }
 \arguments{
-\item{x}{an action sequence}
+\item{x}{an action sequence.}
 
-\item{actions}{a set of actions whose number of appearances will be count}
+\item{actions}{a set of actions whose number of appearances will be count.}
+}
+\value{
+an integer vector of counts.
 }
 \description{
-count appearances of actions in \code{actions} in an action sequence
+This function counts the appearances of each action in \code{actions} in 
+action sequence \code{x}.
 }

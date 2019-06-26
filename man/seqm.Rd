@@ -18,8 +18,7 @@ to that class): a symbolic description of the model to be fitted.}
 
 \item{response_type}{"binary" or "scale".}
 
-\item{seqs}{a list of \code{n} action sequences. Each element is an action
-sequence in the form of a vector of actions.}
+\item{seqs}{an object of class \code{"\link{proc}"}.}
 
 \item{actions}{a character vector gives all possible actions. It is will be
 expanded to include all actions appear in \code{seqs} if necessary.}
@@ -27,7 +26,7 @@ expanded to include all actions appear in \code{seqs} if necessary.}
 \item{data}{a dataframe containing the variables in the model.}
 
 \item{rnn_type}{the type of recurrent unit to be used for modeling
-action sequences. \code{"lstm"} for the long-short term memory unit. 
+response processes. \code{"lstm"} for the long-short term memory unit. 
 \code{"gru"} for the gated recurrent unit.}
 
 \item{include_time}{logical. If the timestamp sequence should be included in the model.}
@@ -97,13 +96,15 @@ with a variable.
 The model consists of an embedding layer, a recurrent layer and one or more
 fully connected layers. The embedding layer takes an action sequence and
 output a sequences of \code{K} dimensional numeric vectors to the recurrent
-layer. If desired, the embedding sequence is combined with the timestamp sequence 
-in the response process as the input the recurrent layer. The last output of the
-recurrent layer is used as the input of the subsequent fully connected layer.
-If \code{response_type="binary"}, the last layer uses the sigmoid activation to
-produce the probability of the response being one. If \code{response_type="scale"}, 
-the last layer uses the linear activation. The dimension of the output of other 
-fully connected layers (if any) is specified by \code{K_hidden}.
+layer. If \code{include_time = TRUE}, the embedding sequence is combined with
+the timestamp sequence in the response process as the input the recurrent
+layer. The last output of the recurrent layer and the covariates specified in 
+\code{formula} are used as the input of the subsequent fully connected layer.
+If \code{response_type="binary"}, the last layer uses the sigmoid activation
+to produce the probability of the response being one. If
+\code{response_type="scale"}, the last layer uses the linear activation. The
+dimension of the output of other fully connected layers (if any) is specified
+by \code{K_hidden}.
 
 The action sequences are re-coded into integer sequences and are padded with
 zeros to length \code{max_len} before feeding into the model. If the provided
@@ -112,32 +113,47 @@ zeros to length \code{max_len} before feeding into the model. If the provided
 }
 \examples{
 n <- 100
-seqs <- seq_gen(n)
-y1 <- sapply(seqs$action_seqs, function(x) as.numeric("CHECK_A" \%in\% x))
-y2 <- sapply(seqs$action_seqs, function(x) log10(length(x)))
+data(cc_data)
+samples <- sample(1:length(cc_data$responses), n)
+seqs <- sub_seqs(cc_data$seqs, samples)
+
+y <- cc_data$responses[samples]
 x <- rnorm(n)
-mydata <- data.frame(x=x, y1=y1, y2=y2)
+
+mydata <- data.frame(x=x, y=y)
 
 index_test <- 91:100
 index_train <- 1:90
 
 actions <- unique(unlist(seqs$action_seqs))
 
-res1 <- seqm(y1 ~ x, "binary", sub_seqs(seqs, index_train), actions=actions,
-             data=mydata[index_train, ], K_emb = 5, K_rnn = 5, 
-             valid_split=0.2, n_epoch = 5)
-predict(res1, new_seqs = sub_seqs(seqs, index_test), new_data=mydata[index_test, ])
+## no covariate is used
+res1 <- seqm(y ~ 1, "binary", sub_seqs(seqs, index_train), actions=actions,
+             data=mydata[index_train, ], K_emb = 5, K_rnn = 5, n_epoch = 5)
+pred_res1 <- predict(res1, new_seqs = sub_seqs(seqs, index_test), 
+                     new_data=mydata[index_test, ])
+mean(as.numeric(pred_res1 > 0.5) == y[index_test])
 
-res1_more <- seqm(y1 ~ x, "binary", sub_seqs(seqs, index_train), actions=actions, 
+## add more fully connected layers after the recurrent layer.
+res2 <- seqm(y ~ 1, "binary", sub_seqs(seqs, index_train), actions=actions, 
                   data=mydata[index_train, ], K_emb = 5, K_rnn = 5, 
-                  valid_split=0.2, n_hidden=2, K_hidden=c(10,5), n_epoch = 5)
-predict(res1_more, new_seqs = sub_seqs(seqs, index_test), new_data=mydata[index_test, ])
+                  n_hidden=2, K_hidden=c(10,5), n_epoch = 5)
+pred_res2 <- predict(res2, new_seqs = sub_seqs(seqs, index_test), 
+                     new_data=mydata[index_test, ])
+mean(as.numeric(pred_res2 > 0.5) == y[index_test])
 
-res2 <- seqm(y2 ~ x, "scale", sub_seqs(seqs, index_train), actions=actions, 
-             data=mydata[index_train, ], K_emb = 5, K_rnn = 5, 
-             valid_split=0.2, n_epoch = 5)
-predict(res2, new_seqs = sub_seqs(seqs, index_test), new_data=mydata[index_test, ])
-
+## add covariates
+res3 <- seqm(y ~ x, "binary", sub_seqs(seqs, index_train), actions=actions, 
+             data=mydata[index_train, ], K_emb = 5, K_rnn = 5, n_epoch = 5)
+pred_res3 <- predict(res3, new_seqs = sub_seqs(seqs, index_test), 
+                     new_data=mydata[index_test, ])
+                     
+## include time sequences
+res4 <- seqm(y ~ 1, "binary", sub_seqs(seqs, index_train), actions=actions,
+             data=mydata[index_train, ], include_time=TRUE, K_emb=5, K_rnn=5, 
+             n_epoch=5)
+pred_res4 <- predict(res4, new_seqs = sub_seqs(seqs, index_test), 
+                     new_data=mydata[index_test, ])
 }
 \seealso{
 \code{\link{predict.seqm}} for the \code{predict} method for \code{seqm} objects.

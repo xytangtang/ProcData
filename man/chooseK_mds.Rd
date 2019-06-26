@@ -9,7 +9,7 @@ chooseK_mds(seqs = NULL, K_cand, method = "oss_action", n_fold = 5,
   return_dist = FALSE, seed = 12345)
 }
 \arguments{
-\item{seqs}{a \code{\link{"proc"}} object or a square matrix. If a squared matrix is 
+\item{seqs}{a \code{"\link{proc}"} object or a square matrix. If a squared matrix is 
 provided, it is treated as the dissimilary matrix of a group of response processes.}
 
 \item{K_cand}{the candidates of the number of features.}

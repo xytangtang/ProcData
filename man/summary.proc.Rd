@@ -4,16 +4,20 @@
 \alias{summary.proc}
 \title{Summary method for class \code{"proc"}}
 \usage{
-\method{summary}{proc}(seqs)
+\method{summary}{proc}(object, ...)
 }
 \arguments{
-\item{seqs}{an object of class \code{\link{"proc"}}}
+\item{object}{an object of class \code{"\link{proc}"}.}
+
+\item{...}{not used.}
 }
 \value{
-a list
+a list. Its components are the components returned by \link{action_seqs_summary} and
+  \link{time_seqs_summary}.
 }
 \description{
-Summary method for class \code{"proc"}
+The summary of a "proc" object combines the summary of the action sequences and the summary
+of the timestamp sequences.
 }
 \seealso{
 \link{action_seqs_summary} and \link{time_seqs_summary}

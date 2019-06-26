@@ -1,16 +1,19 @@
-#' Class \code{proc} constructor
+#' Class \code{"proc"} constructor
 #' 
 #' Create a \code{"proc"} object from given action sequences and timestamp sequences
 #' 
 #' An object of 
 #' class \code{"proc"} is a list containing the following components:
+#' \itemize{
 #'   \item{action_seqs}{a list of action sequences.}
 #'   \item{time_seqs}{a list of timestamp sequences.}
-#'  The names of elements in \code{action_seqs} and \code{time_seqs} are process identifiers.
+#' }
+#' The names of the elements in \code{seqs$action_seqs} and \code{seqs$time_seqs} are 
+#' process identifiers.
 #'  
-#' @param action_seqs a list of action sequences
-#' @param time_seqs a list of timestamp sequences
-#' @param ids ids identifiers of 
+#' @param action_seqs a list of action sequences.
+#' @param time_seqs a list of timestamp sequences.
+#' @param ids ids identifiers of response processes.
 #' @export
 proc <- function(action_seqs, time_seqs, ids = NULL) {
   l_action <- length(action_seqs)
@@ -40,14 +43,19 @@ proc <- function(action_seqs, time_seqs, ids = NULL) {
 
 #' Summary method for class \code{"proc"}
 #' 
-#' @param seqs an object of class \code{\link{"proc"}}
-#' @return a list 
+#' The summary of a "proc" object combines the summary of the action sequences and the summary
+#' of the timestamp sequences.
+#' 
+#' @param object an object of class \code{"\link{proc}"}.
+#' @param ... not used.
+#' @return a list. Its components are the components returned by \link{action_seqs_summary} and
+#'   \link{time_seqs_summary}.
 #' @seealso \link{action_seqs_summary} and \link{time_seqs_summary}
 #' @export
-summary.proc <- function(seqs) {
-  res_action <- action_seqs_summary(seqs$action_seqs)
+summary.proc <- function(object, ...) {
+  res_action <- action_seqs_summary(object$action_seqs)
   
-  res_time <- time_seqs_summary(seqs$time_seqs)
+  res_time <- time_seqs_summary(object$time_seqs)
   
   c(res_action, res_time)
 }

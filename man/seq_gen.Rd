@@ -32,7 +32,7 @@ from \code{answer_set}.}
 \item{seed}{random seed.}
 }
 \value{
-An object of class \code{\link{"proc"}} with \code{time_seqs = NULL}.
+An object of class \code{"\link{proc}"} with \code{time_seqs = NULL}.
 }
 \description{
 \code{seq_gen} generates action sequences of an imaginary simulation-based item.
@@ -53,10 +53,6 @@ The probability of performing an experiment after "Start" or one experiment is
 \code{p_continue}. After the experiment process, with probability \code{p_choose}, an 
 answer will be chosen. The chosen answer is randomly sampled from \code{answer_set} 
 according to \code{p_answer}. All generated sequences end with "End".
-}
-\examples{
-seqs <- seq_gen(100)
-
 }
 \seealso{
 Other sequence generators: \code{\link{seq_gen2}},

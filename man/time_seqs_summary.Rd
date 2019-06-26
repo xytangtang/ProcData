@@ -13,7 +13,7 @@ time_seqs_summary(time_seqs)
 a list containing the following objects
   \item{total_time}{total time elapsed}
   \item{time_per_action}{average time between two consecutive actions}
-  \item{time_interval_seqs}{time interval sequences}
+  \item{time_interval_seqs}{inter-arrival time sequences}
 }
 \description{
 Summarize timestamp sequences

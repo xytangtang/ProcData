@@ -19,7 +19,7 @@
 #' @param time_var a string giving the name of the variable storing timestamp sequences.
 #' @param step_sep the step separator characters. It is only used if \code{style="single"}.
 #' @param ... further arguments to be passed to \code{read.csv}.
-#' @return \code{read.seqs} returns an object of class \code{\link{"proc"}}.
+#' @return \code{read.seqs} returns an object of class \code{"\link{proc}"}.
 #' @export
 read.seqs <- function(file, style, id_var=NULL, action_var=NULL, time_var=NULL, step_sep = ",", ...) {
   if (!(style %in% c("multiple", "single")))

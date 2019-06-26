@@ -2,22 +2,26 @@
 % Please edit documentation in R/feature_extraction.R
 \name{seq2feature_seq2seq}
 \alias{seq2feature_seq2seq}
-\title{Feature Extraction by action sequence autoencoder}
+\title{Feature Extraction by autoencoder}
 \usage{
-seq2feature_seq2seq(seqs, K, rnn_type = "lstm", n_epoch = 50,
-  method = "last", step_size = 1e-04, optimizer_name = "adam",
-  samples_train, samples_valid, samples_test = NULL, pca = TRUE,
-  gpu = FALSE, parallel = FALSE, seed = 12345, verbose = TRUE,
-  return_theta = TRUE)
+seq2feature_seq2seq(seqs, ae_type = "action", K, rnn_type = "lstm",
+  n_epoch = 50, method = "last", step_size = 1e-04,
+  optimizer_name = "adam", cumulative = FALSE, log = TRUE,
+  weights = c(1, 0.5), samples_train, samples_valid,
+  samples_test = NULL, pca = TRUE, gpu = FALSE, parallel = FALSE,
+  seed = 12345, verbose = TRUE, return_theta = TRUE)
 }
 \arguments{
-\item{seqs}{a list of \code{n} action sequences. Each element is an action
-sequence in the form of a vector of actions.}
+\item{seqs}{an object of class \code{"\link{proc}"}.}
+
+\item{ae_type}{a string specifies the type of autoencoder. The autoencoder can be an
+action sequence autoencoder ("action"), a time sequence autoencoder ("time"), or an 
+action-time sequence autoencoder ("both").}
 
 \item{K}{the number of features to be extracted.}
 
 \item{rnn_type}{the type of recurrent unit to be used for modeling
-action sequences. \code{"lstm"} for the long-short term memory unit. 
+response processes. \code{"lstm"} for the long-short term memory unit. 
 \code{"gru"} for the gated recurrent unit.}
 
 \item{n_epoch}{the number of training epochs for the autoencoder.}
@@ -31,6 +35,19 @@ recurrent neural network in the encoder. Available options are
 \item{optimizer_name}{a character string specifying the optimizer to be used
 for training. Availabel options are \code{"sgd"}, \code{"rmsprop"}, 
 \code{"adadelta"}, and \code{"adam"}.}
+
+\item{cumulative}{logical. If TRUE, the sequence of cumulative time up to each event is
+used as input to the neural network. If FALSE, the sequence of inter-arrival time (gap 
+time between an event and the previous event) will be used as input to the neural network.
+Default is FALSE.}
+
+\item{log}{logical. If TRUE, for the timestamp sequences, input of the neural net is
+the base-10 log of the original sequence of times plus 1 (i.e., log10(t+1)). If FALSE,
+the original sequence of times is used.}
+
+\item{weights}{a vector of 2 elements for the weight of the loss of action sequences
+(categorical_crossentropy) and time sequences (mean squared error), respectively. 
+The total loss is calculated as the weighted sum of the two losses.}
 
 \item{samples_train, samples_valid, samples_test}{vectors of indices specifying the
 training, validation and test sets for training autoencoder.}
@@ -56,32 +73,46 @@ returned. Default is TRUE.}
   \item{test_loss}{a vector of length \code{n_epoch} recording the trace of test losses. Exists only if \code{samples_test} is not \code{NULL}.}
 }
 \description{
-\code{seq2feature_seq2seq} extract features from action sequences by action
-sequence autoencoder.
+\code{seq2feature_seq2seq} extract features from response processes by autoencoder.
 }
 \details{
-This function trains a sequence-to-sequence autoencoder using keras. The encoder
-of the autoencoder consists of an embedding layer and a recurrent neural network.
-The decoder consists of another recurrent neural network and a fully connect layer
-with softmax activation. The outputs of the encoder are the extracted features.
-
-The output of the encoder is a function of the encoder recurrent neural network.
-It is the last output of the encoder recurrent neural network if \code{method="last"}
-and the average of the encoder recurrent nenural network if \code{method="avg"}.
+This function wraps \code{\link{aseq2feature_seq2seq}}, 
+\code{\link{tseq2feature_seq2seq}}, and \code{\link{atseq2feature_seq2seq}}.
 }
 \examples{
 n <- 50
-seqs <- seq_gen(n)
-seq2seq_res <- seq2feature_seq2seq(seqs$action_seqs, 5, rnn_type="lstm", n_epoch=5, 
-                                   samples_train=1:40, samples_valid=41:50)
-features <- seq2seq_res$theta
+data(cc_data)
+samples <- sample(1:length(cc_data$seqs$time_seqs), n)
+seqs <- sub_seqs(cc_data$seqs, samples)
+
+# action sequence autoencoder
+K_res <- chooseK_seq2seq(seqs=seqs, ae_type="action", K_cand=c(5, 10), 
+                         n_epoch=5, n_fold=2, valid_prop=0.2)
+seq2seq_res <- seq2feature_seq2seq(seqs=seqs, ae_type="action", K=K_res$K, 
+                       n_epoch=5, samples_train=1:40, samples_valid=41:50)
+theta <- seq2seq_res$theta
+
+# time sequence autoencoder
+K_res <- chooseK_seq2seq(seqs=seqs, ae_type="time", K_cand=c(5, 10), 
+                         n_epoch=5, n_fold=2, valid_prop=0.2)
+seq2seq_res <- seq2feature_seq2seq(seqs=seqs, ae_type="time", K=K_res$K, 
+                       n_epoch=5, samples_train=1:40, samples_valid=41:50)
+theta <- seq2seq_res$theta
+
+# action and time sequence autoencoder
+K_res <- chooseK_seq2seq(seqs=seqs, ae_type="both", K_cand=c(5, 10), 
+                         n_epoch=5, n_fold=2, valid_prop=0.2)
+seq2seq_res <- seq2feature_seq2seq(seqs=seqs, ae_type="both", K=K_res$K, 
+                       n_epoch=5, samples_train=1:40, samples_valid=41:50)
+theta <- seq2seq_res$theta
 plot(seq2seq_res$train_loss, col="blue", type="l")
 lines(seq2seq_res$valid_loss, col="red")
 }
 \seealso{
 \code{\link{chooseK_seq2seq}} for choosing \code{K} through cross-validation.
 
-Other feature extraction methods: \code{\link{atseq2feature_seq2seq}},
+Other feature extraction methods: \code{\link{aseq2feature_seq2seq}},
+  \code{\link{atseq2feature_seq2seq}},
   \code{\link{seq2feature_mds}},
   \code{\link{tseq2feature_seq2seq}}
 }

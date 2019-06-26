@@ -4,20 +4,24 @@
 \alias{chooseK_seq2seq}
 \title{Choose the number of autoencoder features}
 \usage{
-chooseK_seq2seq(seqs, rnn_type = "lstm", K_cand, n_epoch = 50,
+chooseK_seq2seq(seqs, ae_type, K_cand, rnn_type = "lstm", n_epoch = 50,
   method = "last", step_size = 1e-04, optimizer_name = "adam",
-  n_fold = 5, valid_prop = 0.1, gpu = FALSE, parallel = FALSE,
-  seed = 12345, verbose = TRUE)
+  n_fold = 5, cumulative = FALSE, log = TRUE, weights = c(1, 0.5),
+  valid_prop = 0.1, gpu = FALSE, parallel = FALSE, seed = 12345,
+  verbose = TRUE)
 }
 \arguments{
-\item{seqs}{a list of \code{n} action sequences. Each element is an action
-sequence in the form of a vector of actions.}
+\item{seqs}{an object of class \code{"\link{proc}"}.}
 
-\item{rnn_type}{the type of recurrent unit to be used for modeling
-action sequences. \code{"lstm"} for the long-short term memory unit. 
-\code{"gru"} for the gated recurrent unit.}
+\item{ae_type}{a string specifies the type of autoencoder. The autoencoder can be an
+action sequence autoencoder ("action"), a time sequence autoencoder ("time"), or an 
+action-time sequence autoencoder ("both").}
 
 \item{K_cand}{the candidates of the number of features.}
+
+\item{rnn_type}{the type of recurrent unit to be used for modeling
+response processes. \code{"lstm"} for the long-short term memory unit. 
+\code{"gru"} for the gated recurrent unit.}
 
 \item{n_epoch}{the number of training epochs for the autoencoder.}
 
@@ -32,6 +36,19 @@ for training. Availabel options are \code{"sgd"}, \code{"rmsprop"},
 \code{"adadelta"}, and \code{"adam"}.}
 
 \item{n_fold}{the number of folds for cross-validation.}
+
+\item{cumulative}{logical. If TRUE, the sequence of cumulative time up to each event is
+used as input to the neural network. If FALSE, the sequence of inter-arrival time (gap 
+time between an event and the previous event) will be used as input to the neural network.
+Default is FALSE.}
+
+\item{log}{logical. If TRUE, for the timestamp sequences, input of the neural net is
+the base-10 log of the original sequence of times plus 1 (i.e., log10(t+1)). If FALSE,
+the original sequence of times is used.}
+
+\item{weights}{a vector of 2 elements for the weight of the loss of action sequences
+(categorical_crossentropy) and time sequences (mean squared error), respectively. 
+The total loss is calculated as the weighted sum of the two losses.}
 
 \item{valid_prop}{the proportion of validation samples in each fold.}
 
@@ -52,15 +69,6 @@ for training. Availabel options are \code{"sgd"}, \code{"rmsprop"},
 \description{
 \code{chooseK_seq2seq} chooses the number of features to be extracted
  by cross-validation.
-}
-\examples{
-n <- 50
-seqs <- seq_gen(n)
-K_res <- chooseK_seq2seq(seqs$action_seqs, K_cand=c(5, 10), rnn_type="lstm", 
-                         n_epoch=5, n_fold=2, valid_prop=0.2)
-seq2seq_res <- seq2feature_seq2seq(seqs$action_seqs, K_res$K, rnn_type="lstm", 
-                       n_epoch=10, samples_train=1:40, samples_valid=41:50)
-theta <- seq2seq_res$theta
 }
 \seealso{
 \code{\link{seq2feature_seq2seq}} for feature extraction given the number of features.

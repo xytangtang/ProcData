@@ -6,9 +6,9 @@
 \title{Data of item CP025Q01 (climate control item 1) in PISA 2012}
 \format{A list with two elements. 
 \describe{
-  \item{seqs}{An object of class \code{\link{"proc"}} containing the action sequences and 
+  \item{seqs}{An object of class \code{"\link{proc}"} containing the action sequences and 
     the time sequences of the respondents.}
-  \item{responses}{Binary responses of 16763 respondent. The order of the respondents
+  \item{responses}{Binary responses of 16763 respondents. The order of the respondents
     matches that in \code{seqs}.}
 }}
 \source{

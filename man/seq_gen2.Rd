@@ -22,9 +22,11 @@ actions. Default is \code{letters}.}
 \code{events}.}
 
 \item{max_len}{Maximum length of generated sequences.}
+
+\item{seed}{random generator seed.}
 }
 \value{
-An object of class \code{\link{"proc"}} with \code{time_seqs = NULL}.
+An object of class \code{"\link{proc}"} with \code{time_seqs = NULL}.
 }
 \description{
 \code{seq_gen2} generates action sequences according to a given probability
@@ -36,10 +38,6 @@ set of possible actions is \code{events}. All generated sequences start with
 \code{events[start_index]} and end with \code{events[end_index]}. If
 \code{Pmat} is not supplied, actions is uniformly drawn from
 \code{events[-start_index]} until \code{events[end_index]} appears.
-}
-\examples{
-seqs <- seq_gen2(100)
-
 }
 \seealso{
 Other sequence generators: \code{\link{seq_gen3}},

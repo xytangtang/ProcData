@@ -31,8 +31,9 @@ body {
 <!-- badges: end -->
 <p><code>ProcData</code> provides tools for exploratory process data analysis. It contains an example dataset and functions for</p>
 <ul>
-<li>reading action sequences from a csv file</li>
-<li>sequence generators</li>
+<li>reading responses from a csv file</li>
+<li>process manipulation</li>
+<li>action sequence generators</li>
 <li>feature extraction methods</li>
 <li>fitting and making prediction from sequence models</li>
 </ul>
@@ -46,17 +47,20 @@ body {
 <span class="kw">install_keras</span>()</code></pre></div>
 <p>Note that if this step is skipped, <code>ProcData</code> can still be installed and loaded, but calling the functions that depends on <code>keras</code> will give an error.</p>
 <h2 id="contents">Contents</h2>
-<h3 id="dataset-and-data-generator">Dataset and Data Generator</h3>
+<h3 id="data-structure">Data Structure</h3>
+<p><code>ProcData</code> organizes response processes as an object of class <code>proc</code> which is a list containing the action sequences and the timestamp sequences. Functions are provided to summarize and manipulate <code>proc</code> objects.</p>
+<h3 id="dataset">Dataset</h3>
 <p><code>ProcData</code> includes a dataset <code>cc_data</code> of the action sequences and binary item responses of 16920 respondents of item CP025Q01 in PISA 2012. The item interface can be found <a href="http://www.oecd.org/pisa/test-2012/testquestions/question3/">here</a>. To load the dataset, run</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">data</span>(cc_data)</code></pre></div>
 <p><code>cc_data</code> is a list of two elements:</p>
 <ul>
-<li><code>seqs</code> is a list containing the action sequences and the timestamp sequences.</li>
+<li><code>seqs</code> is a `proc' object.</li>
 <li><code>responses</code> is a numeric vector containing the binary responses outcomes.</li>
 </ul>
-<p>For data stored in csv files, <code>read.seqs</code> can be used to read response processes. In the input csv file, each process can be stored in a single line or multiple lines. The sample files for the two styles are example_single.csv and example_multiple.csv. The processes in the two files can be read by running</p>
+<p>For data stored in csv files, <code>read.seqs</code> can be used to read response processes into R and to organize them into a <code>proc</code> object. In the input csv file, each process can be stored in a single line or multiple lines. The sample files for the two styles are example_single.csv and example_multiple.csv. The processes in the two files can be read by running</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">seqs1 &lt;-<span class="st"> </span><span class="kw">read.seqs</span>(<span class="dt">file=</span><span class="st">&quot;example_single.csv&quot;</span>, <span class="dt">style=</span><span class="st">&quot;single&quot;</span>, <span class="dt">id_var=</span><span class="st">&quot;ID&quot;</span>, <span class="dt">action_var=</span><span class="st">&quot;Action&quot;</span>, <span class="dt">time_var=</span><span class="st">&quot;Time&quot;</span>, <span class="dt">seq_sep=</span><span class="st">&quot;, &quot;</span>)
 seqs2 &lt;-<span class="st"> </span><span class="kw">read.seqs</span>(<span class="dt">file=</span><span class="st">&quot;example_multiple.csv&quot;</span>, <span class="dt">style=</span><span class="st">&quot;multiple&quot;</span>, <span class="dt">id_var=</span><span class="st">&quot;ID&quot;</span>, <span class="dt">action_var=</span><span class="st">&quot;Action&quot;</span>, <span class="dt">time_var=</span><span class="st">&quot;Time&quot;</span>)</code></pre></div>
+<h3 id="data-generators">Data Generators</h3>
 <p><code>ProcData</code> also provides three action sequences generators:</p>
 <ul>
 <li><code>seq_gen</code> generates action sequences of an imaginary simulation-experiment-based item;</li>
@@ -68,7 +72,7 @@ seqs2 &lt;-<span class="st"> </span><span class="kw">read.seqs</span>(<span clas
 <h4 id="mds">MDS</h4>
 <p>The following functions implement the MDS methods.</p>
 <ul>
-<li><code>seq2feature_mds</code> extracts <code>K</code> features from a given list of response processes or their dissimilarity matrix.</li>
+<li><code>seq2feature_mds</code> extracts <code>K</code> features from a given set of response processes or their dissimilarity matrix.</li>
 <li><code>chooseK_mds</code> selects the number of features to be extracted by cross-validation.</li>
 </ul>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">seqs &lt;-<span class="st"> </span><span class="kw">seq_gen</span>(<span class="dv">100</span>)
@@ -77,16 +81,16 @@ theta &lt;-<span class="st"> </span><span class="kw">seq2feature_mds</span>(K_re
 <h4 id="seq2seq-ae">seq2seq AE</h4>
 <p>Similar to MDS, the seq2seq AE method is implemented by two functions. Both functions depend on <code>keras</code>.</p>
 <ul>
-<li><code>seq2feature_seq2seq</code> extracts <code>K</code> features from a given list of response processes.</li>
+<li><code>seq2feature_seq2seq</code> extracts <code>K</code> features from a given set of response processes.</li>
 <li><code>chooseK_seq2seq</code> selects the number of features to be extracted by cross-validation.</li>
 </ul>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">seqs &lt;-<span class="st"> </span><span class="kw">seq_gen</span>(<span class="dv">100</span>)
-K_res &lt;-<span class="st"> </span><span class="kw">chooseK_seq2seq</span>(seqs<span class="op">$</span>action_seqs, <span class="dt">K_cand=</span><span class="kw">c</span>(<span class="dv">5</span>, <span class="dv">10</span>), <span class="dt">valid_prop=</span><span class="fl">0.2</span>)
-seq2seq_res &lt;-<span class="st"> </span><span class="kw">seq2feature_seq2seq</span>(seqs<span class="op">$</span>action_seqs, K_res<span class="op">$</span>K, <span class="dt">samples_train=</span><span class="dv">1</span><span class="op">:</span><span class="dv">80</span>, <span class="dt">samples_valid=</span><span class="dv">81</span><span class="op">:</span><span class="dv">100</span>)
+K_res &lt;-<span class="st"> </span><span class="kw">chooseK_seq2seq</span>(seqs, <span class="dt">K_cand=</span><span class="kw">c</span>(<span class="dv">5</span>, <span class="dv">10</span>), <span class="dt">valid_prop=</span><span class="fl">0.2</span>)
+seq2seq_res &lt;-<span class="st"> </span><span class="kw">seq2feature_seq2seq</span>(seqs, K_res<span class="op">$</span>K, <span class="dt">samples_train=</span><span class="dv">1</span><span class="op">:</span><span class="dv">80</span>, <span class="dt">samples_valid=</span><span class="dv">81</span><span class="op">:</span><span class="dv">100</span>)
 theta &lt;-<span class="st"> </span>seq2seq_res<span class="op">$</span>theta</code></pre></div>
 <p>Note that if the number of candidates of <code>K</code> is large and a large number of epochs is needed for training the seq2seq AE, <code>chooseK_seq2seq</code> can be slow. One can parallel the selection procedure via multiple independent calls of <code>seq2feature_seq2seq</code> with properly specified training, validation, and test sets.</p>
 <h3 id="sequence-models">Sequence Models</h3>
-<p>A sequence model relates action sequences and covariates with a response variable. The model combines a recurrent neural network and a fully connected neural network.</p>
+<p>A sequence model relates response processes and covariates with a response variable. The model combines a recurrent neural network and a fully connected neural network.</p>
 <ul>
 <li><code>seqm</code> fits a sequence model. It returns an object of class `seqm'.</li>
 <li><code>predict.seqm</code> predicts the response variable with a given fitted sequence model. Both <code>seqm</code> and <code>predict.seqm</code> depends on <code>keras</code>.</li>
@@ -104,16 +108,18 @@ index_train &lt;-<span class="st"> </span><span class="kw">setdiff</span>(<span 
 actions &lt;-<span class="st"> </span><span class="kw">unique</span>(<span class="kw">unlist</span>(seqs))
 
 <span class="co"># a simple sequence model for a binary response variable</span>
-seqm_res1 &lt;-<span class="st"> </span><span class="kw">seqm</span>(y1 <span class="op">~</span><span class="st"> </span>x, <span class="st">&quot;binary&quot;</span>, seqs<span class="op">$</span>action_seqs[index_train], 
+seqm_res1 &lt;-<span class="st"> </span><span class="kw">seqm</span>(y1 <span class="op">~</span><span class="st"> </span>x, <span class="st">&quot;binary&quot;</span>, <span class="kw">sub_seqs</span>(seqs,index_train), 
              <span class="dt">actions=</span>actions, <span class="dt">data=</span>mydata[index_train, ], 
-             <span class="dt">K_emb =</span> <span class="dv">5</span>, <span class="dt">K_rnn =</span> <span class="dv">5</span>, <span class="dt">valid_split=</span><span class="fl">0.2</span>, <span class="dt">n_epoch =</span> <span class="dv">5</span>)
-pred_res1 &lt;-<span class="st"> </span><span class="kw">predict</span>(seqm_res1, <span class="dt">new_seqs =</span> seqs<span class="op">$</span>action_seqs[index_test], <span class="dt">new_data=</span>mydata[index_test, ])
+             <span class="dt">K_emb =</span> <span class="dv">5</span>, <span class="dt">K_rnn =</span> <span class="dv">5</span>, <span class="dt">n_epoch =</span> <span class="dv">5</span>)
+pred_res1 &lt;-<span class="st"> </span><span class="kw">predict</span>(seqm_res1, <span class="dt">new_seqs =</span> <span class="kw">sub_seqs</span>(seqs,index_test),
+                     <span class="dt">new_data=</span>mydata[index_test, ])
 
 <span class="co"># a simple sequence model for a numeric response variable</span>
-seqm_res2 &lt;-<span class="st"> </span><span class="kw">seqm</span>(y2 <span class="op">~</span><span class="st"> </span>x, <span class="st">&quot;scale&quot;</span>, seqs<span class="op">$</span>action_seqs[index_train], 
+seqm_res2 &lt;-<span class="st"> </span><span class="kw">seqm</span>(y2 <span class="op">~</span><span class="st"> </span>x, <span class="st">&quot;scale&quot;</span>, <span class="kw">sub_seqs</span>(seqs,index_train), 
              <span class="dt">actions=</span>actions, <span class="dt">data=</span>mydata[index_train, ],
-             <span class="dt">K_emb =</span> <span class="dv">5</span>, <span class="dt">K_rnn =</span> <span class="dv">5</span>, <span class="dt">valid_split=</span><span class="fl">0.2</span>, <span class="dt">n_epoch =</span> <span class="dv">5</span>)
-pred_res2 &lt;-<span class="st"> </span><span class="kw">predict</span>(seqm_res2, <span class="dt">new_seqs =</span> seqs<span class="op">$</span>action_seqs[index_test], <span class="dt">new_data=</span>mydata[index_test, ])</code></pre></div>
+             <span class="dt">K_emb =</span> <span class="dv">5</span>, <span class="dt">K_rnn =</span> <span class="dv">5</span>, <span class="dt">n_epoch =</span> <span class="dv">5</span>)
+pred_res2 &lt;-<span class="st"> </span><span class="kw">predict</span>(seqm_res2, <span class="dt">new_seqs =</span> <span class="kw">sub_seqs</span>(seqs,index_test), 
+                     <span class="dt">new_data=</span>mydata[index_test, ])</code></pre></div>
 
 </body>
 </html>

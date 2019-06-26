@@ -29,10 +29,7 @@
 #' @param p_continue Probability of running an/another experiment.
 #' @param p_choose Probability of choosing an answer.
 #' @param seed random seed.
-#' @return An object of class \code{\link{"proc"}} with \code{time_seqs = NULL}.
-#' @examples 
-#' seqs <- seq_gen(100)
-#' 
+#' @return An object of class \code{"\link{proc}"} with \code{time_seqs = NULL}.
 #' @family sequence generators
 #' @export
 seq_gen <- function(n, action_set1 = c("OPT1_1", "OPT1_2", "OPT1_3"), 
@@ -78,10 +75,8 @@ seq_gen <- function(n, action_set1 = c("OPT1_1", "OPT1_2", "OPT1_3"),
 #' @param end_index Index of the action indicating the end of an item in
 #'   \code{events}.
 #' @param max_len Maximum length of generated sequences.
-#' @return An object of class \code{\link{"proc"}} with \code{time_seqs = NULL}.
-#' @examples 
-#' seqs <- seq_gen2(100)
-#' 
+#' @param seed random generator seed.
+#' @return An object of class \code{"\link{proc}"} with \code{time_seqs = NULL}.
 #' @family sequence generators
 #' @export
 seq_gen2 <- function(n, Pmat = NULL, events = letters, 
@@ -134,6 +129,7 @@ same_shape <- function(target, current) {
 #' \code{seq_gen3} generates action sequences according to a recurrent neural network
 #' 
 #' @inheritParams seq_gen2
+#' @inheritParams seq2feature_seq2seq
 #' @param rnn_type the type of recurrent unit to be used for generating sequences. 
 #'   \code{"lstm"} for the long-short term memory unit. \code{"gru"} for the gated
 #'   recurrent unit.
@@ -146,7 +142,7 @@ same_shape <- function(target, current) {
 #'   \code{rnn_type="gru"}, it contains one 1 by \code{K} matrix. If not specified, 
 #'   all the elements are set to zero.
 #' @return A list containing the following elements
-#'     \item{seqs}{an object of class \code{\link{"proc"}} with \code{time_seqs=NULL}.}
+#'     \item{seqs}{an object of class \code{"\link{proc}"} with \code{time_seqs=NULL}.}
 #'     \item{weights}{a list containing the weights used for generating sequences.}
 #' @family sequence generators
 #' @export

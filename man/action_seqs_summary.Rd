@@ -7,19 +7,27 @@
 action_seqs_summary(action_seqs)
 }
 \arguments{
-\item{action_seqs}{a list of action sequences}
+\item{action_seqs}{a list of action sequences.}
 }
 \value{
 a list containing the following objects:
-  \item{n}{number of action sequences}
-  \item{action}{action set}
+  \item{n}{the number of action sequences}
+  \item{action}{the action set}
   \item{seq_length}{sequence lengths}
   \item{count}{action counts}
-  \item{count_by_seq}{action counts in each sequence}
-  \item{seq_count}{counts of number of sequences with a given action}
-  \item{seq_count_by_seq}{if actions appears in a sequence}
-  \item{trans_count}{action transition counts}
+  \item{count_by_seq}{a \code{n} by \code{length(action)} matrix whose rows 
+    give the action counts in the corresponding action sequence.}
+  \item{seq_count}{the number of sequences having a given action}
+  \item{seq_count_by_seq}{a \code{n} by \code{length(action)} binary matrix whose 
+    element in the i-th row and j-th column indicates if \code{action[j]} appears 
+    in sequence i.}
+  \item{trans_count}{a \code{length(action)} by \code{length(action)} matrix whose
+    element in the i-th row and j-th column is the counts of transition from 
+    \code{action[i]} to \code{action[j]}.}
 }
 \description{
 Summarize action sequences
+}
+\seealso{
+\code{\link{time_seqs_summary}} for summarizing timestamp sequences.
 }

@@ -3,19 +3,26 @@
 #' @param seqs an object of class \code{"\link{proc}"}
 #' @param ids a vector of indices 
 #' @return an object of class \code{"\link{proc}"}
+#' @examples 
+#' data(cc_data)
+#' seqs <- sub_seqs(cc_data$seqs, 1:10)
 #' @export
 sub_seqs <- function(seqs, ids) {
   proc(seqs$action_seqs[ids], seqs$time_seqs[ids])
 }
 
-#' Remove certain actions from response processes
+#' Remove actions from response processes
 #' 
 #' Remove actions in \code{actions} and the corresponding timestamps
 #'  in response processes \code{seqs}.
 #'
 #' @param seqs an object of class \code{"\link{proc}"}
 #' @param actions a character vector. Each element is an action to be removed.
-#' @return an object of class \code{"\link{proc}"} with actions in \code{actions} removed.
+#' @return an object of class \code{"\link{proc}"} with actions in \code{actions}
+#'   and the corresponding timestamps removed.
+#' @examples 
+#'   seqs <- seq_gen(10)
+#'   new_seqs <- remove_action(seqs, c("RUN", "Start"))
 #' @export
 remove_action <- function(seqs, actions) {
   
@@ -46,6 +53,9 @@ remove_action <- function(seqs, actions) {
 #' @param old_action a string giving the action to be replaced.
 #' @param new_action a string giving the action replacing \code{old_action}
 #' @return an object of class \code{"\link{proc}"}
+#' @examples 
+#' seqs <- seq_gen(10)
+#' new_seqs <- replace_action(seqs, "Start", "Begin")
 #' @export
 replace_action <- function(seqs, old_action, new_action) {
   n_seq <- length(seqs$action_seqs)
@@ -84,7 +94,12 @@ check_pattern <- function(x, pattern)
 #' @param timestamp "first", "last", or "avg", specifying how the timestamp of the combined
 #'   action should be derived.
 #' @return an object of class \code{"\link{proc}"}
-#' 
+#' @examples 
+#' seqs <- seq_gen(100)
+#' new_seqs <- combine_actions(seqs, 
+#'                             old_actions=c("OPT1_3", "OPT2_2", "RUN"), 
+#'                             new_action="KEY_ACTION")
+#' @export
 combine_actions <- function(seqs, old_actions, new_action, timestamp="first") {
   
   l <- length(old_actions)

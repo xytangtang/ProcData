@@ -9,15 +9,25 @@ NULL
 #'
 #' General tools for exploratory process data analysis. Process data refers to
 #' the data describing participants' problem solving processes in computer-based
-#' assessments. It is often recorded in computer log files. This package
-#' provides two action sequence generators and implements two automatic feature
+#' assessments. It is often recorded in computer log files. This package a process 
+#' dataset and functions for reading processes from a csv file, process manipulation,
+#' action sequence generators. It also implements two automatic feature
 #' extraction methods that compress the information stored in process data,
 #' which often has a nonstandard format, into standard numerical vectors. This
 #' package also provides recurrent neural network based models that relate
 #' response processes with other binary or scale variables of interest. The
-#' functions that involve training and evaluating neural networks are wrappers
-#' of functions in keras.
+#' functions that involve training and evaluating neural networks are based on
+#' functions in keras.
 #'
+#' @section Data structure:
+#' \code{ProcData} organizes response processes as an object of class \code{\link{proc}}.
+#' Some functions are provided for summarizing and manipulating \code{proc} objects.
+#' \itemize{
+#'   \item \code{\link{summary.proc}} calculates summary statistics of a \code{proc} object.
+#'   \item \code{\link{remove_action}} removes actions and the corresponding timestamps
+#'   \item \code{\link{replace_action}} replaces an action by another action
+#'   \item \code{\link{combina_actions}} combines consecutive action into one action.
+#' }
 #' @section Read sequences:
 #' \itemize{
 #'   \item \code{\link{read.seqs}} reads response processes from a csv file.
@@ -33,10 +43,11 @@ NULL
 #' }
 #' @section Feature extraction methods:
 #' \itemize{
-#'   \item \code{\link{seq2feature_mds}} extracts \code{K} features from response processes by
-#' multidimensional scaling.
+#'   \item \code{\link{seq2feature_mds}} extracts features from response processes by
+#'     multidimensional scaling.
 #' 
-#'   \item \code{\link{seq2feature_seq2seq}} extract features from response processes by autoencoder.
+#'   \item \code{\link{seq2feature_seq2seq}} extracts features from response processes by
+#'     autoencoder.
 #' }
 #' @section Sequence models:
 #' \itemize{

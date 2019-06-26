@@ -23,7 +23,7 @@ read.seqs(file, style, id_var = NULL, action_var = NULL,
 \item{...}{further arguments to be passed to \code{read.csv}.}
 }
 \value{
-\code{read.seqs} returns an object of class \code{\link{"proc"}}.
+\code{read.seqs} returns an object of class \code{"\link{proc}"}.
 }
 \description{
 Reads a csv file and creates response process data.

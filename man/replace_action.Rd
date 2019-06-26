@@ -20,3 +20,7 @@ an object of class \code{"\link{proc}"}
 Replace \code{old_action} with \code{new_action} in \code{seqs}. Timestamp
 sequences are not affected.
 }
+\examples{
+seqs <- seq_gen(10)
+new_seqs <- replace_action(seqs, "Start", "Begin")
+}

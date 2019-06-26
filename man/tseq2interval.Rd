@@ -2,13 +2,17 @@
 % Please edit documentation in R/seq_functions.R
 \name{tseq2interval}
 \alias{tseq2interval}
-\title{Transform a timestamp sequence to a time interval sequence}
+\title{Transform a timestamp sequence into a inter-arrival time sequence}
 \usage{
 tseq2interval(x)
 }
 \arguments{
 \item{x}{a timestamp sequence}
 }
+\value{
+a numeric vector of the same length as \code{x}. The first element in 
+  the returned vector is 0. The t-th returned element is \code{x[t] - x[t-1]}.
+}
 \description{
-Transform a timestamp sequence to a time interval sequence
+Transform a timestamp sequence into a inter-arrival time sequence
 }

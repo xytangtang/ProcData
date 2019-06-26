@@ -37,10 +37,16 @@ all the elements are set to zero.}
 
 \item{end_index}{Index of the action indicating the end of an item in
 \code{events}.}
+
+\item{gpu}{logical. If TRUE, use gpu for training when available. Default is FALSE.}
+
+\item{parallel}{logical. If TRUE, allow cpu parallel computing. Default is FALSE.}
+
+\item{seed}{random generator seed.}
 }
 \value{
 A list containing the following elements
-    \item{seqs}{an object of class \code{\link{"proc"}} with \code{time_seqs=NULL}.}
+    \item{seqs}{an object of class \code{"\link{proc}"} with \code{time_seqs=NULL}.}
     \item{weights}{a list containing the weights used for generating sequences.}
 }
 \description{
