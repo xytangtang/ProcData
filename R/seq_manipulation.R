@@ -80,6 +80,31 @@ check_pattern <- function(x, pattern)
   return(FALSE)
 }
 
+#' Remove repeated actions
+#' 
+#' @param seqs an object of class \code{"\link{proc}"}
+#' @param ignore repeated actions in ignore will not be deleted.
+#' @return an object of class \code{"\link{proc}"}
+#' @export
+remove_repeat <- function(seqs, ignore=NULL) {
+   aseqs <- seqs$action_seqs
+   tseqs <- seqs$time_seqs
+   
+   n <- length(aseqs)
+   for (i in 1:n) {
+     aseq <- aseqs[[i]]
+     tseq <- tseqs[[i]]
+     l <- length(aseq)
+     rm_idx <- which(aseq[1:(l-1)] == aseq[2:l] & !(aseq[2:l] %in% ignore))
+     if (length(rm_idx) > 0) {
+       rm_idx <- rm_idx + 1
+       aseqs[[i]] <- aseq[-rm_idx]
+       tseqs[[i]] <- tseq[-rm_idx]
+     }
+   }
+   
+   proc(action_seqs=aseqs, time_seqs=tseqs)
+}
 
 #' Combine consecutive actions into a single action
 #' 
