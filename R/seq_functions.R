@@ -54,6 +54,7 @@ action_seqs_summary <- function(action_seqs)
 	action_seq_counts_by_seq <- array(as.numeric(action_freq_by_seq > 0), 
 	                                  dim=dim(action_freq_by_seq))
 	action_seq_freq <- colSums(action_seq_counts_by_seq)
+	names(action_seq_freq) <- actions
 	
 	# tfidf weighted action frequency
 	inv_seq_freq <- log(n_seq / action_seq_freq)

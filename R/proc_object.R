@@ -82,7 +82,8 @@ print.proc <- function(x, n=5, index=NULL, quote=FALSE, ...) {
   seq_names <- names(x$action_seqs)
   for (i in index) {
     l <- length(x$action_seqs[[i]])
-    po <- data.frame(Event = x$action_seqs[[i]], Time=x$time_seqs[[i]])
+    po <- data.frame(Event = x$action_seqs[[i]], stringsAsFactors = FALSE)
+    if (!is.null(x$time_seqs)) po$Time=x$time_seqs[[i]]
     rownames(po) <- paste("Step", 1:l)
     cat(seq_names[i], "\n")
     print(t(po), quote=quote, ...)

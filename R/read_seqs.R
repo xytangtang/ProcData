@@ -71,3 +71,62 @@ read.seqs <- function(file, style, id_var=NULL, action_var=NULL, time_var=NULL, 
   proc(action_seqs = actions, time_seqs = times)
   
 }
+
+
+
+#' Write process data to csv files
+#' 
+#' @inheritParams read.seqs
+#' @param seqs an object of class \code{"\link{proc}"} to written in the csv file.
+#' @param ... further arguments to be passed to \code{write.csv}
+#' @export
+write.seqs <- function(seqs, file, style, id_var="ID", action_var="Event", time_var="Time", step_sep=",", ...) {
+  if (!(style %in% c("multiple", "single")))
+    stop("Invalid file style! Available options: multiple, and single.\n")
+  
+  if (length(id_var) > 1) {
+    warning("More than one variable is given in 'id_var'. Only the first one will be used\n")
+    id_var <- id_var[1]
+  }
+  if (is.null(id_var)) stop("id_var should be provided!\n")
+
+  if (length(action_var) > 1) {
+    warning("More than one variable is given in 'action_var'. Only the first one will be used\n")
+    action_var <- action_var[1]
+  }
+  if (is.null(action_var)) stop("action_var should be provided!\n")
+
+  if (!is.null(seqs$time_seqs)) {
+    if (is.null(time_var)) time_var <- "Time"
+    else if (length(time_var) > 1) {
+      warning("More than one variable is given in 'time_var'. Only the first one will be used\n")
+      time_var <- time_var[1]
+    }
+  } else {
+    time_var <- NULL
+  }
+  
+  if (style == "single") {
+    action_seqs <- seqs$action_seqs
+    single_action_seqs <- sapply(action_seqs, paste, collapse=step_sep)
+    output_df <- data.frame(ID=names(action_seqs), Event=single_action_seqs, stringsAsFactors = FALSE)
+    if (!is.null(seqs$time_seqs)) {
+      time_seqs <- seqs$time_seqs
+      single_time_seqs <- sapply(time_seqs, paste, collapse=step_sep)
+      output_df$Time <- single_time_seqs
+    }
+    colnames(output_df) <- c(id_var, action_var, time_var)
+  } else if (style == "multiple") {
+    action_seqs <- seqs$action_seqs
+    multiple_action_seqs <- unlist(action_seqs)
+    ids <- rep(names(action_seqs), sapply(action_seqs, length))
+    output_df <- data.frame(ID=ids, Event=multiple_action_seqs, stringsAsFactors = FALSE)
+    if (!is.null(seqs$time_seqs)) {
+      time_seqs <- seqs$time_seqs
+      multiple_time_seqs <- unlist(time_seqs)
+      output_df$Time <- multiple_time_seqs
+    }
+    colnames(output_df) <- c(id_var, action_var, time_var)
+  }
+  write.csv(output_df, file=file, ...)
+}
