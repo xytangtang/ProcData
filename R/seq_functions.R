@@ -75,7 +75,7 @@ action_seqs_summary <- function(action_seqs)
 	  trans_counts[all_pairs[1,i], all_pairs[2,i]] <- trans_counts[all_pairs[1,i], all_pairs[2,i]] + 1 
 	
 	list(n_seq=n_seq, n_action = n_action,
-	     action=actions, seq_length=seq_length, 
+	     actions=actions, seq_length=seq_length, 
 	     action_freq=action_freq, action_seq_freq = action_seq_freq, 
 	     weighted_action_freq = weighted_action_freq, 
 	     trans_count = trans_counts)
@@ -103,7 +103,7 @@ time_seqs_summary <- function(time_seqs) {
   # total time
   total_time <- summary(sapply(time_seqs, max))
   # time per action
-  time_per_action <- summary(total_time / sapply(time_seqs, length))
+  time_per_action <- summary(sapply(time_seqs, max) / sapply(time_seqs, length))
   # inter-arrival time seqs
   time_interval <- summary(unlist(sapply(time_seqs, tseq2interval)))
   

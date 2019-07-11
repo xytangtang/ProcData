@@ -55,8 +55,38 @@ proc <- function(action_seqs, time_seqs, ids = NULL) {
 summary.proc <- function(object, ...) {
   res_action <- action_seqs_summary(object$action_seqs)
   
-  res_time <- time_seqs_summary(object$time_seqs)
+  if (is.null(object$time_seqs)) res_time <- NULL
+  else
+    res_time <- time_seqs_summary(object$time_seqs)
   
   c(res_action, res_time)
 }
 
+#' Print method for class \code{"proc"}
+#' 
+#' @param x an object of class \code{"\link{proc}"}
+#' @param n number of processes to be printed
+#' @export
+print.proc <- function(x, n=5, index=NULL, quote=FALSE, ...) {
+  n_total <- length(x$action_seqs)
+  cat("'proc' object of ", n_total, " processes\n")
+  cat("\n")
+  if (is.null(n) & is.null(index)) n <- 5
+  if (!is.null(n) & !is.null(index)) index <- index[1:min(n, length(index))]
+  if (is.null(index) & n < n_total) {
+    cat("First ", n, " processes:\n")
+    index <- 1:n
+  }
+  
+  cat("\n")
+  seq_names <- names(x$action_seqs)
+  for (i in index) {
+    l <- length(x$action_seqs[[i]])
+    po <- data.frame(Event = x$action_seqs[[i]], Time=x$time_seqs[[i]])
+    rownames(po) <- paste("Step", 1:l)
+    cat(seq_names[i], "\n")
+    print(t(po), quote=quote, ...)
+    cat("\n")
+  }
+  invisible(x)
+}
