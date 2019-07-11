@@ -11,16 +11,13 @@ action_seqs_summary(action_seqs)
 }
 \value{
 a list containing the following objects:
-  \item{n}{the number of action sequences}
+  \item{n_seq}{the number of action sequences}
+  \item{n_action}{the number of distinct actions}
   \item{action}{the action set}
   \item{seq_length}{sequence lengths}
-  \item{count}{action counts}
-  \item{count_by_seq}{a \code{n} by \code{length(action)} matrix whose rows 
-    give the action counts in the corresponding action sequence.}
-  \item{seq_count}{the number of sequences having a given action}
-  \item{seq_count_by_seq}{a \code{n} by \code{length(action)} binary matrix whose 
-    element in the i-th row and j-th column indicates if \code{action[j]} appears 
-    in sequence i.}
+  \item{action_freq}{action counts}
+  \item{action_seq_freq}{the number of sequences that each action appears}
+  \item{weighted_action_freq}{action frequency weighted by tfidf}
   \item{trans_count}{a \code{length(action)} by \code{length(action)} matrix whose
     element in the i-th row and j-th column is the counts of transition from 
     \code{action[i]} to \code{action[j]}.}

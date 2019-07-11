@@ -11,9 +11,9 @@ time_seqs_summary(time_seqs)
 }
 \value{
 a list containing the following objects
-  \item{total_time}{total time elapsed}
-  \item{time_per_action}{average time between two consecutive actions}
-  \item{time_interval_seqs}{inter-arrival time sequences}
+  \item{total_time}{summary of total time elapsed}
+  \item{time_per_action}{summary of average time between two consecutive actions}
+  \item{inter_arrival_time}{summary of inter-arrival time}
 }
 \description{
 Summarize timestamp sequences
