@@ -26,7 +26,7 @@ NULL
 #'   \item \code{\link{summary.proc}} calculates summary statistics of a \code{proc} object.
 #'   \item \code{\link{remove_action}} removes actions and the corresponding timestamps
 #'   \item \code{\link{replace_action}} replaces an action by another action
-#'   \item \code{\link{combina_actions}} combines consecutive action into one action.
+#'   \item \code{\link{combine_actions}} combines consecutive action into one action.
 #' }
 #' @section Read sequences:
 #' \itemize{

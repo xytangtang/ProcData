@@ -65,7 +65,10 @@ summary.proc <- function(object, ...) {
 #' Print method for class \code{"proc"}
 #' 
 #' @param x an object of class \code{"\link{proc}"}
-#' @param n number of processes to be printed
+#' @param n number of processes to be printed.
+#' @param index indice of processes to be printed.
+#' @param quote logical, indicating whether or not strings should be printed with surrounding quotes.
+#' @param ... not used.
 #' @export
 print.proc <- function(x, n=5, index=NULL, quote=FALSE, ...) {
   n_total <- length(x$action_seqs)
