@@ -9,7 +9,13 @@
 \arguments{
 \item{x}{an object of class \code{"\link{proc}"}}
 
-\item{n}{number of processes to be printed}
+\item{n}{number of processes to be printed.}
+
+\item{index}{indice of processes to be printed.}
+
+\item{quote}{logical, indicating whether or not strings should be printed with surrounding quotes.}
+
+\item{...}{not used.}
 }
 \description{
 Print method for class \code{"proc"}
