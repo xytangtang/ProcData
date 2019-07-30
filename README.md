@@ -64,6 +64,8 @@ seqs1 <- read.seqs(file="example_single.csv", style="single", id_var="ID", actio
 seqs2 <- read.seqs(file="example_multiple.csv", style="multiple", id_var="ID", action_var="Action", time_var="Time")
 ```
 
+`write.seqs` can be used to write `proc` objects in csv files.
+
 ### Data Generators
 
 `ProcData` also provides three action sequences generators:

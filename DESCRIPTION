@@ -1,7 +1,7 @@
 Package: ProcData
 Type: Package
 Title: Process Data Analysis
-Version: 0.2.0
+Version: 0.2.1
 Date: 2019-04-12
 Authors@R: c(
     person("Xueying", "Tang", email = "xueyingtang1989@gmail.com", role = c("aut", "cre")),
