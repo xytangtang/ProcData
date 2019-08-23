@@ -561,10 +561,10 @@ atseq2feature_seq2seq <- function(atseqs, K, weights = c(1, .5), cumulative = FA
       encoder_outputs_long <- encoder_inputs %>%
         layer_lambda(expand_and_concatenate) %>%
         layer_gru(units = K, return_sequences=TRUE, return_state=TRUE)
-      encoder_outputs <- encoder_outputs_long[[3]]
+      encoder_outputs <- encoder_outputs_long[[2]]
       fn_rp <- function(x) {
         stepMatrix <- k_ones_like(x[[1]][,,1, drop=FALSE])
-        latentMatrix <- k_expand_dims(x[[3]], axis=2)
+        latentMatrix <- k_expand_dims(x[[2]], axis=2)
         return(k_permute_dimensions(k_batch_dot(latentMatrix,stepMatrix, axes=list(2, 3)), list(1,3,2)))
       }
     } else {
