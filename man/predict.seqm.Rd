@@ -4,15 +4,15 @@
 \alias{predict.seqm}
 \title{Predict method for sequence models}
 \usage{
-\method{predict}{seqm}(object, new_seqs, new_data, type = "response",
-  ...)
+\method{predict}{seqm}(object, new_seqs, new_covariates = NULL,
+  type = "response", ...)
 }
 \arguments{
 \item{object}{a fitted object of class \code{"seqm"} from \code{seqm}.}
 
 \item{new_seqs}{an object of class \code{"\link{proc}"} with which to predict.}
 
-\item{new_data}{a dataframe in which to look for variables with which to predict.}
+\item{new_covariates}{a new covariate matrix with which to predict.}
 
 \item{type}{a string specifying whether to predict responses (\code{"response"}) 
 or features (\code{"feature"}) or both (\code{"both"}).}

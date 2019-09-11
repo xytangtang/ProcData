@@ -24,7 +24,7 @@ K2string <- function(K_emb, K_rnn, K_hidden = NULL, include_time, rnn_type) {
 #' layer. If \code{include_time = TRUE}, the embedding sequence is combined with
 #' the timestamp sequence in the response process as the input the recurrent
 #' layer. The last output of the recurrent layer and the covariates specified in 
-#' \code{formula} are used as the input of the subsequent fully connected layer.
+#' \code{covariates} are used as the input of the subsequent fully connected layer.
 #' If \code{response_type="binary"}, the last layer uses the sigmoid activation
 #' to produce the probability of the response being one. If
 #' \code{response_type="scale"}, the last layer uses the linear activation. The
@@ -37,12 +37,11 @@ K2string <- function(K_emb, K_rnn, K_hidden = NULL, include_time, rnn_type) {
 #' \code{seqs}, it will be overridden.
 #'
 #' @inheritParams seq2feature_seq2seq
-#' @param formula an object of class \code{"\link{formula}"} (or one that can be coerced
-#'   to that class): a symbolic description of the model to be fitted.
+#' @param response response variable.
+#' @param covariates covariate matrix.
 #' @param response_type "binary" or "scale".
 #' @param actions a character vector gives all possible actions. It is will be
 #'   expanded to include all actions appear in \code{seqs} if necessary.
-#' @param data a dataframe containing the variables in the model.
 #' @param include_time logical. If the timestamp sequence should be included in the model.
 #' @param time_interval logical. If the timestamp sequence is included as a sequence of 
 #'   inter-arrival time.
@@ -58,7 +57,6 @@ K2string <- function(K_emb, K_rnn, K_hidden = NULL, include_time, rnn_type) {
 #' @param index_valid a vector of indices specifying the validation set.
 #' @param max_len the maximum length of response processes.
 #' @return \code{seqm} returns an object of class \code{"seqm"}, which is a list containing
-#'   \item{formula}{the model formula.}
 #'   \item{structure}{a string describing the neural network structure.}
 #'   \item{coefficients}{a list of fitted coefficients. The length of the list is 
 #'     6 + 2 * \code{n_hidden}. The first element gives the action embedding. 
@@ -85,49 +83,52 @@ K2string <- function(K_emb, K_rnn, K_hidden = NULL, include_time, rnn_type) {
 #' seqs <- sub_seqs(cc_data$seqs, samples)
 #' 
 #' y <- cc_data$responses[samples]
-#' x <- rnorm(n)
-#' 
-#' mydata <- data.frame(x=x, y=y)
+#' x <- matrix(rnorm(n*2), ncol=2)
 #' 
 #' index_test <- 91:100
 #' index_train <- 1:90
+#' seqs_train <- sub_seqs(seqs, index_train)
+#' seqs_test <- sub_seqs(seqs, index_test)
 #' 
 #' actions <- unique(unlist(seqs$action_seqs))
 #' 
 #' ## no covariate is used
-#' res1 <- seqm(y ~ 1, "binary", sub_seqs(seqs, index_train), actions=actions,
-#'              data=mydata[index_train, ], K_emb = 5, K_rnn = 5, n_epoch = 5)
-#' pred_res1 <- predict(res1, new_seqs = sub_seqs(seqs, index_test), 
-#'                      new_data=mydata[index_test, ])
+#' res1 <- seqm(seqs = seqs_train, response = y[index_train], 
+#'              response_type = "binary", actions=actions, K_emb = 5, K_rnn = 5, 
+#'              n_epoch = 5)
+#' pred_res1 <- predict(res1, new_seqs = seqs_test)
+#' 
 #' mean(as.numeric(pred_res1 > 0.5) == y[index_test])
 #' 
 #' ## add more fully connected layers after the recurrent layer.
-#' res2 <- seqm(y ~ 1, "binary", sub_seqs(seqs, index_train), actions=actions, 
-#'                   data=mydata[index_train, ], K_emb = 5, K_rnn = 5, 
-#'                   n_hidden=2, K_hidden=c(10,5), n_epoch = 5)
-#' pred_res2 <- predict(res2, new_seqs = sub_seqs(seqs, index_test), 
-#'                      new_data=mydata[index_test, ])
+#' res2 <- seqm(seqs = seqs_train, response = y[index_train],
+#'              response_type = "binary", actions=actions, K_emb = 5, K_rnn = 5, 
+#'              n_hidden=2, K_hidden=c(10,5), n_epoch = 5)
+#' pred_res2 <- predict(res2, new_seqs = seqs_test)
 #' mean(as.numeric(pred_res2 > 0.5) == y[index_test])
 #' 
 #' ## add covariates
-#' res3 <- seqm(y ~ x, "binary", sub_seqs(seqs, index_train), actions=actions, 
-#'              data=mydata[index_train, ], K_emb = 5, K_rnn = 5, n_epoch = 5)
-#' pred_res3 <- predict(res3, new_seqs = sub_seqs(seqs, index_test), 
-#'                      new_data=mydata[index_test, ])
+#' res3 <- seqm(seqs = seqs_train, response = y[index_train], 
+#'              covariates = x[index_train, ],
+#'              response_type = "binary", actions=actions, 
+#'              K_emb = 5, K_rnn = 5, n_epoch = 5)
+#' pred_res3 <- predict(res3, new_seqs = seqs_test, 
+#'                      new_covariates=x[index_test, ])
 #'                      
 #' ## include time sequences
-#' res4 <- seqm(y ~ 1, "binary", sub_seqs(seqs, index_train), actions=actions,
-#'              data=mydata[index_train, ], include_time=TRUE, K_emb=5, K_rnn=5, 
-#'              n_epoch=5)
-#' pred_res4 <- predict(res4, new_seqs = sub_seqs(seqs, index_test), 
-#'                      new_data=mydata[index_test, ])
+#' res4 <- seqm(seqs = seqs_train, response = y[index_train], 
+#'              response_type = "binary", actions=actions,
+#'              include_time=TRUE, K_emb=5, K_rnn=5, n_epoch=5)
+#' pred_res4 <- predict(res4, new_seqs = seqs_test)
 #' @export
-seqm <- function(formula, response_type, seqs, actions = NULL, data, rnn_type = "lstm", 
-                 include_time=FALSE, time_interval=TRUE, log_time=TRUE, 
-                 K_emb = 20, K_rnn = 20, n_hidden = 0, K_hidden = NULL, 
-                 valid_split = 0.2, index_valid = NULL, max_len = NULL, 
-                 n_epoch = 20, batch_size = 16, optimizer_name = "rmsprop", step_size = 0.001, 
-                 gpu = FALSE, parallel = FALSE, seed = 12345) {
+seqm <- function(seqs, response, covariates = NULL, response_type, 
+                 actions = unique(unlist(seqs$action_seqs)), 
+                 rnn_type = "lstm", include_time = FALSE, time_interval = TRUE, 
+                 log_time = TRUE, K_emb = 20, K_rnn = 20, n_hidden = 0, 
+                 K_hidden = NULL, valid_split = 0.2, index_valid = NULL, 
+                 verbose = FALSE, 
+                 max_len = NULL, n_epoch = 20, batch_size = 16, optimizer_name = "rmsprop", 
+                 step_size = 0.001, gpu = FALSE, parallel = FALSE, seed = 12345) {
   use_session_with_seed(seed, disable_gpu = !gpu, disable_parallel_cpu = !parallel)
   n_person <- length(seqs$action_seqs)
   if (is.null(actions)) events <- unique(unlist(seqs$action_seqs))
@@ -189,10 +190,6 @@ seqm <- function(formula, response_type, seqs, actions = NULL, data, rnn_type = 
   
   if (!gpu) Sys.setenv(CUDA_VISIBLE_DEVICES = "")
   
-  # organize covariates
-  covariates <- model.matrix(formula, data)[,-1,drop=FALSE]
-  response <- model.extract(model.frame(formula, data), "response")
-  
   # build keras model
   seq_inputs <- layer_input(shape=list(max_len))
   seq_emb <- seq_inputs %>% layer_embedding(n_event + 1, K_emb, mask_zero=TRUE)
@@ -202,7 +199,11 @@ seqm <- function(formula, response_type, seqs, actions = NULL, data, rnn_type = 
     seq_emb <- layer_concatenate(list(seq_emb, time_masked), axis=-1)
   }
   
-  K_cov <- ncol(covariates)
+  if (is.null(covariates)) {
+    K_cov <- 0
+    covariates <- matrix(numeric(0), nrow = length(response), ncol=0)
+  }
+  else K_cov <- ncol(covariates)
   cov_inputs <- layer_input(shape=list(K_cov))
   
   if (rnn_type == "lstm") seq_feature <- seq_emb %>% layer_lstm(units=K_rnn)
@@ -245,11 +246,11 @@ seqm <- function(formula, response_type, seqs, actions = NULL, data, rnn_type = 
   colnames(trace_res) <- c("train", "valid")
   for (index_epoch in 1:n_epoch) {
     if (include_time)
-      model_res <- seq_model %>% fit(list(int_seqs[index_train, ], 
-                                          time_seqs[index_train,,,drop=FALSE], 
-                                          covariates[index_train,]), 
+      model_res <- seq_model %>% fit(list(int_seqs[index_train, , drop = FALSE], 
+                                          time_seqs[index_train, , , drop = FALSE], 
+                                          covariates[index_train, , drop = FALSE]), 
                                      response[index_train], 
-                                     epochs=1, batch_size=batch_size, verbose=FALSE, 
+                                     epochs=1, batch_size=batch_size, verbose = verbose, 
                                      validation_data=list(list(int_seqs[index_valid,], 
                                                                time_seqs[index_valid,,,drop=FALSE],
                                                                covariates[index_valid,]), 
@@ -258,9 +259,9 @@ seqm <- function(formula, response_type, seqs, actions = NULL, data, rnn_type = 
       model_res <- seq_model %>% fit(list(int_seqs[index_train, ], 
                                           covariates[index_train,]), 
                                      response[index_train], 
-                                     epochs=1, batch_size=batch_size, verbose=FALSE, 
-                                     validation_data=list(list(int_seqs[index_valid,], 
-                                                               covariates[index_valid,]), 
+                                     epochs = 1, batch_size = batch_size, verbose = verbose, 
+                                     validation_data=list(list(int_seqs[index_valid, , drop=FALSE], 
+                                                               covariates[index_valid, , drop=FALSE]), 
                                                           response[index_valid]))
     trace_res[index_epoch, 1] <- model_res$metrics$loss
     trace_res[index_epoch, 2] <- model_res$metrics$val_loss
@@ -273,7 +274,7 @@ seqm <- function(formula, response_type, seqs, actions = NULL, data, rnn_type = 
   weights <- get_weights(seq_model)
   k_clear_session()
   model_string <- K2string(K_emb, K_rnn, K_hidden[1:n_hidden], rnn_type, include_time = include_time)  
-  res <- list(formula = formula, structure = model_string, coefficients = weights, 
+  res <- list(structure = model_string, coefficients = weights, n_cov = K_cov,
               model_fit = model_save, feature_model = feature_model_save, 
               include_time = include_time, time_interval = time_interval,
               log_time = log_time, actions = events, max_len = max_len, history = trace_res) 
@@ -292,7 +293,7 @@ seqm <- function(formula, response_type, seqs, actions = NULL, data, rnn_type = 
 #' 
 #' @param object a fitted object of class \code{"seqm"} from \code{seqm}.
 #' @param new_seqs an object of class \code{"\link{proc}"} with which to predict.
-#' @param new_data a dataframe in which to look for variables with which to predict.
+#' @param new_covariates a new covariate matrix with which to predict.
 #' @param type a string specifying whether to predict responses (\code{"response"}) 
 #'   or features (\code{"feature"}) or both (\code{"both"}).
 #' @param ... further arguments to be passed to \code{predict.keras.engine.training.Model}.
@@ -303,11 +304,26 @@ seqm <- function(formula, response_type, seqs, actions = NULL, data, rnn_type = 
 #'   containing both the vector of response variable prediction and the rnn output matrix.
 #' @seealso \code{\link{seqm}} for fitting sequence models.
 #' @export
-predict.seqm <- function(object, new_seqs, new_data, type="response", ...) {
+predict.seqm <- function(object, new_seqs, new_covariates = NULL, type="response", ...) {
   
   max_len <- object$max_len
   events <- object$actions
-  ff <- object$formula
+  n_cov <- object$n_cov
+  n_seq <- length(new_seqs$action_seqs)
+  
+  if (is.null(new_covariates)) {
+    new_covariates <- matrix(numeric(0), nrow = n_seq, ncol=0)
+    if (n_cov > 0) 
+      stop("No covariate is provided!\n")
+  } else {
+    if (n_cov == 0) {
+      warning("Covariates are not used!\n")
+      new_covariates <- matrix(numeric(0), nrow = n_seq, ncol=0)
+    }
+    else if (n_cov != ncol(new_covariates)) {
+      stop("New covariates does not match covariates in the model!\n")
+    }
+  }
   if (type=="response" || type=="both") seq_model <- unserialize_model(object$model_fit)
   if (type=="feature" || type=="both") feature_model <- unserialize_model(object$feature_model)
   
@@ -315,21 +331,19 @@ predict.seqm <- function(object, new_seqs, new_data, type="response", ...) {
   new_int_seqs <- matrix(0, n, max_len)
   for (index_seq in 1:n) {
     my_seq <- new_seqs$action_seqs[[index_seq]]
-    n_l <- length(my_seq)
+    n_l <- min(length(my_seq), max_len)
     tmp <- match(my_seq, events)
-    new_int_seqs[index_seq, 1:n_l] <- tmp
+    new_int_seqs[index_seq, 1:n_l] <- tmp[1:n_l]
   }
-  
-  new_covariates <- model.matrix(ff, new_data)[,-1,drop=FALSE]
   
   if (object$include_time && !is.null(new_seqs$time_seqs)) {
     new_time_seqs <- array(-1, dim=c(n, max_len, 1))
     for (index_seq in 1:n) {
       tseq <- new_seqs$time_seqs[[index_seq]]
-      n_l <- length(tseq)
+      n_l <- min(length(tseq), max_len)
       if (object$time_interval) tseq <- tseq2interval(tseq)
       if (object$log_time) tseq <- log(1.0 + tseq)
-      new_time_seqs[index_seq, 1:n_l, 1] <- tseq
+      new_time_seqs[index_seq, 1:n_l, 1] <- tseq[1:n_l]
     }
   } else if (object$include_time && is.null(new_seqs$time_seqs)) {
     stop("Timestamp sequences are not available!\n")

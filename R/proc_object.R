@@ -76,7 +76,7 @@ print.proc <- function(x, n=5, index=NULL, quote=FALSE, ...) {
   cat("\n")
   if (is.null(n) & is.null(index)) n <- 5
   if (!is.null(n) & !is.null(index)) index <- index[1:min(n, length(index))]
-  if (is.null(index) & n < n_total) {
+  if (is.null(index) & n <= n_total) {
     cat("First ", n, " processes:\n")
     index <- 1:n
   }
