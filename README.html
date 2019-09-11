@@ -100,27 +100,23 @@ theta &lt;-<span class="st"> </span>seq2seq_res<span class="op">$</span>theta</c
 seqs &lt;-<span class="st"> </span><span class="kw">seq_gen</span>(n)
 y1 &lt;-<span class="st"> </span><span class="kw">sapply</span>(seqs<span class="op">$</span>action_seqs, <span class="cf">function</span>(x) <span class="st">&quot;CHECK_A&quot;</span> <span class="op">%in%</span><span class="st"> </span>x)
 y2 &lt;-<span class="st"> </span><span class="kw">sapply</span>(seqs<span class="op">$</span>action_seqs, <span class="cf">function</span>(x) <span class="kw">log10</span>(<span class="kw">length</span>(x)))
-x &lt;-<span class="st"> </span><span class="kw">rnorm</span>(n)
-mydata &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="dt">x=</span>x, <span class="dt">y1=</span>y1, <span class="dt">y2=</span>y2)
 
 index_test &lt;-<span class="st"> </span><span class="kw">sample</span>(<span class="dv">1</span><span class="op">:</span>n, <span class="dv">10</span>)
 index_train &lt;-<span class="st"> </span><span class="kw">setdiff</span>(<span class="dv">1</span><span class="op">:</span>n, index_test)
+seqs_train &lt;-<span class="st"> </span><span class="kw">sub_seqs</span>(seqs, index_train)
+seqs_test &lt;-<span class="st"> </span><span class="kw">sub_seqs</span>(seqs, index_test)
 
 actions &lt;-<span class="st"> </span><span class="kw">unique</span>(<span class="kw">unlist</span>(seqs))
 
 <span class="co"># a simple sequence model for a binary response variable</span>
-seqm_res1 &lt;-<span class="st"> </span><span class="kw">seqm</span>(y1 <span class="op">~</span><span class="st"> </span>x, <span class="st">&quot;binary&quot;</span>, <span class="kw">sub_seqs</span>(seqs,index_train), 
-             <span class="dt">actions=</span>actions, <span class="dt">data=</span>mydata[index_train, ], 
-             <span class="dt">K_emb =</span> <span class="dv">5</span>, <span class="dt">K_rnn =</span> <span class="dv">5</span>, <span class="dt">n_epoch =</span> <span class="dv">5</span>)
-pred_res1 &lt;-<span class="st"> </span><span class="kw">predict</span>(seqm_res1, <span class="dt">new_seqs =</span> <span class="kw">sub_seqs</span>(seqs,index_test),
-                     <span class="dt">new_data=</span>mydata[index_test, ])
+seqm_res1 &lt;-<span class="st"> </span><span class="kw">seqm</span>(<span class="dt">seqs =</span> seqs_train, <span class="dt">response =</span> y1, <span class="dt">response_type =</span> <span class="st">&quot;binary&quot;</span>,
+             <span class="dt">actions=</span>actions, <span class="dt">K_emb =</span> <span class="dv">5</span>, <span class="dt">K_rnn =</span> <span class="dv">5</span>, <span class="dt">n_epoch =</span> <span class="dv">5</span>)
+pred_res1 &lt;-<span class="st"> </span><span class="kw">predict</span>(seqm_res1, <span class="dt">new_seqs =</span> seqs_test)
 
 <span class="co"># a simple sequence model for a numeric response variable</span>
-seqm_res2 &lt;-<span class="st"> </span><span class="kw">seqm</span>(y2 <span class="op">~</span><span class="st"> </span>x, <span class="st">&quot;scale&quot;</span>, <span class="kw">sub_seqs</span>(seqs,index_train), 
-             <span class="dt">actions=</span>actions, <span class="dt">data=</span>mydata[index_train, ],
-             <span class="dt">K_emb =</span> <span class="dv">5</span>, <span class="dt">K_rnn =</span> <span class="dv">5</span>, <span class="dt">n_epoch =</span> <span class="dv">5</span>)
-pred_res2 &lt;-<span class="st"> </span><span class="kw">predict</span>(seqm_res2, <span class="dt">new_seqs =</span> <span class="kw">sub_seqs</span>(seqs,index_test), 
-                     <span class="dt">new_data=</span>mydata[index_test, ])</code></pre></div>
+seqm_res2 &lt;-<span class="st"> </span><span class="kw">seqm</span>(<span class="dt">seqs =</span> seqs_test, <span class="dt">response =</span> y2, <span class="dt">response_type =</span> <span class="st">&quot;scale&quot;</span>,
+             <span class="dt">actions=</span>actions, <span class="dt">K_emb =</span> <span class="dv">5</span>, <span class="dt">K_rnn =</span> <span class="dv">5</span>, <span class="dt">n_epoch =</span> <span class="dv">5</span>)
+pred_res2 &lt;-<span class="st"> </span><span class="kw">predict</span>(seqm_res2, <span class="dt">new_seqs =</span> seqs_test)</code></pre></div>
 
 </body>
 </html>

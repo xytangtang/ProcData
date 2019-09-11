@@ -119,25 +119,21 @@ n <- 100
 seqs <- seq_gen(n)
 y1 <- sapply(seqs$action_seqs, function(x) "CHECK_A" %in% x)
 y2 <- sapply(seqs$action_seqs, function(x) log10(length(x)))
-x <- rnorm(n)
-mydata <- data.frame(x=x, y1=y1, y2=y2)
 
 index_test <- sample(1:n, 10)
 index_train <- setdiff(1:n, index_test)
+seqs_train <- sub_seqs(seqs, index_train)
+seqs_test <- sub_seqs(seqs, index_test)
 
 actions <- unique(unlist(seqs))
 
 # a simple sequence model for a binary response variable
-seqm_res1 <- seqm(y1 ~ x, "binary", sub_seqs(seqs,index_train), 
-             actions=actions, data=mydata[index_train, ], 
-             K_emb = 5, K_rnn = 5, n_epoch = 5)
-pred_res1 <- predict(seqm_res1, new_seqs = sub_seqs(seqs,index_test),
-                     new_data=mydata[index_test, ])
+seqm_res1 <- seqm(seqs = seqs_train, response = y1, response_type = "binary",
+             actions=actions, K_emb = 5, K_rnn = 5, n_epoch = 5)
+pred_res1 <- predict(seqm_res1, new_seqs = seqs_test)
 
 # a simple sequence model for a numeric response variable
-seqm_res2 <- seqm(y2 ~ x, "scale", sub_seqs(seqs,index_train), 
-             actions=actions, data=mydata[index_train, ],
-             K_emb = 5, K_rnn = 5, n_epoch = 5)
-pred_res2 <- predict(seqm_res2, new_seqs = sub_seqs(seqs,index_test), 
-                     new_data=mydata[index_test, ])
+seqm_res2 <- seqm(seqs = seqs_test, response = y2, response_type = "scale",
+             actions=actions, K_emb = 5, K_rnn = 5, n_epoch = 5)
+pred_res2 <- predict(seqm_res2, new_seqs = seqs_test)
 ```
