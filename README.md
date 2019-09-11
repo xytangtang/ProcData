@@ -16,7 +16,7 @@ ProcData: An R Package for Process Data Analysis
 Installation
 ------------
 
-Download the package from [the download page](http://www.scientifichpc.com/ProcData/download.html) and execute the following command in `R`
+Download the package from [the download page](http://www.scientifichpc.com/processdata/download.html) and execute the following command in `R`
 
 ``` r
 install.packages(FILENAME, repos = NULL, dependencies = TRUE)

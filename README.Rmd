@@ -27,7 +27,7 @@ knitr::opts_chunk$set(
 
 ## Installation
 
-Download the package from [the download page](http://www.scientifichpc.com/ProcData/download.html) and execute the following command in `R`
+Download the package from [the download page](http://www.scientifichpc.com/processdata/download.html) and execute the following command in `R`
 
 ``` {r installation, eval = FALSE}
 install.packages(FILENAME, repos = NULL, dependencies = TRUE)
