@@ -60,14 +60,7 @@ seq2feature_mds <- function(seqs=NULL, K=2, method="oss_action", max_epoch=100, 
       method <- "oss_action"
     }
     if (method == "oss_action") {
-      for (i in 2:n) {
-        for (j in 1:(i-1)) {
-          seq1 <- seqs$action_seqs[[i]]
-          seq2 <- seqs$action_seqs[[j]]	
-          dist_mat[i,j] <- calculate_dissimilarity(seq1, seq2, method="oss") 
-          dist_mat[j,i] <- dist_mat[i,j]
-        }
-      }
+      dist_mat<-calculate_dist_cpp(seqs$action_seqs)
     } else if (method == "oss_both") {
       for (i in 2:n) {
         for (j in 1:(i-1)) {
@@ -142,14 +135,7 @@ chooseK_mds <- function(seqs=NULL, K_cand, method="oss_action", n_fold=5,
       method <- "oss_action"
     }
     if (method == "oss_action") {
-      for (i in 2:n) {
-        for (j in 1:(i-1)) {
-          seq1 <- seqs$action_seqs[[i]]
-          seq2 <- seqs$action_seqs[[j]]	
-          dist_mat[i,j] <- calculate_dissimilarity(seq1, seq2, method="oss") 
-          dist_mat[j,i] <- dist_mat[i,j]
-        }
-      }
+      dist_mat<-calculate_dist_cpp(seqs$action_seqs)
     } else if (method == "oss_both") {
       for (i in 2:n) {
         for (j in 1:(i-1)) {
