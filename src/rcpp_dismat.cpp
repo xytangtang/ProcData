@@ -64,6 +64,10 @@ double calculate_time_f1_cpp(StringVector seq1, StringVector seq2, NumericVector
   return f_score/std::max(seq1.length(), seq2.length());
 }
 
+double calculate_time_g_cpp(StringVector seq1, StringVector seq2, NumericVector ts1, NumericVector ts2) {
+  double res = 0;
+  return res;
+}
 
 // [[Rcpp::export]]
 double calculate_dissimilarity_cpp(StringVector seq1, StringVector seq2) {
