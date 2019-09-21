@@ -5,7 +5,8 @@ Version: 0.2.3
 Date: 2019-09-19
 Authors@R: c(
     person("Xueying", "Tang", email = "xueyingtang1989@gmail.com", role = c("aut", "cre")),
-    person("Susu", "Zhang", email="susu.zhang1992@gmail.com", role = c("aut")),
+    person("Susu", "Zhang", email = "susu.zhang1992@gmail.com", role = c("aut")),
+    person("Zhi", "Wang", email = "zhiwpku@gmail.com", role=c("aut")),
     person("Jingchen", "Liu", email = "jcliu@stat.columbia.edu", role=c("aut")),
     person("Zhiliang", "Ying", email = "zying@stat.columbia.edu", role=c("aut")))
 Description: General tools for exploratory process data analysis. Process data refers to the data describing 
@@ -24,9 +25,3 @@ SystemRequirements: Keras >= 2.0 (https://keras.io)
 RoxygenNote: 6.1.1
 LazyData: true
 NeedsCompilation: yes
-Packaged: 2019-09-11 22:34:04 UTC; xueyingtang
-Author: Xueying Tang [aut, cre],
-  Susu Zhang [aut],
-  Jingchen Liu [aut],
-  Zhiliang Ying [aut]
-Maintainer: Xueying Tang <xueyingtang1989@gmail.com>
