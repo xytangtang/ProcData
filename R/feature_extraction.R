@@ -62,16 +62,7 @@ seq2feature_mds <- function(seqs=NULL, K=2, method="oss_action", max_epoch=100, 
     if (method == "oss_action") {
       dist_mat<-calculate_dist_cpp(seqs$action_seqs)
     } else if (method == "oss_both") {
-      for (i in 2:n) {
-        for (j in 1:(i-1)) {
-          seq1 <- seqs$action_seqs[[i]]
-          seq2 <- seqs$action_seqs[[j]]	
-          t1 <- seqs$time_seqs[[i]]
-          t2 <- seqs$time_seqs[[j]]
-          dist_mat[i,j] <- calculate_tdissimilarity(seq1, seq2, t1, t2) 
-          dist_mat[j,i] <- dist_mat[i,j]
-        }
-      }
+      dist_mat<-calculate_tdist_cpp(seqs$action_seqs, seqs$time_seqs)
     } else stop("Invalid dissimilarity method!\n")
   } else {
     stop("seqs should be a 'proc' object or a square matrix\n!")
@@ -137,16 +128,7 @@ chooseK_mds <- function(seqs=NULL, K_cand, method="oss_action", n_fold=5,
     if (method == "oss_action") {
       dist_mat<-calculate_dist_cpp(seqs$action_seqs)
     } else if (method == "oss_both") {
-      for (i in 2:n) {
-        for (j in 1:(i-1)) {
-          seq1 <- seqs$action_seqs[[i]]
-          seq2 <- seqs$action_seqs[[j]]	
-          t1 <- seqs$time_seqs[[i]]
-          t2 <- seqs$time_seqs[[j]]
-          dist_mat[i,j] <- calculate_tdissimilarity(seq1, seq2, t1, t2) 
-          dist_mat[j,i] <- dist_mat[i,j]
-        }
-      }
+      dist_mat<-calculate_tdist_cpp(seqs$action_seqs, seqs$time_seqs)
     } else stop("Invalid dissimilarity method!\n")
   } else {
     stop("seqs should be a 'proc' object or a square matrix!\n")

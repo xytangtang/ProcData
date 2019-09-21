@@ -5,12 +5,20 @@ calculate_dissimilarity_cpp <- function(seq1, seq2) {
     .Call('_ProcData_calculate_dissimilarity_cpp', PACKAGE = 'ProcData', seq1, seq2)
 }
 
+calculate_tdissimilarity_cpp <- function(seq1, seq2, ts1, ts2) {
+    .Call('_ProcData_calculate_tdissimilarity_cpp', PACKAGE = 'ProcData', seq1, seq2, ts1, ts2)
+}
+
 group_score_cpp <- function(list1, list2) {
     .Call('_ProcData_group_score_cpp', PACKAGE = 'ProcData', list1, list2)
 }
 
 calculate_dist_cpp <- function(seqs) {
     .Call('_ProcData_calculate_dist_cpp', PACKAGE = 'ProcData', seqs)
+}
+
+calculate_tdist_cpp <- function(action_seqs, time_seqs) {
+    .Call('_ProcData_calculate_tdist_cpp', PACKAGE = 'ProcData', action_seqs, time_seqs)
 }
 
 calculate_group_dist_cpp <- function(seqs) {
