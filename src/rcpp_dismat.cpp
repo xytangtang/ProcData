@@ -47,7 +47,6 @@ double calculate_f1_cpp(StringVector seq1, StringVector seq2) {
   std::map<String, IntegerVector> dict2 = count_events(seq2);
   for(int i=0; i<n_common_events; i++){
     String event = common_events[i];
-    int l = std::min(dict1[event].length(), dict2[event].length());
     f_score += sum_abs_diff_int(dict1[event], dict2[event]);
   }
   return f_score/std::max(seq1.length(), seq2.length());
@@ -73,7 +72,6 @@ double calculate_time_f1_cpp(StringVector seq1, StringVector seq2, NumericVector
 
 double calculate_time_g_cpp(StringVector seq1, StringVector seq2, NumericVector ts1, NumericVector ts2) {
   double res = 0;
-  int l1 = ts1.length(), l2 = ts2.length();
   NumericVector ti1 = diff(ts1), ti2 = diff(ts2);
   ti1.push_front(0);
   ti2.push_front(0);
