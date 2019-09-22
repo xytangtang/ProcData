@@ -60,9 +60,9 @@ seq2feature_mds <- function(seqs=NULL, K=2, method="oss_action", max_epoch=100, 
       method <- "oss_action"
     }
     if (method == "oss_action") {
-      dist_mat<-calculate_dist_cpp(seqs$action_seqs)
+      dist_mat <- calculate_dist_cpp(seqs$action_seqs)
     } else if (method == "oss_both") {
-      dist_mat<-calculate_tdist_cpp(seqs$action_seqs, seqs$time_seqs)
+      dist_mat <- calculate_tdist_cpp(seqs$action_seqs, seqs$time_seqs)
     } else stop("Invalid dissimilarity method!\n")
   } else {
     stop("seqs should be a 'proc' object or a square matrix\n!")
@@ -126,9 +126,9 @@ chooseK_mds <- function(seqs=NULL, K_cand, method="oss_action", n_fold=5,
       method <- "oss_action"
     }
     if (method == "oss_action") {
-      dist_mat<-calculate_dist_cpp(seqs$action_seqs)
+      dist_mat <- calculate_dist_cpp(seqs$action_seqs)
     } else if (method == "oss_both") {
-      dist_mat<-calculate_tdist_cpp(seqs$action_seqs, seqs$time_seqs)
+      dist_mat <- calculate_tdist_cpp(seqs$action_seqs, seqs$time_seqs)
     } else stop("Invalid dissimilarity method!\n")
   } else {
     stop("seqs should be a 'proc' object or a square matrix!\n")
