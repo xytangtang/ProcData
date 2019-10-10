@@ -161,6 +161,51 @@ chooseK_mds <- function(seqs=NULL, K_cand, method="oss_action", n_fold=5,
   res
 }
 
+#' Feature Extraction by iterative mds (for large dataset)
+#' @inheritParams seq2feature_mds
+#' @param dist_type type of dissimilarity
+#' @param m subset size
+#' @export
+seq2feature_imds <- function(seqs, K, dist_type, m) {
+  n <- length(seqs$action_seqs)
+  theta <- matrix(0, n, K)
+  
+  init_obj <- sample(1:n, m)
+  remn_obj <- setdiff(1:n, init_obj)
+  
+  D <- matrix(0, m, m)
+  if (dist_type == "oss_action") D <- calculate_dist_cpp(seqs$action_seqs[init_obj])
+  else if (dist_type == "oss_both") D <- calculate_tdist_cpp(seqs$action_seqs[init_obj], seqs$time_seqs[init_obj])
+  
+  theta[init_obj, ] <- cmdscale(D, k = K)
+  
+  obj_fun <- function(theta_j, theta_m_mat, d_vec) {
+    theta_j_mat <- cbind(rep(1, m)) %*% t(theta_j) 
+    theta_diff <- theta_m_mat - theta_j_mat
+    res <- sum((d_vec - sqrt(rowSums((theta_diff)^2)))^2)
+    res
+  }
+  grad_fun <- function(theta_j, theta_m_mat, d_vec) {
+    theta_j_mat <- cbind(rep(1, m)) %*% t(theta_j)
+    theta_diff <- theta_m_mat - theta_j_mat
+    dhat_vec <- sqrt(rowSums((theta_diff)^2))
+    res <- 2 * colSums((d_vec / dhat_vec - 1) * theta_diff)
+    res
+  }
+  theta_m_mat <- theta[init_obj, ]
+  for (i in remn_obj) {
+    d_vec <- rep(0, m)
+    for (j in 1:m) {
+      if (dist_type == "oss_action") d_vec[j] <- calculate_dissimilarity_cpp(seqs$action_seqs[[i]], seqs$action_seqs[[init_obj[j]]])
+      else if (dist_type == "oss_both") d_vec[j] <- calculate_tdissimilarity_cpp(seqs$action_seqs[[i]], seqs$action_seqs[[init_obj[j]]], seqs$time_seqs[[i]], seqs$time_seqs[[init_obj[j]]])
+    }
+    opt_res <- optim(rnorm(K), fn = obj_fun, gr = grad_fun, method = "BFGS", theta_m_mat = theta_m_mat, d_vec = d_vec)
+    theta[i, ] <- opt_res$par
+  }
+  
+  theta
+}
+
 #' Feature Extraction by autoencoder
 #'
 #' \code{seq2feature_seq2seq} extract features from response processes by autoencoder.
