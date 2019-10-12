@@ -6,6 +6,16 @@
 \usage{
 seq2feature_imds(seqs, K, dist_type, m)
 }
+\arguments{
+\item{seqs}{a \code{"\link{proc}"} object or a square matrix. If a squared matrix is 
+provided, it is treated as the dissimilary matrix of a group of response processes.}
+
+\item{K}{the number of features to be extracted.}
+
+\item{dist_type}{type of dissimilarity}
+
+\item{m}{subset size}
+}
 \description{
 Feature Extraction by iterative mds (for large dataset)
 }
