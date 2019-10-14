@@ -4,7 +4,8 @@
 \alias{seq2feature_imds}
 \title{Feature Extraction by iterative mds (for large dataset)}
 \usage{
-seq2feature_imds(seqs, K, dist_type, m)
+seq2feature_imds(seqs, K, dist_type = "oss_action", m,
+  subset_method = "random", n_sample, pca = TRUE)
 }
 \arguments{
 \item{seqs}{a \code{"\link{proc}"} object or a square matrix. If a squared matrix is 
@@ -15,6 +16,13 @@ provided, it is treated as the dissimilary matrix of a group of response process
 \item{dist_type}{type of dissimilarity}
 
 \item{m}{subset size}
+
+\item{subset_method}{method for choosing subset size}
+
+\item{n_sample}{candidate sample size}
+
+\item{pca}{a logical scalar. If \code{TRUE}, the principal components of the
+extracted features are returned.}
 }
 \description{
 Feature Extraction by iterative mds (for large dataset)

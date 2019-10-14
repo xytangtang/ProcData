@@ -165,13 +165,112 @@ chooseK_mds <- function(seqs=NULL, K_cand, method="oss_action", n_fold=5,
 #' @inheritParams seq2feature_mds
 #' @param dist_type type of dissimilarity
 #' @param m subset size
+#' @param n_sample candidate sample size
+#' @param subset_method method for choosing subset size
 #' @export
-seq2feature_imds <- function(seqs, K, dist_type, m) {
+seq2feature_imds <- function(seqs, K, dist_type = "oss_action", m, subset_method = "random", n_sample, pca = TRUE) {
   n <- length(seqs$action_seqs)
   theta <- matrix(0, n, K)
+  if (m > n) stop("Subset size cannot be greater than the sample size!\n")
+  if (m <= K-1) stop("Subset size is not enough for extracting K features!\n")
   
-  init_obj <- sample(1:n, m)
-  remn_obj <- setdiff(1:n, init_obj)
+  if (subset_method == "random") {
+    init_obj <- sample(1:n, m)
+    remn_obj <- setdiff(1:n, init_obj)
+  } else if (subset_method == "sample_avgmax") {
+    init_obj <- sample(1:n, 1)
+    remn_obj <- setdiff(1:n, init_obj)
+    
+    while (length(init_obj) < m) {
+      n_remn <- length(remn_obj)
+      n_init <- length(init_obj)
+      if (n_remn < n_sample) n_sample <- n_remn
+      candidate_obj <- sample(remn_obj, n_sample)
+      d_mat <- matrix(0, n_init, n_sample)
+      for (i in 1:n_sample) {
+        for (j in 1:n_init) {
+          if (dist_type == "oss_action") d_mat[j, i] <- calculate_dissimilarity_cpp(seqs$action_seqs[[candidate_obj[i]]], seqs$action_seqs[[init_obj[j]]])
+          if (dist_type == "oss_both") d_mat[j, i] <- calculate_tdissimilarity_cpp(seqs$action_seqs[[candidate_obj[i]]], seqs$action_seqs[[init_obj[j]]], seqs$time_seqs[[candidate_obj[i]]], seqs$time_seqs[[init_obj[j]]])
+        }
+      }
+      d_avg <- colSums(d_mat) / n_init
+      o <- order(d_avg, decreasing = TRUE)
+      current_obj <- candidate_obj[o[1]]
+      init_obj <- c(init_obj, current_obj)
+      remn_obj <- setdiff(remn_obj, current_obj)
+    }
+    
+  } else if (subset_method == "sample_minmax") {
+    init_obj <- sample(1:n, 1)
+    remn_obj <- setdiff(1:n, init_obj)
+    
+    while (length(init_obj) < m) {
+      n_remn <- length(remn_obj)
+      n_init <- length(init_obj)
+      if (n_remn < n_sample) n_sample <- n_remn
+      candidate_obj <- sample(remn_obj, n_sample)
+      d_mat <- matrix(0, n_init, n_sample)
+      for (i in 1:n_sample) {
+        for (j in 1:n_init) {
+          if (dist_type == "oss_action") d_mat[j, i] <- calculate_dissimilarity_cpp(seqs$action_seqs[[candidate_obj[i]]], seqs$action_seqs[[init_obj[j]]])
+          if (dist_type == "oss_both") d_mat[j, i] <- calculate_tdissimilarity_cpp(seqs$action_seqs[[candidate_obj[i]]], seqs$action_seqs[[init_obj[j]]], seqs$time_seqs[[candidate_obj[i]]], seqs$time_seqs[[init_obj[j]]])
+        }
+      }
+      d_min <- apply(d_mat, 2, min)
+      o <- order(d_min, decreasing = TRUE)
+      current_obj <- candidate_obj[o[1]]
+      init_obj <- c(init_obj, current_obj)
+      remn_obj <- setdiff(remn_obj, current_obj)
+    }
+  } else if (subset_method == "full_avgmax") {
+    init_obj <- sample(1:n, 1)
+    remn_obj <- setdiff(1:n, init_obj)
+    current_obj <- init_obj
+    d_mat <- numeric(0)
+
+    while (length(init_obj) < m) {
+      n_remn <- length(remn_obj)
+      n_init <- length(init_obj)
+      d_new <- rep(0, n_remn)
+      for (i in 1:n_remn) {
+        if (dist_type == "oss_action") d_new[i] <- calculate_dissimilarity_cpp(seqs$action_seqs[[remn_obj[i]]], seqs$action_seqs[[current_obj]])
+        if (dist_type == "oss_both") d_new[i] <- calculate_tdissimilarity_cpp(seqs$action_seqs[[remn_obj[i]]], seqs$action_seqs[[current_obj]], seqs$time_seqs[[remn_obj[i]]], seqs$time_seqs[[current_obj]])
+      }
+      d_mat <- rbind(d_mat, d_new)
+      
+      d_avg <- colSums(d_mat) / n_init
+      o <- order(d_avg, decreasing = TRUE)
+      current_obj <- remn_obj[o[1]]
+      init_obj <- c(init_obj, current_obj)
+      remn_obj <- setdiff(remn_obj, current_obj)
+      d_mat <- d_mat[,-o[1]]
+    }
+  } else if (subset_method == "full_minmax") {
+    init_obj <- sample(1:n, 1)
+    remn_obj <- setdiff(1:n, init_obj)
+    current_obj <- init_obj
+    d_mat <- numeric(0)
+    
+    while (length(init_obj) < m) {
+      n_remn <- length(remn_obj)
+      n_init <- length(init_obj)
+      d_new <- rep(0, n_remn)
+      for (i in 1:n_remn) {
+        if (dist_type == "oss_action") d_new[i] <- calculate_dissimilarity_cpp(seqs$action_seqs[[remn_obj[i]]], seqs$action_seqs[[current_obj]])
+        if (dist_type == "oss_both") d_new[i] <- calculate_tdissimilarity_cpp(seqs$action_seqs[[remn_obj[i]]], seqs$action_seqs[[current_obj]], seqs$time_seqs[[remn_obj[i]]], seqs$time_seqs[[current_obj]])
+      }
+      d_mat <- rbind(d_mat, d_new)
+      
+      d_min <- apply(d_mat, 2, min) 
+      o <- order(d_min, decreasing = TRUE)
+      current_obj <- remn_obj[o[1]]
+      init_obj <- c(init_obj, current_obj)
+      remn_obj <- setdiff(remn_obj, current_obj)
+      d_mat <- d_mat[,-o[1]]
+    }
+  } else {
+    stop("Undefined subset method!\n")
+  }
   
   D <- matrix(0, m, m)
   if (dist_type == "oss_action") D <- calculate_dist_cpp(seqs$action_seqs[init_obj])
@@ -202,6 +301,8 @@ seq2feature_imds <- function(seqs, K, dist_type, m) {
     opt_res <- optim(rnorm(K), fn = obj_fun, gr = grad_fun, method = "BFGS", theta_m_mat = theta_m_mat, d_vec = d_vec)
     theta[i, ] <- opt_res$par
   }
+  
+  if (pca) theta <- prcomp(theta)$x
   
   theta
 }
