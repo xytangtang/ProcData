@@ -9,6 +9,7 @@ seq_gen(n, action_set1 = c("OPT1_1", "OPT1_2", "OPT1_3"),
   "CHECK_B", "CHECK_C", "CHECK_D"), p1 = rep(1, length(action_set1)),
   p2 = rep(1, length(action_set2)), p_answer = rep(1,
   length(answer_set)), p_continue = 0.5, p_choose = 0.5,
+  include_time = FALSE, time_intv_dist = list("exp", 1),
   seed = 12345)
 }
 \arguments{
@@ -29,7 +30,12 @@ from \code{answer_set}.}
 
 \item{p_choose}{Probability of choosing an answer.}
 
-\item{seed}{random seed.}
+\item{include_time}{logical. Indicate if timestamp sequences should be generated. Default is
+FALSE.}
+
+\item{time_intv_dist}{A list specifying the distribution of the inter-arrival time.}
+
+\item{seed}{Random seed.}
 }
 \value{
 An object of class \code{"\link{proc}"} with \code{time_seqs = NULL}.

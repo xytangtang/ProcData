@@ -28,7 +28,10 @@
 #'   from \code{answer_set}.
 #' @param p_continue Probability of running an/another experiment.
 #' @param p_choose Probability of choosing an answer.
-#' @param seed random seed.
+#' @param include_time logical. Indicate if timestamp sequences should be generated. Default is
+#'   FALSE.
+#' @param time_intv_dist A list specifying the distribution of the inter-arrival time.
+#' @param seed Random seed.
 #' @return An object of class \code{"\link{proc}"} with \code{time_seqs = NULL}.
 #' @family sequence generators
 #' @export
@@ -37,14 +40,12 @@ seq_gen <- function(n, action_set1 = c("OPT1_1", "OPT1_2", "OPT1_3"),
                     answer_set = c("CHECK_A", "CHECK_B", "CHECK_C", "CHECK_D"), 
                     p1 = rep(1,length(action_set1)), p2 = rep(1, length(action_set2)), 
                     p_answer = rep(1, length(answer_set)), p_continue = 0.5, p_choose = 0.5, 
-                    seed = 12345) {
+                    include_time = FALSE, time_intv_dist = list("exp", 1), seed = 12345) {
   set.seed(seed)
   seqs <- list()
-  for (i in 1:n)
-  {
+  for (i in 1:n) {
     cur_seq <- c("Start")
-    while(runif(1) < p_continue)
-    {
+    while(runif(1) < p_continue) {
       cur_seq <- c(cur_seq, sample(action_set1, size = 1, prob = p1), sample(action_set2, size = 1, prob = p2), "RUN")
     }
     if (runif(1) < p_choose) cur_seq <- c(cur_seq, sample(answer_set, size = 1, prob=p_answer))
@@ -52,7 +53,29 @@ seq_gen <- function(n, action_set1 = c("OPT1_1", "OPT1_2", "OPT1_3"),
     seqs[[i]] <- cur_seq
   }
   
-  proc(action_seqs=seqs, time_seqs=NULL, ids=1:n)
+  if (include_time) {
+    time_seqs <- list()
+    dist_name <- time_intv_dist[[1]]
+    
+    for (i in 1:n) {
+      l <- length(seqs[[i]])
+      if (dist_name == "exp") {
+        theta <- time_intv_dist[[2]]
+        tseq <- rexp(l - 1, rate = theta)
+        tseq <- c(0, cumsum(tseq))
+      } else if (dist_name == "lognorm") {
+        theta1 <- time_intv_dist[[2]]
+        theta2 <- time_intv_dist[[3]]
+        tseq <- rnorm(l - 1, mean = theta1, sd = theta2)
+        tseq <- c(0, cumsum(exp(tseq)))
+      }
+      time_seqs[[i]] <- tseq
+    }
+  } else {
+    time_seqs <- NULL
+  }
+  
+  proc(action_seqs=seqs, time_seqs=time_seqs, ids=1:n)
 }
 
 #' Markov action sequence generator
@@ -75,13 +98,17 @@ seq_gen <- function(n, action_set1 = c("OPT1_1", "OPT1_2", "OPT1_3"),
 #' @param end_index Index of the action indicating the end of an item in
 #'   \code{events}.
 #' @param max_len Maximum length of generated sequences.
+#' @param include_time logical. Indicate if timestamp sequences should be generated. Default is
+#'   FALSE.
+#' @param time_intv_dist A list specifying the distribution of the inter-arrival time.
 #' @param seed random generator seed.
 #' @return An object of class \code{"\link{proc}"} with \code{time_seqs = NULL}.
 #' @family sequence generators
 #' @export
 seq_gen2 <- function(n, Pmat = NULL, events = letters, 
                      start_index=1, end_index=length(events), 
-                     max_len=200, seed=12345) {
+                     max_len=200, include_time = FALSE, 
+                     time_intv_dist = list("exp", 1), seed=12345) {
   set.seed(seed)
   n_event <- length(events)
   if (is.null(Pmat)) {
@@ -104,7 +131,29 @@ seq_gen2 <- function(n, Pmat = NULL, events = letters,
     seqs[[i]] <- events[int_seq]
   }
   
-  proc(action_seqs=seqs, time_seqs=NULL, ids=1:n)
+  if (include_time) {
+    time_seqs <- list()
+    dist_name <- time_intv_dist[[1]]
+    
+    for (i in 1:n) {
+      l <- length(seqs[[i]])
+      if (dist_name == "exp") {
+        theta <- time_intv_dist[[2]]
+        tseq <- rexp(l - 1, rate = theta)
+        tseq <- c(0, cumsum(tseq))
+      } else if (dist_name == "lognorm") {
+        theta1 <- time_intv_dist[[2]]
+        theta2 <- time_intv_dist[[3]]
+        tseq <- rnorm(l - 1, mean = theta1, sd = theta2)
+        tseq <- c(0, cumsum(exp(tseq)))
+      }
+      time_seqs[[i]] <- tseq
+    }
+  } else {
+    time_seqs <- NULL
+  }
+  
+  proc(action_seqs=seqs, time_seqs=time_seqs, ids=1:n)
 }
 
 # Check if two lists have the same shape
@@ -148,7 +197,9 @@ same_shape <- function(target, current) {
 #' @export
 seq_gen3 <- function(n, events = letters, rnn_type = "lstm", K = 10, weights=NULL, 
                      max_len = 100, initial_state = NULL, start_index=1, 
-                     end_index=length(events), gpu=FALSE, parallel=FALSE, seed=12345) {
+                     end_index=length(events), include_time = FALSE,
+                     time_intv_dist = list("exp", 1), gpu=FALSE, parallel=FALSE, 
+                     seed=12345) {
   use_session_with_seed(seed, disable_gpu = !gpu, disable_parallel_cpu = !parallel)
   n_event <- length(events)
   
@@ -204,7 +255,29 @@ seq_gen3 <- function(n, events = letters, rnn_type = "lstm", K = 10, weights=NUL
   weights = get_weights(seq_pred_model)
   k_clear_session()
   
-  seqs_res <- proc(action_seqs=seqs, time_seqs=NULL, ids=1:n)
+  if (include_time) {
+    time_seqs <- list()
+    dist_name <- time_intv_dist[[1]]
+    
+    for (i in 1:n) {
+      l <- length(seqs[[i]])
+      if (dist_name == "exp") {
+        theta <- time_intv_dist[[2]]
+        tseq <- rexp(l - 1, rate = theta)
+        tseq <- c(0, cumsum(tseq))
+      } else if (dist_name == "lognorm") {
+        theta1 <- time_intv_dist[[2]]
+        theta2 <- time_intv_dist[[3]]
+        tseq <- rnorm(l - 1, mean = theta1, sd = theta2)
+        tseq <- c(0, cumsum(exp(tseq)))
+      }
+      time_seqs[[i]] <- tseq
+    }
+  } else {
+    time_seqs <- NULL
+  }
+  
+  seqs_res <- proc(action_seqs=seqs, time_seqs=time_seqs, ids=1:n)
   list(seqs=seqs_res, weights = weights)
   
 }

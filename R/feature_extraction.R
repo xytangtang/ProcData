@@ -2,14 +2,25 @@
 #'
 #' \code{seq2feature_mds} extracts \code{K} features from response processes by
 #' multidimensional scaling.
-#'
-#' If \code{method="oss_action"}, order-based sequence similarity (oss) in 
-#' Gomez-Alonso and Valls (2008) is used for action sequences. If
-#' \code{method="oss_both"}, both action sequences and timestamp sequences are
-#' used to a time-weighted oss. 
+#' 
+#' Since the classical MDS has a computational complexity of order \eqn{n^3} where 
+#' \eqn{n} is the number of response processes, it is computational expensive to 
+#' perform classical MDS when a large number of response processes is considered. 
+#' In addition, storing an \eqn{n \times n} dissimilarity matrix when \eqn{n} is large
+#' require a large amount of memory. In \code{seq2feature_mds}, the algorithm proposed
+#' in Paradis (2018) is implemented to obtain MDS for large datasets. \code{method} 
+#' specifies the algorithm to be used for obtaining MDS features. If \code{method = "small"},
+#' classical MDS is used by calling \code{\link{cmdscale}}. If \code{method = "large"},
+#' the algorithm for large datasets will be used. If \code{method = "auto"} (default), 
+#' \code{seq2feature_mds} selects the algorithm automatically based on the sample size.
+#' 
+#' \code{dist_type} specifies the dissimilarity to be used for measuring the discrepancy
+#' between two response processes. If \code{dist_type = "oss_action"}, the order-based 
+#' sequence similarity (oss) proposed in Gomez-Alonso and Valls (2008) is used 
+#' for action sequences. If \code{dist_type = "oss_both"}, both action sequences and
+#' timestamp sequences are used to compute a time-weighted oss. 
 #'   
-#' This function minimizes the objective function by stochastic gradient
-#' descent. The coordinates of the objects are extracted features. The number of
+#' The number of
 #' features to be extracted \code{K} can be selected by cross-validation using
 #' \code{\link{chooseK_mds}}.
 #'
@@ -17,70 +28,93 @@
 #' @param seqs a \code{"\link{proc}"} object or a square matrix. If a squared matrix is 
 #'   provided, it is treated as the dissimilary matrix of a group of response processes.
 #' @param K the number of features to be extracted.
-#' @param method a character string specifies the dissimilarity measure for two
+#' @param method a character string specifies the algorithm used for performing MDS. See
+#'   'Details'.
+#' @param dist_type a character string specifies the dissimilarity measure for two
 #'   response processes. See 'Details'.
-#' @param max_epoch the maximum number of epochs for stochastic gradient
-#'   descent.
-#' @param step_size the step size of stochastic gradient descent.
-#' @param pca a logical scalar. If \code{TRUE}, the principal components of the
+#' @param pca logical. If \code{TRUE} (default), the principal components of the
 #'   extracted features are returned.
-#' @param tot the accuracy tolerance for determining convergence.
+#' @param subset_size,n_cand two parameters used in the large data algorithm. See 'Details'
+#'   and \code{\link{seq2feature_mds_large}}.
+#' @param subset_method a character string specifying the method for choosing the subset 
+#'   in the large data algorithm. See 'Details' and \code{\link{seq2feature_mds_large}}.
 #' @param return_dist logical. If \code{TRUE}, the dissimilarity matrix will be
 #'   returned. Default is \code{FALSE}.
 #' @param seed random seed.
 #' @return \code{seq2feature_mds} returns a list containing 
 #'   \item{theta}{a numeric matrix giving the \code{K} extracted features or principal
-#'   features. Each column is a feature.} 
-#'   \item{loss}{the value of the multidimensional scaling objective function.}
-#'   \item{dist_mat}{the dissimilary matrix. This element exists only if \code{return_dist=TRUE}.}
+#'     features. Each column is a feature.} 
+#'   \item{dist_mat}{the dissimilary matrix. This element exists only if 
+#'     \code{return_dist=TRUE}.}
 #' @seealso \code{\link{chooseK_mds}} for choosing \code{K}.
 #' @references Gomez-Alonso, C. and Valls, A. (2008). A similarity measure for sequences of
 #'   categorical data based on the ordering of common elements. In V. Torra & Y. Narukawa (Eds.) 
 #'   \emph{Modeling Decisions for Artificial Intelligence}, (pp. 134-145). Springer Berlin Heidelberg.
+#' @references Paradis, E. (2018). Multidimensional scaling with very large datasets. \emph{
+#'   Journal of Computational and Graphical Statistics}, 27(4), 935-939.
 #' @examples
 #' n <- 50
 #' seqs <- seq_gen(n)
 #' theta <- seq2feature_mds(seqs, 5)$theta
 #' @export
-seq2feature_mds <- function(seqs=NULL, K=2, method="oss_action", max_epoch=100, step_size=0.01, 
-                            pca=TRUE, tot=1e-6, return_dist=FALSE, seed=12345) {
+seq2feature_mds <- function(seqs = NULL, K = 2, method = "auto", dist_type = "oss_action", 
+                            pca = TRUE, subset_size = 100, subset_method = "random", n_cand = 10, 
+                            return_dist = FALSE, seed = 12345) {
   set.seed(seed)
+  dist_ready <- FALSE
   if (is.null(seqs)) 
     stop("Either response processes or their dissimilarity matrix should be provided!\n")
   if (is.matrix(seqs)) {
     if (nrow(seqs) != ncol(seqs)) stop("Provided matrix is not square!\n")
     dist_mat <- seqs
     n <- nrow(dist_mat)
+    dist_ready <- TRUE
   } else if (class(seqs) == "proc") {
-    n <- length(seqs$action_seqs)
-    dist_mat <- matrix(0, n, n)
-    if (is.null(seqs$time_seqs) & method == "oss_both") {
-      warning("Timestamp sequences are not available. 
-              change method from 'oss_both' to 'oss_action'!\n")
-      method <- "oss_action"
-    }
-    if (method == "oss_action") {
-      dist_mat <- calculate_dist_cpp(seqs$action_seqs)
-    } else if (method == "oss_both") {
-      dist_mat <- calculate_tdist_cpp(seqs$action_seqs, seqs$time_seqs)
-    } else stop("Invalid dissimilarity method!\n")
+    n <- length(seqs$action_seqs) 
   } else {
-    stop("seqs should be a 'proc' object or a square matrix\n!")
+    stop("seqs should be a 'proc' object or a square matrix!\n")
   }
   
-  # initialize
-  theta <- cmdscale(dist_mat, K)
+  if (n < K) stop("Not enough processes for extracting K features!\n")
   
-  # mds
-  mds_res <- MDS(dist_mat, theta, max_epoch, step_size, tot, seed)
-  if (!mds_res$convergence) warning("MDS does not converge!")
-  if (pca) theta <- prcomp(theta, center=TRUE, scale=FALSE)$x
+  if (method == "auto") {
+    if (n > 5000) method <- "large"
+    else method <- "small"
+  }
+  if (method == "small") {
+    if (n > 5000) warning("Using the small dataset method for large datasets!\n")
+    if (!dist_ready) { # calculate dist matrix
+      dist_mat <- matrix(0, n, n)
+      if (is.null(seqs$time_seqs) & dist_type == "oss_both") {
+        warning("Timestamp sequences are not available. 
+                change dist_type from 'oss_both' to 'oss_action'!\n")
+        dist_type <- "oss_action"
+      }
+      if (dist_type == "oss_action") {
+        dist_mat <- calculate_dist_cpp(seqs$action_seqs)
+      } else if (dist_type == "oss_both") {
+        dist_mat <- calculate_tdist_cpp(seqs$action_seqs, seqs$time_seqs)
+      } else stop("Invalid dissimilarity method!\n")
+    }
+    
+    theta <- cmdscale(dist_mat, K)
+  } else { # method == "large"
+    if (subset_size <= K) stop("Subset size is too small to extract K features!\n")
+    if (subset_size > n) stop("Subset size is larger than the sample size!\n")
+    theta <- seq2feature_mds_large(seqs = seqs, K = K, dist_type = dist_type, 
+                          subset_size = subset_size, subset_method = subset_method, 
+                          n_cand = n_cand, pca = pca, seed = seed)
+  }
   
-  if (return_dist) res <- list(theta=theta, loss=mds_res$loss, dist_mat=dist_mat)
-  else res <- list(theta=theta, loss=mds_res$loss)
+  if (return_dist & dist_ready) 
+    res <- list(theta=theta, dist_mat=dist_mat)
+  else res <- list(theta=theta)
   
   res
 }
+
+
+
 
 #' Choose the number of multidimensional scaling features
 #' 
@@ -89,6 +123,10 @@ seq2feature_mds <- function(seqs=NULL, K=2, method="oss_action", max_epoch=100, 
 #'
 #' @param K_cand the candidates of the number of features.
 #' @param n_fold the number of folds for cross-validation.
+#' @param max_epoch the maximum number of epochs for stochastic gradient
+#'   descent.
+#' @param step_size the step size of stochastic gradient descent.
+#' @param tot the accuracy tolerance for determining convergence.
 #' @inheritParams seq2feature_mds
 #' @return \code{chooseK_mds} returns a list containing
 #'   \item{K}{the value in \code{K_cand} producing the smallest cross-validation loss.}
@@ -107,7 +145,7 @@ seq2feature_mds <- function(seqs=NULL, K=2, method="oss_action", max_epoch=100, 
 #' theta <- seq2feature_mds(K_res$dist_mat, K_res$K)$theta
 #'
 #' @export 
-chooseK_mds <- function(seqs=NULL, K_cand, method="oss_action", n_fold=5, 
+chooseK_mds <- function(seqs=NULL, K_cand, dist_type="oss_action", n_fold=5, 
                         max_epoch=100, step_size=0.01, tot=1e-6, return_dist=FALSE,
                         seed = 12345) {
   set.seed(seed)
@@ -117,17 +155,21 @@ chooseK_mds <- function(seqs=NULL, K_cand, method="oss_action", n_fold=5,
     if (nrow(seqs) != ncol(seqs)) stop("Provided matrix is not square!\n")
     dist_mat <- seqs
     n <- nrow(dist_mat)
+    if (n > 5000) 
+      warning("MDS cross-validation can take a long time due to large sample size!\n")
   } else if (class(seqs) == "proc") {
     n <- length(seqs$action_seqs)
+    if (n > 5000)
+      warning("MDS cross-validation can take a long time due to large sample size!\n")
     dist_mat <- matrix(0, n, n)
-    if (is.null(seqs$time_seqs) & method == "oss_both") {
+    if (is.null(seqs$time_seqs) & dist_type == "oss_both") {
       warning("Timestamp sequences are not available. 
-              change method from 'oss_both' to 'oss_action'!\n")
-      method <- "oss_action"
+              change dist_type from 'oss_both' to 'oss_action'!\n")
+      dist_type <- "oss_action"
     }
-    if (method == "oss_action") {
+    if (dist_type == "oss_action") {
       dist_mat <- calculate_dist_cpp(seqs$action_seqs)
-    } else if (method == "oss_both") {
+    } else if (dist_type == "oss_both") {
       dist_mat <- calculate_tdist_cpp(seqs$action_seqs, seqs$time_seqs)
     } else stop("Invalid dissimilarity method!\n")
   } else {
@@ -161,33 +203,31 @@ chooseK_mds <- function(seqs=NULL, K_cand, method="oss_action", n_fold=5,
   res
 }
 
-#' Feature Extraction by iterative mds (for large dataset)
+#' Feature Extraction by MDS for Large Dataset
+#' @family feature extraction methods
 #' @inheritParams seq2feature_mds
-#' @param dist_type type of dissimilarity
-#' @param m subset size
-#' @param n_sample candidate sample size
-#' @param subset_method method for choosing subset size
+#' @param seqs an object of class \code{"\link{proc}"}
 #' @export
-seq2feature_imds <- function(seqs, K, dist_type = "oss_action", m, subset_method = "random", n_sample, pca = TRUE) {
+seq2feature_mds_large <- function(seqs, K, dist_type = "oss_action", subset_size, 
+                                  subset_method = "random", n_cand = 10, 
+                                  pca = TRUE, seed = 12345) {
   n <- length(seqs$action_seqs)
   theta <- matrix(0, n, K)
-  if (m > n) stop("Subset size cannot be greater than the sample size!\n")
-  if (m <= K-1) stop("Subset size is not enough for extracting K features!\n")
   
   if (subset_method == "random") {
-    init_obj <- sample(1:n, m)
+    init_obj <- sample(1:n, subset_size)
     remn_obj <- setdiff(1:n, init_obj)
   } else if (subset_method == "sample_avgmax") {
     init_obj <- sample(1:n, 1)
     remn_obj <- setdiff(1:n, init_obj)
     
-    while (length(init_obj) < m) {
+    while (length(init_obj) < subset_size) {
       n_remn <- length(remn_obj)
       n_init <- length(init_obj)
-      if (n_remn < n_sample) n_sample <- n_remn
-      candidate_obj <- sample(remn_obj, n_sample)
-      d_mat <- matrix(0, n_init, n_sample)
-      for (i in 1:n_sample) {
+      if (n_remn < n_cand) n_cand <- n_remn
+      candidate_obj <- sample(remn_obj, n_cand)
+      d_mat <- matrix(0, n_init, n_cand)
+      for (i in 1:n_cand) {
         for (j in 1:n_init) {
           if (dist_type == "oss_action") d_mat[j, i] <- calculate_dissimilarity_cpp(seqs$action_seqs[[candidate_obj[i]]], seqs$action_seqs[[init_obj[j]]])
           if (dist_type == "oss_both") d_mat[j, i] <- calculate_tdissimilarity_cpp(seqs$action_seqs[[candidate_obj[i]]], seqs$action_seqs[[init_obj[j]]], seqs$time_seqs[[candidate_obj[i]]], seqs$time_seqs[[init_obj[j]]])
@@ -204,13 +244,13 @@ seq2feature_imds <- function(seqs, K, dist_type = "oss_action", m, subset_method
     init_obj <- sample(1:n, 1)
     remn_obj <- setdiff(1:n, init_obj)
     
-    while (length(init_obj) < m) {
+    while (length(init_obj) < subset_size) {
       n_remn <- length(remn_obj)
       n_init <- length(init_obj)
-      if (n_remn < n_sample) n_sample <- n_remn
-      candidate_obj <- sample(remn_obj, n_sample)
-      d_mat <- matrix(0, n_init, n_sample)
-      for (i in 1:n_sample) {
+      if (n_remn < n_cand) n_cand <- n_remn
+      candidate_obj <- sample(remn_obj, n_cand)
+      d_mat <- matrix(0, n_init, n_cand)
+      for (i in 1:n_cand) {
         for (j in 1:n_init) {
           if (dist_type == "oss_action") d_mat[j, i] <- calculate_dissimilarity_cpp(seqs$action_seqs[[candidate_obj[i]]], seqs$action_seqs[[init_obj[j]]])
           if (dist_type == "oss_both") d_mat[j, i] <- calculate_tdissimilarity_cpp(seqs$action_seqs[[candidate_obj[i]]], seqs$action_seqs[[init_obj[j]]], seqs$time_seqs[[candidate_obj[i]]], seqs$time_seqs[[init_obj[j]]])
@@ -228,7 +268,7 @@ seq2feature_imds <- function(seqs, K, dist_type = "oss_action", m, subset_method
     current_obj <- init_obj
     d_mat <- numeric(0)
 
-    while (length(init_obj) < m) {
+    while (length(init_obj) < subset_size) {
       n_remn <- length(remn_obj)
       n_init <- length(init_obj)
       d_new <- rep(0, n_remn)
@@ -251,7 +291,7 @@ seq2feature_imds <- function(seqs, K, dist_type = "oss_action", m, subset_method
     current_obj <- init_obj
     d_mat <- numeric(0)
     
-    while (length(init_obj) < m) {
+    while (length(init_obj) < subset_size) {
       n_remn <- length(remn_obj)
       n_init <- length(init_obj)
       d_new <- rep(0, n_remn)
@@ -272,20 +312,20 @@ seq2feature_imds <- function(seqs, K, dist_type = "oss_action", m, subset_method
     stop("Undefined subset method!\n")
   }
   
-  D <- matrix(0, m, m)
+  D <- matrix(0, subset_size, subset_size)
   if (dist_type == "oss_action") D <- calculate_dist_cpp(seqs$action_seqs[init_obj])
   else if (dist_type == "oss_both") D <- calculate_tdist_cpp(seqs$action_seqs[init_obj], seqs$time_seqs[init_obj])
   
   theta[init_obj, ] <- cmdscale(D, k = K)
   
   obj_fun <- function(theta_j, theta_m_mat, d_vec) {
-    theta_j_mat <- cbind(rep(1, m)) %*% t(theta_j) 
+    theta_j_mat <- cbind(rep(1, subset_size)) %*% t(theta_j) 
     theta_diff <- theta_m_mat - theta_j_mat
     res <- sum((d_vec - sqrt(rowSums((theta_diff)^2)))^2)
     res
   }
   grad_fun <- function(theta_j, theta_m_mat, d_vec) {
-    theta_j_mat <- cbind(rep(1, m)) %*% t(theta_j)
+    theta_j_mat <- cbind(rep(1, subset_size)) %*% t(theta_j)
     theta_diff <- theta_m_mat - theta_j_mat
     dhat_vec <- sqrt(rowSums((theta_diff)^2))
     res <- 2 * colSums((d_vec / dhat_vec - 1) * theta_diff)
@@ -293,8 +333,8 @@ seq2feature_imds <- function(seqs, K, dist_type = "oss_action", m, subset_method
   }
   theta_m_mat <- theta[init_obj, ]
   for (i in remn_obj) {
-    d_vec <- rep(0, m)
-    for (j in 1:m) {
+    d_vec <- rep(0, subset_size)
+    for (j in 1:subset_size) {
       if (dist_type == "oss_action") d_vec[j] <- calculate_dissimilarity_cpp(seqs$action_seqs[[i]], seqs$action_seqs[[init_obj[j]]])
       else if (dist_type == "oss_both") d_vec[j] <- calculate_tdissimilarity_cpp(seqs$action_seqs[[i]], seqs$action_seqs[[init_obj[j]]], seqs$time_seqs[[i]], seqs$time_seqs[[init_obj[j]]])
     }
@@ -306,6 +346,69 @@ seq2feature_imds <- function(seqs, K, dist_type = "oss_action", m, subset_method
   
   theta
 }
+
+#' Feature extraction by stochastic mds
+#' @param seqs a \code{"\link{proc}"} object or a square matrix. If a squared matrix is 
+#'   provided, it is treated as the dissimilary matrix of a group of response processes.
+#' @param K the number of features to be extracted.
+#' @param dist_type a character string specifies the dissimilarity measure for two
+#'   response processes. See 'Details'.
+#' @param max_epoch the maximum number of epochs for stochastic gradient
+#'   descent.
+#' @param step_size the step size of stochastic gradient descent.
+#' @param pca a logical scalar. If \code{TRUE}, the principal components of the
+#'   extracted features are returned.
+#' @param tot the accuracy tolerance for determining convergence.
+#' @param return_dist logical. If \code{TRUE}, the dissimilarity matrix will be
+#'   returned. Default is \code{FALSE}.
+#' @param seed random seed.
+#' @return \code{seq2feature_mds} returns a list containing 
+#'   \item{theta}{a numeric matrix giving the \code{K} extracted features or principal
+#'   features. Each column is a feature.} 
+#'   \item{loss}{the value of the multidimensional scaling objective function.}
+#'   \item{dist_mat}{the dissimilary matrix. This element exists only if \code{return_dist=TRUE}.}
+seq2feature_mds_stochastic <- function(seqs = NULL, K = 2, dist_type = "oss_action", 
+                                       max_epoch=100, step_size=0.01, pca=TRUE, 
+                                       tot=1e-6, return_dist=FALSE, seed=12345) {
+  set.seed(seed)
+  if (is.null(seqs)) 
+    stop("Either response processes or their dissimilarity matrix should be provided!\n")
+  if (is.matrix(seqs)) {
+    if (nrow(seqs) != ncol(seqs)) stop("Provided matrix is not square!\n")
+    dist_mat <- seqs
+    n <- nrow(dist_mat)
+  } else if (class(seqs) == "proc") {
+    n <- length(seqs$action_seqs)
+    dist_mat <- matrix(0, n, n)
+    if (is.null(seqs$time_seqs) & dist_type == "oss_both") {
+      warning("Timestamp sequences are not available. 
+              change method from 'oss_both' to 'oss_action'!\n")
+      dist_type <- "oss_action"
+    }
+    if (dist_type == "oss_action") {
+      dist_mat <- calculate_dist_cpp(seqs$action_seqs)
+    } else if (dist_type == "oss_both") {
+      dist_mat <- calculate_tdist_cpp(seqs$action_seqs, seqs$time_seqs)
+    } else stop("Invalid dissimilarity method!\n")
+  } else {
+    stop("seqs should be a 'proc' object or a square matrix\n!")
+  }
+  
+  # initialize
+  theta <- cmdscale(dist_mat, K)
+  
+  # mds
+  mds_res <- MDS(dist_mat, theta, max_epoch, step_size, tot, seed)
+  if (!mds_res$convergence) warning("MDS does not converge!")
+  if (pca) theta <- prcomp(theta, center=TRUE, scale=FALSE)$x
+  
+  if (return_dist) res <- list(theta=theta, loss=mds_res$loss, dist_mat=dist_mat)
+  else res <- list(theta=theta, loss=mds_res$loss)
+  
+  res
+}
+
+
 
 #' Feature Extraction by autoencoder
 #'

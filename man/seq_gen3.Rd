@@ -6,8 +6,9 @@
 \usage{
 seq_gen3(n, events = letters, rnn_type = "lstm", K = 10,
   weights = NULL, max_len = 100, initial_state = NULL,
-  start_index = 1, end_index = length(events), gpu = FALSE,
-  parallel = FALSE, seed = 12345)
+  start_index = 1, end_index = length(events), include_time = FALSE,
+  time_intv_dist = list("exp", 1), gpu = FALSE, parallel = FALSE,
+  seed = 12345)
 }
 \arguments{
 \item{n}{An integer. The number of action sequences to be generated.}
@@ -37,6 +38,11 @@ all the elements are set to zero.}
 
 \item{end_index}{Index of the action indicating the end of an item in
 \code{events}.}
+
+\item{include_time}{logical. Indicate if timestamp sequences should be generated. Default is
+FALSE.}
+
+\item{time_intv_dist}{A list specifying the distribution of the inter-arrival time.}
 
 \item{gpu}{logical. If TRUE, use gpu for training when available. Default is FALSE.}
 

@@ -53,8 +53,8 @@ K2string <- function(K_emb, K_rnn, K_hidden = NULL, include_time, rnn_type) {
 #'   nodes in each hidden layer.
 #' @param n_epoch the number of training epochs.
 #' @param batch_size the batch size used in training.
-#' @param valid_split proportion of sequences used as the validation set. 
-#' @param index_valid a vector of indices specifying the validation set.
+#' @param index_valid proportion of sequences used as the validation set or a vector 
+#'   of indices specifying the validation set.
 #' @param max_len the maximum length of response processes.
 #' @return \code{seqm} returns an object of class \code{"seqm"}, which is a list containing
 #'   \item{structure}{a string describing the neural network structure.}
@@ -125,7 +125,7 @@ seqm <- function(seqs, response, covariates = NULL, response_type,
                  actions = unique(unlist(seqs$action_seqs)), 
                  rnn_type = "lstm", include_time = FALSE, time_interval = TRUE, 
                  log_time = TRUE, K_emb = 20, K_rnn = 20, n_hidden = 0, 
-                 K_hidden = NULL, valid_split = 0.2, index_valid = NULL, 
+                 K_hidden = NULL, index_valid = 0.2, 
                  verbose = FALSE, 
                  max_len = NULL, n_epoch = 20, batch_size = 16, optimizer_name = "rmsprop", 
                  step_size = 0.001, gpu = FALSE, parallel = FALSE, seed = 12345) {
@@ -153,20 +153,32 @@ seqm <- function(seqs, response, covariates = NULL, response_type,
   }
   
   max_len0 <- max(sapply(seqs$action_seqs, length))
-  if (is.null(max_len) || max_len < max_len0) {
+  if (is.null(max_len)){
+    max_len <- max_len0
+  } else if (max_len < max_len0) {
     warning("max_len is set as the max length in seqs!\n")
     max_len <- max_len0
   }
   
-  if (!is.null(index_valid)) {
-    index_train <- setdiff(1:n_person, index_valid)
-    if (valid_split != 0) 
-      warning("Both valid_split and index_valid are set. Use index_valid as validation set.\n")
-  } else if (valid_split !=0) {
-    index_valid <- sample(1:n_person, round(n_person*valid_split))
-    index_train <- setdiff(1:n_person, index_valid)
+  if (is.null(index_valid)) {
+    stop("Validation set is empty! Set proportion or indices of validation set 
+         through index_valid.\n")
+  } else if (length(index_valid) == 1) {
+    if (index_valid < 1 && index_valid > 0) {
+      index_valid <- sample(1:n_person, round(n_person*index_valid))
+      index_train <- setdiff(1:n_person, index_valid)
+    } else {
+      stop("Invalid validation set! Set index_valid as a number between zero and 1 or as 
+           a vector of indices.\n")
+    }
   } else {
-    stop("Validation set is empty! Specify either valid_split or index_valid.\n")
+    if (!all(is.integer(index_valid)) || !all(index_valid > 0)) {
+      stop("Invalid validation set! Set index_valid as a number between zero and 1 or as 
+           a vector of indices.\n")
+    } else {
+      index_valid <- index_valid[index_valid <= n_person]
+      index_train <- setdiff(1:n_person, index_valid)
+    }
   }
   
   int_seqs <- matrix(0, n_person, max_len)

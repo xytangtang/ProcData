@@ -88,6 +88,7 @@ lines(seq2seq_res$valid_loss, col="red")
 \code{\link{chooseK_seq2seq}} for choosing \code{K} through cross-validation.
 
 Other feature extraction methods: \code{\link{atseq2feature_seq2seq}},
+  \code{\link{seq2feature_mds_large}},
   \code{\link{seq2feature_mds}},
   \code{\link{seq2feature_seq2seq}},
   \code{\link{tseq2feature_seq2seq}}

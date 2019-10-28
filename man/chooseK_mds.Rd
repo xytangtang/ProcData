@@ -4,8 +4,8 @@
 \alias{chooseK_mds}
 \title{Choose the number of multidimensional scaling features}
 \usage{
-chooseK_mds(seqs = NULL, K_cand, method = "oss_action", n_fold = 5,
-  max_epoch = 100, step_size = 0.01, tot = 1e-06,
+chooseK_mds(seqs = NULL, K_cand, dist_type = "oss_action",
+  n_fold = 5, max_epoch = 100, step_size = 0.01, tot = 1e-06,
   return_dist = FALSE, seed = 12345)
 }
 \arguments{
@@ -14,7 +14,7 @@ provided, it is treated as the dissimilary matrix of a group of response process
 
 \item{K_cand}{the candidates of the number of features.}
 
-\item{method}{a character string specifies the dissimilarity measure for two
+\item{dist_type}{a character string specifies the dissimilarity measure for two
 response processes. See 'Details'.}
 
 \item{n_fold}{the number of folds for cross-validation.}

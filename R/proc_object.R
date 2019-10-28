@@ -74,9 +74,13 @@ print.proc <- function(x, n=5, index=NULL, quote=FALSE, ...) {
   n_total <- length(x$action_seqs)
   cat("'proc' object of ", n_total, " processes\n")
   cat("\n")
-  if (is.null(n) & is.null(index)) n <- 5
-  if (!is.null(n) & !is.null(index)) index <- index[1:min(n, length(index))]
-  if (is.null(index) & n <= n_total) {
+  if (is.null(n) & is.null(index)) n <- min(n_total, 5)
+  else {
+    if (!is.null(n)) n <- min(n_total, n)
+    if (!is.null(index)) index <- index[index <= n_total]
+    if (!is.null(n) & !is.null(index)) index <- index[1:min(n, length(index))]
+  }
+  if (is.null(index)) {
     cat("First ", n, " processes:\n")
     index <- 1:n
   }

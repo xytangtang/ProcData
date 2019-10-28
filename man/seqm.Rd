@@ -8,10 +8,9 @@ seqm(seqs, response, covariates = NULL, response_type,
   actions = unique(unlist(seqs$action_seqs)), rnn_type = "lstm",
   include_time = FALSE, time_interval = TRUE, log_time = TRUE,
   K_emb = 20, K_rnn = 20, n_hidden = 0, K_hidden = NULL,
-  valid_split = 0.2, index_valid = NULL, verbose = FALSE,
-  max_len = NULL, n_epoch = 20, batch_size = 16,
-  optimizer_name = "rmsprop", step_size = 0.001, gpu = FALSE,
-  parallel = FALSE, seed = 12345)
+  index_valid = 0.2, verbose = FALSE, max_len = NULL, n_epoch = 20,
+  batch_size = 16, optimizer_name = "rmsprop", step_size = 0.001,
+  gpu = FALSE, parallel = FALSE, seed = 12345)
 }
 \arguments{
 \item{seqs}{an object of class \code{"\link{proc}"}.}
@@ -45,9 +44,8 @@ inter-arrival time.}
 \item{K_hidden}{a vector of length \code{n_hidden} specifying the number of
 nodes in each hidden layer.}
 
-\item{valid_split}{proportion of sequences used as the validation set.}
-
-\item{index_valid}{a vector of indices specifying the validation set.}
+\item{index_valid}{proportion of sequences used as the validation set or a vector 
+of indices specifying the validation set.}
 
 \item{verbose}{logical. If TRUE, training progress is printed.}
 

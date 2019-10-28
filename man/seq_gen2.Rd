@@ -5,7 +5,8 @@
 \title{Markov action sequence generator}
 \usage{
 seq_gen2(n, Pmat = NULL, events = letters, start_index = 1,
-  end_index = length(events), max_len = 200, seed = 12345)
+  end_index = length(events), max_len = 200, include_time = FALSE,
+  time_intv_dist = list("exp", 1), seed = 12345)
 }
 \arguments{
 \item{n}{An integer. The number of action sequences to be generated.}
@@ -22,6 +23,11 @@ actions. Default is \code{letters}.}
 \code{events}.}
 
 \item{max_len}{Maximum length of generated sequences.}
+
+\item{include_time}{logical. Indicate if timestamp sequences should be generated. Default is
+FALSE.}
+
+\item{time_intv_dist}{A list specifying the distribution of the inter-arrival time.}
 
 \item{seed}{random generator seed.}
 }

@@ -4,9 +4,10 @@
 \alias{seq2feature_mds}
 \title{Feature extraction via multidimensional scaling}
 \usage{
-seq2feature_mds(seqs = NULL, K = 2, method = "oss_action",
-  max_epoch = 100, step_size = 0.01, pca = TRUE, tot = 1e-06,
-  return_dist = FALSE, seed = 12345)
+seq2feature_mds(seqs = NULL, K = 2, method = "auto",
+  dist_type = "oss_action", pca = TRUE, subset_size = 100,
+  subset_method = "random", n_cand = 10, return_dist = FALSE,
+  seed = 12345)
 }
 \arguments{
 \item{seqs}{a \code{"\link{proc}"} object or a square matrix. If a squared matrix is 
@@ -14,18 +15,20 @@ provided, it is treated as the dissimilary matrix of a group of response process
 
 \item{K}{the number of features to be extracted.}
 
-\item{method}{a character string specifies the dissimilarity measure for two
+\item{method}{a character string specifies the algorithm used for performing MDS. See
+'Details'.}
+
+\item{dist_type}{a character string specifies the dissimilarity measure for two
 response processes. See 'Details'.}
 
-\item{max_epoch}{the maximum number of epochs for stochastic gradient
-descent.}
-
-\item{step_size}{the step size of stochastic gradient descent.}
-
-\item{pca}{a logical scalar. If \code{TRUE}, the principal components of the
+\item{pca}{logical. If \code{TRUE} (default), the principal components of the
 extracted features are returned.}
 
-\item{tot}{the accuracy tolerance for determining convergence.}
+\item{subset_size, n_cand}{two parameters used in the large data algorithm. See 'Details'
+and \code{\link{seq2feature_mds_large}}.}
+
+\item{subset_method}{a character string specifying the method for choosing the subset 
+in the large data algorithm. See 'Details' and \code{\link{seq2feature_mds_large}}.}
 
 \item{return_dist}{logical. If \code{TRUE}, the dissimilarity matrix will be
 returned. Default is \code{FALSE}.}
@@ -35,22 +38,33 @@ returned. Default is \code{FALSE}.}
 \value{
 \code{seq2feature_mds} returns a list containing 
   \item{theta}{a numeric matrix giving the \code{K} extracted features or principal
-  features. Each column is a feature.} 
-  \item{loss}{the value of the multidimensional scaling objective function.}
-  \item{dist_mat}{the dissimilary matrix. This element exists only if \code{return_dist=TRUE}.}
+    features. Each column is a feature.} 
+  \item{dist_mat}{the dissimilary matrix. This element exists only if 
+    \code{return_dist=TRUE}.}
 }
 \description{
 \code{seq2feature_mds} extracts \code{K} features from response processes by
 multidimensional scaling.
 }
 \details{
-If \code{method="oss_action"}, order-based sequence similarity (oss) in 
-Gomez-Alonso and Valls (2008) is used for action sequences. If
-\code{method="oss_both"}, both action sequences and timestamp sequences are
-used to a time-weighted oss. 
+Since the classical MDS has a computational complexity of order \eqn{n^3} where 
+\eqn{n} is the number of response processes, it is computational expensive to 
+perform classical MDS when a large number of response processes is considered. 
+In addition, storing an \eqn{n \times n} dissimilarity matrix when \eqn{n} is large
+require a large amount of memory. In \code{seq2feature_mds}, the algorithm proposed
+in Paradis (2018) is implemented to obtain MDS for large datasets. \code{method} 
+specifies the algorithm to be used for obtaining MDS features. If \code{method = "small"},
+classical MDS is used by calling \code{\link{cmdscale}}. If \code{method = "large"},
+the algorithm for large datasets will be used. If \code{method = "auto"} (default), 
+\code{seq2feature_mds} selects the algorithm automatically based on the sample size.
+
+\code{dist_type} specifies the dissimilarity to be used for measuring the discrepancy
+between two response processes. If \code{dist_type = "oss_action"}, the order-based 
+sequence similarity (oss) proposed in Gomez-Alonso and Valls (2008) is used 
+for action sequences. If \code{dist_type = "oss_both"}, both action sequences and
+timestamp sequences are used to compute a time-weighted oss. 
   
-This function minimizes the objective function by stochastic gradient
-descent. The coordinates of the objects are extracted features. The number of
+The number of
 features to be extracted \code{K} can be selected by cross-validation using
 \code{\link{chooseK_mds}}.
 }
@@ -63,12 +77,16 @@ theta <- seq2feature_mds(seqs, 5)$theta
 Gomez-Alonso, C. and Valls, A. (2008). A similarity measure for sequences of
   categorical data based on the ordering of common elements. In V. Torra & Y. Narukawa (Eds.) 
   \emph{Modeling Decisions for Artificial Intelligence}, (pp. 134-145). Springer Berlin Heidelberg.
+
+Paradis, E. (2018). Multidimensional scaling with very large datasets. \emph{
+  Journal of Computational and Graphical Statistics}, 27(4), 935-939.
 }
 \seealso{
 \code{\link{chooseK_mds}} for choosing \code{K}.
 
 Other feature extraction methods: \code{\link{aseq2feature_seq2seq}},
   \code{\link{atseq2feature_seq2seq}},
+  \code{\link{seq2feature_mds_large}},
   \code{\link{seq2feature_seq2seq}},
   \code{\link{tseq2feature_seq2seq}}
 }
