@@ -172,7 +172,7 @@ seqm <- function(seqs, response, covariates = NULL, response_type,
            a vector of indices.\n")
     }
   } else {
-    if (!all(is.integer(index_valid)) || !all(index_valid > 0)) {
+    if (!all(index_valid == round(index_valid)) || !all(index_valid > 0)) {
       stop("Invalid validation set! Set index_valid as a number between zero and 1 or as 
            a vector of indices.\n")
     } else {
