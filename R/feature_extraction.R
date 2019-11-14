@@ -550,6 +550,7 @@ seq2feature_seq2seq <- function(seqs, ae_type="action", K, rnn_type="lstm", n_ep
                                  seed = seed,
                                  verbose = verbose,
                                  return_theta = TRUE)
+  else stop("ae_type has to be 'action', time', or 'both'!\n")
   
   res
 }

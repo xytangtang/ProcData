@@ -129,7 +129,7 @@ seqm <- function(seqs, response, covariates = NULL, response_type,
                  verbose = FALSE, 
                  max_len = NULL, n_epoch = 20, batch_size = 16, optimizer_name = "rmsprop", 
                  step_size = 0.001, gpu = FALSE, parallel = FALSE, seed = 12345) {
-  use_session_with_seed(seed, disable_gpu = !gpu, disable_parallel_cpu = !parallel)
+  # use_session_with_seed(seed, disable_gpu = !gpu, disable_parallel_cpu = !parallel)
   n_person <- length(seqs$action_seqs)
   if (is.null(actions)) events <- unique(unlist(seqs$action_seqs))
   else {
