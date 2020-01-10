@@ -13,6 +13,9 @@ group_score_cpp <- function(list1, list2) {
     .Call('_ProcData_group_score_cpp', PACKAGE = 'ProcData', list1, list2)
 }
 
+#' calculate dissimilarity matrix
+#' @param seqs a list of action sequences
+#' @export
 calculate_dist_cpp <- function(seqs) {
     .Call('_ProcData_calculate_dist_cpp', PACKAGE = 'ProcData', seqs)
 }

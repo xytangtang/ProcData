@@ -107,6 +107,9 @@ double group_score_cpp(List list1, List list2) {
   return ave/(l1*l2);
 }
 
+//' calculate dissimilarity matrix
+//' @param seqs a list of action sequences
+//' @export
 // [[Rcpp::export]]
 NumericMatrix calculate_dist_cpp(List seqs) {
   int n = seqs.length();
