@@ -367,6 +367,7 @@ seq2feature_mds_large <- function(seqs, K, dist_type = "oss_action", subset_size
 #'   features. Each column is a feature.} 
 #'   \item{loss}{the value of the multidimensional scaling objective function.}
 #'   \item{dist_mat}{the dissimilary matrix. This element exists only if \code{return_dist=TRUE}.}
+#' @export
 seq2feature_mds_stochastic <- function(seqs = NULL, K = 2, dist_type = "oss_action", 
                                        max_epoch=100, step_size=0.01, pca=TRUE, 
                                        tot=1e-6, return_dist=FALSE, seed=12345) {
