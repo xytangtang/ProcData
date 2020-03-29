@@ -77,6 +77,66 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// calculate_common_event_proportion
+double calculate_common_event_proportion(StringVector seq1, StringVector seq2);
+RcppExport SEXP _ProcData_calculate_common_event_proportion(SEXP seq1SEXP, SEXP seq2SEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< StringVector >::type seq1(seq1SEXP);
+    Rcpp::traits::input_parameter< StringVector >::type seq2(seq2SEXP);
+    rcpp_result_gen = Rcpp::wrap(calculate_common_event_proportion(seq1, seq2));
+    return rcpp_result_gen;
+END_RCPP
+}
+// paste_seq
+StringVector paste_seq(StringVector seq, int k);
+RcppExport SEXP _ProcData_paste_seq(SEXP seqSEXP, SEXP kSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< StringVector >::type seq(seqSEXP);
+    Rcpp::traits::input_parameter< int >::type k(kSEXP);
+    rcpp_result_gen = Rcpp::wrap(paste_seq(seq, k));
+    return rcpp_result_gen;
+END_RCPP
+}
+// calculate_common_ngram_proportion
+double calculate_common_ngram_proportion(StringVector seq1, StringVector seq2, int k);
+RcppExport SEXP _ProcData_calculate_common_ngram_proportion(SEXP seq1SEXP, SEXP seq2SEXP, SEXP kSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< StringVector >::type seq1(seq1SEXP);
+    Rcpp::traits::input_parameter< StringVector >::type seq2(seq2SEXP);
+    Rcpp::traits::input_parameter< int >::type k(kSEXP);
+    rcpp_result_gen = Rcpp::wrap(calculate_common_ngram_proportion(seq1, seq2, k));
+    return rcpp_result_gen;
+END_RCPP
+}
+// calculate_ngram_dissimilarity
+double calculate_ngram_dissimilarity(StringVector seq1, StringVector seq2);
+RcppExport SEXP _ProcData_calculate_ngram_dissimilarity(SEXP seq1SEXP, SEXP seq2SEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< StringVector >::type seq1(seq1SEXP);
+    Rcpp::traits::input_parameter< StringVector >::type seq2(seq2SEXP);
+    rcpp_result_gen = Rcpp::wrap(calculate_ngram_dissimilarity(seq1, seq2));
+    return rcpp_result_gen;
+END_RCPP
+}
+// calculate_ngram_dist_cpp
+NumericMatrix calculate_ngram_dist_cpp(List seqs);
+RcppExport SEXP _ProcData_calculate_ngram_dist_cpp(SEXP seqsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< List >::type seqs(seqsSEXP);
+    rcpp_result_gen = Rcpp::wrap(calculate_ngram_dist_cpp(seqs));
+    return rcpp_result_gen;
+END_RCPP
+}
 // MDS
 List MDS(NumericMatrix D, NumericMatrix Theta, int n_epoch, double step_size, double tot, unsigned int seed);
 RcppExport SEXP _ProcData_MDS(SEXP DSEXP, SEXP ThetaSEXP, SEXP n_epochSEXP, SEXP step_sizeSEXP, SEXP totSEXP, SEXP seedSEXP) {
@@ -118,6 +178,11 @@ static const R_CallMethodDef CallEntries[] = {
     {"_ProcData_calculate_dist_cpp", (DL_FUNC) &_ProcData_calculate_dist_cpp, 1},
     {"_ProcData_calculate_tdist_cpp", (DL_FUNC) &_ProcData_calculate_tdist_cpp, 2},
     {"_ProcData_calculate_group_dist_cpp", (DL_FUNC) &_ProcData_calculate_group_dist_cpp, 1},
+    {"_ProcData_calculate_common_event_proportion", (DL_FUNC) &_ProcData_calculate_common_event_proportion, 2},
+    {"_ProcData_paste_seq", (DL_FUNC) &_ProcData_paste_seq, 2},
+    {"_ProcData_calculate_common_ngram_proportion", (DL_FUNC) &_ProcData_calculate_common_ngram_proportion, 3},
+    {"_ProcData_calculate_ngram_dissimilarity", (DL_FUNC) &_ProcData_calculate_ngram_dissimilarity, 2},
+    {"_ProcData_calculate_ngram_dist_cpp", (DL_FUNC) &_ProcData_calculate_ngram_dist_cpp, 1},
     {"_ProcData_MDS", (DL_FUNC) &_ProcData_MDS, 6},
     {"_ProcData_MDS_subset", (DL_FUNC) &_ProcData_MDS_subset, 7},
     {NULL, NULL, 0}

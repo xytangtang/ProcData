@@ -28,6 +28,26 @@ calculate_group_dist_cpp <- function(seqs) {
     .Call('_ProcData_calculate_group_dist_cpp', PACKAGE = 'ProcData', seqs)
 }
 
+calculate_common_event_proportion <- function(seq1, seq2) {
+    .Call('_ProcData_calculate_common_event_proportion', PACKAGE = 'ProcData', seq1, seq2)
+}
+
+paste_seq <- function(seq, k) {
+    .Call('_ProcData_paste_seq', PACKAGE = 'ProcData', seq, k)
+}
+
+calculate_common_ngram_proportion <- function(seq1, seq2, k) {
+    .Call('_ProcData_calculate_common_ngram_proportion', PACKAGE = 'ProcData', seq1, seq2, k)
+}
+
+calculate_ngram_dissimilarity <- function(seq1, seq2) {
+    .Call('_ProcData_calculate_ngram_dissimilarity', PACKAGE = 'ProcData', seq1, seq2)
+}
+
+calculate_ngram_dist_cpp <- function(seqs) {
+    .Call('_ProcData_calculate_ngram_dist_cpp', PACKAGE = 'ProcData', seqs)
+}
+
 MDS <- function(D, Theta, n_epoch, step_size, tot, seed) {
     .Call('_ProcData_MDS', PACKAGE = 'ProcData', D, Theta, n_epoch, step_size, tot, seed)
 }

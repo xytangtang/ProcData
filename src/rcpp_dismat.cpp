@@ -148,3 +148,64 @@ NumericMatrix calculate_group_dist_cpp(List seqs) {
   }
   return Dmat;
 }
+
+// [[Rcpp::export]]
+double calculate_common_event_proportion(StringVector seq1, StringVector seq2) {
+  StringVector common_events = intersect(seq1, seq2);
+  int n_common_events = common_events.size();
+  StringVector all_events = union_(seq1, seq2);
+  int n_all_events = all_events.size();
+  
+  return (0.0 + n_common_events) / (n_all_events + 0.0);
+}
+
+// [[Rcpp::export]]
+StringVector paste_seq(StringVector seq, int k) {
+  int L = seq.size();
+  StringVector pasted_seq(L - k + 1);
+  for (int i = 0; i < L - k + 1; i++) {
+    String new_event;
+    for (int j = 0; j < k; j++) {
+      new_event += seq[i+j];
+      if (j != (k-1)) {
+        new_event += "\t";
+      }
+    }
+    pasted_seq[i] = new_event;
+  }
+  
+  return pasted_seq;
+}
+
+// [[Rcpp::export]]
+double calculate_common_ngram_proportion(StringVector seq1, StringVector seq2, int k) {
+  StringVector seq1_pasted = paste_seq(seq1, k);
+  StringVector seq2_pasted = paste_seq(seq2, k);
+  return calculate_common_event_proportion(seq1_pasted, seq2_pasted);
+}
+
+// [[Rcpp::export]]
+double calculate_ngram_dissimilarity(StringVector seq1, StringVector seq2) {
+  
+  int L = 3;
+  NumericVector p_vec(L);
+  for (int l=0; l < L; l++) {
+    p_vec[l] = calculate_common_ngram_proportion(seq1, seq2, l+1);
+  }
+  
+  return exp(mean(log(p_vec)));
+  
+}
+
+// [[Rcpp::export]]
+NumericMatrix calculate_ngram_dist_cpp(List seqs) {
+  int n = seqs.length();
+  NumericMatrix Dmat(n,n);
+  for(int i=1; i<n; i++){
+    for(int j=0; j<i; j++){
+      Dmat(i,j) = calculate_ngram_dissimilarity(seqs[i],seqs[j]);
+      Dmat(j,i) = Dmat(i,j);
+    }
+  }
+  return Dmat;
+}
