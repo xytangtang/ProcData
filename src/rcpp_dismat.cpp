@@ -193,7 +193,7 @@ double calculate_ngram_dissimilarity(StringVector seq1, StringVector seq2) {
     p_vec[l] = calculate_common_ngram_proportion(seq1, seq2, l+1);
   }
   
-  return exp(mean(log(p_vec)));
+  return exp(mean(log(1.0 - p_vec)));
   
 }
 
