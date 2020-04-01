@@ -5,7 +5,8 @@
 \title{Feature Extraction by MDS for Large Dataset}
 \usage{
 seq2feature_mds_large(seqs, K, dist_type = "oss_action", subset_size,
-  subset_method = "random", n_cand = 10, pca = TRUE, seed = 12345)
+  subset_method = "random", n_cand = 10, pca = TRUE, seed = 12345,
+  L_set = 1:3)
 }
 \arguments{
 \item{seqs}{an object of class \code{"\link{proc}"}}
@@ -28,6 +29,8 @@ and \code{\link{seq2feature_mds_large}}.}
 extracted features are returned.}
 
 \item{seed}{random seed.}
+
+\item{L_set}{length of ngrams considered}
 }
 \description{
 Feature Extraction by MDS for Large Dataset

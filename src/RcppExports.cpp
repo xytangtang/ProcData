@@ -115,25 +115,27 @@ BEGIN_RCPP
 END_RCPP
 }
 // calculate_ngram_dissimilarity
-double calculate_ngram_dissimilarity(StringVector seq1, StringVector seq2);
-RcppExport SEXP _ProcData_calculate_ngram_dissimilarity(SEXP seq1SEXP, SEXP seq2SEXP) {
+double calculate_ngram_dissimilarity(StringVector seq1, StringVector seq2, IntegerVector L_set);
+RcppExport SEXP _ProcData_calculate_ngram_dissimilarity(SEXP seq1SEXP, SEXP seq2SEXP, SEXP L_setSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< StringVector >::type seq1(seq1SEXP);
     Rcpp::traits::input_parameter< StringVector >::type seq2(seq2SEXP);
-    rcpp_result_gen = Rcpp::wrap(calculate_ngram_dissimilarity(seq1, seq2));
+    Rcpp::traits::input_parameter< IntegerVector >::type L_set(L_setSEXP);
+    rcpp_result_gen = Rcpp::wrap(calculate_ngram_dissimilarity(seq1, seq2, L_set));
     return rcpp_result_gen;
 END_RCPP
 }
 // calculate_ngram_dist_cpp
-NumericMatrix calculate_ngram_dist_cpp(List seqs);
-RcppExport SEXP _ProcData_calculate_ngram_dist_cpp(SEXP seqsSEXP) {
+NumericMatrix calculate_ngram_dist_cpp(List seqs, IntegerVector L_set);
+RcppExport SEXP _ProcData_calculate_ngram_dist_cpp(SEXP seqsSEXP, SEXP L_setSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< List >::type seqs(seqsSEXP);
-    rcpp_result_gen = Rcpp::wrap(calculate_ngram_dist_cpp(seqs));
+    Rcpp::traits::input_parameter< IntegerVector >::type L_set(L_setSEXP);
+    rcpp_result_gen = Rcpp::wrap(calculate_ngram_dist_cpp(seqs, L_set));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -181,8 +183,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_ProcData_calculate_common_event_proportion", (DL_FUNC) &_ProcData_calculate_common_event_proportion, 2},
     {"_ProcData_paste_seq", (DL_FUNC) &_ProcData_paste_seq, 2},
     {"_ProcData_calculate_common_ngram_proportion", (DL_FUNC) &_ProcData_calculate_common_ngram_proportion, 3},
-    {"_ProcData_calculate_ngram_dissimilarity", (DL_FUNC) &_ProcData_calculate_ngram_dissimilarity, 2},
-    {"_ProcData_calculate_ngram_dist_cpp", (DL_FUNC) &_ProcData_calculate_ngram_dist_cpp, 1},
+    {"_ProcData_calculate_ngram_dissimilarity", (DL_FUNC) &_ProcData_calculate_ngram_dissimilarity, 3},
+    {"_ProcData_calculate_ngram_dist_cpp", (DL_FUNC) &_ProcData_calculate_ngram_dist_cpp, 2},
     {"_ProcData_MDS", (DL_FUNC) &_ProcData_MDS, 6},
     {"_ProcData_MDS_subset", (DL_FUNC) &_ProcData_MDS_subset, 7},
     {NULL, NULL, 0}

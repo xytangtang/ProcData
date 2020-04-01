@@ -41,6 +41,7 @@
 #' @param return_dist logical. If \code{TRUE}, the dissimilarity matrix will be
 #'   returned. Default is \code{FALSE}.
 #' @param seed random seed.
+#' @param L_set length of ngrams considered
 #' @return \code{seq2feature_mds} returns a list containing 
 #'   \item{theta}{a numeric matrix giving the \code{K} extracted features or principal
 #'     features. Each column is a feature.} 
@@ -59,7 +60,7 @@
 #' @export
 seq2feature_mds <- function(seqs = NULL, K = 2, method = "auto", dist_type = "oss_action", 
                             pca = TRUE, subset_size = 100, subset_method = "random", n_cand = 10, 
-                            return_dist = FALSE, seed = 12345) {
+                            return_dist = FALSE, seed = 12345, L_set = 1:3) {
   set.seed(seed)
   dist_ready <- FALSE
   if (is.null(seqs)) 
@@ -95,7 +96,7 @@ seq2feature_mds <- function(seqs = NULL, K = 2, method = "auto", dist_type = "os
       } else if (dist_type == "oss_both") {
         dist_mat <- calculate_tdist_cpp(seqs$action_seqs, seqs$time_seqs)
       } else if (dist_type == "ngram") {
-        dist_mat <- calculate_ngram_dist_cpp(seqs$action_seqs)
+        dist_mat <- calculate_ngram_dist_cpp(seqs$action_seqs, L_set)
       } else stop("Invalid dissimilarity method!\n")
     }
     
@@ -149,7 +150,7 @@ seq2feature_mds <- function(seqs = NULL, K = 2, method = "auto", dist_type = "os
 #' @export 
 chooseK_mds <- function(seqs=NULL, K_cand, dist_type="oss_action", n_fold=5, 
                         max_epoch=100, step_size=0.01, tot=1e-6, return_dist=FALSE,
-                        seed = 12345) {
+                        seed = 12345, L_set = 1:3) {
   set.seed(seed)
   if (is.null(seqs)) 
     stop("Either response processes or their dissimilarity matrix should be provided!\n")
@@ -174,7 +175,7 @@ chooseK_mds <- function(seqs=NULL, K_cand, dist_type="oss_action", n_fold=5,
     } else if (dist_type == "oss_both") {
       dist_mat <- calculate_tdist_cpp(seqs$action_seqs, seqs$time_seqs)
     } else if (dist_type == "ngram") {
-      dist_mat <- calculate_ngram_dist_cpp(seqs$action_seqs)
+      dist_mat <- calculate_ngram_dist_cpp(seqs$action_seqs, L_set)
     } else stop("Invalid dissimilarity method!\n")
   } else {
     stop("seqs should be a 'proc' object or a square matrix!\n")
@@ -214,7 +215,7 @@ chooseK_mds <- function(seqs=NULL, K_cand, dist_type="oss_action", n_fold=5,
 #' @export
 seq2feature_mds_large <- function(seqs, K, dist_type = "oss_action", subset_size, 
                                   subset_method = "random", n_cand = 10, 
-                                  pca = TRUE, seed = 12345) {
+                                  pca = TRUE, seed = 12345, L_set = 1:3) {
   n <- length(seqs$action_seqs)
   theta <- matrix(0, n, K)
   
@@ -235,7 +236,7 @@ seq2feature_mds_large <- function(seqs, K, dist_type = "oss_action", subset_size
         for (j in 1:n_init) {
           if (dist_type == "oss_action") d_mat[j, i] <- calculate_dissimilarity_cpp(seqs$action_seqs[[candidate_obj[i]]], seqs$action_seqs[[init_obj[j]]])
           if (dist_type == "oss_both") d_mat[j, i] <- calculate_tdissimilarity_cpp(seqs$action_seqs[[candidate_obj[i]]], seqs$action_seqs[[init_obj[j]]], seqs$time_seqs[[candidate_obj[i]]], seqs$time_seqs[[init_obj[j]]])
-          if (dist_type == "ngram") d_mat[j, i] <- calculate_ngram_dissimilarity(seqs$action_seqs[[candidate_obj[i]]], seqs$action_seqs[[init_obj[j]]])
+          if (dist_type == "ngram") d_mat[j, i] <- calculate_ngram_dissimilarity(seqs$action_seqs[[candidate_obj[i]]], seqs$action_seqs[[init_obj[j]]], L_set)
         }
       }
       d_avg <- colSums(d_mat) / n_init
@@ -259,7 +260,7 @@ seq2feature_mds_large <- function(seqs, K, dist_type = "oss_action", subset_size
         for (j in 1:n_init) {
           if (dist_type == "oss_action") d_mat[j, i] <- calculate_dissimilarity_cpp(seqs$action_seqs[[candidate_obj[i]]], seqs$action_seqs[[init_obj[j]]])
           if (dist_type == "oss_both") d_mat[j, i] <- calculate_tdissimilarity_cpp(seqs$action_seqs[[candidate_obj[i]]], seqs$action_seqs[[init_obj[j]]], seqs$time_seqs[[candidate_obj[i]]], seqs$time_seqs[[init_obj[j]]])
-          if (dist_type == "ngram") d_mat[j, i] <- calculate_ngram_dissimilarity(seqs$action_seqs[[candidate_obj[i]]], seqs$action_seqs[[init_obj[j]]])
+          if (dist_type == "ngram") d_mat[j, i] <- calculate_ngram_dissimilarity(seqs$action_seqs[[candidate_obj[i]]], seqs$action_seqs[[init_obj[j]]], L_set)
         }
       }
       d_min <- apply(d_mat, 2, min)
@@ -281,7 +282,7 @@ seq2feature_mds_large <- function(seqs, K, dist_type = "oss_action", subset_size
       for (i in 1:n_remn) {
         if (dist_type == "oss_action") d_new[i] <- calculate_dissimilarity_cpp(seqs$action_seqs[[remn_obj[i]]], seqs$action_seqs[[current_obj]])
         if (dist_type == "oss_both") d_new[i] <- calculate_tdissimilarity_cpp(seqs$action_seqs[[remn_obj[i]]], seqs$action_seqs[[current_obj]], seqs$time_seqs[[remn_obj[i]]], seqs$time_seqs[[current_obj]])
-        if (dist_type == "ngram") d_new[i] <- calculate_ngram_dissimilarity(seqs$action_seqs[[remn_obj[i]]], seqs$action_seqs[[current_obj]])
+        if (dist_type == "ngram") d_new[i] <- calculate_ngram_dissimilarity(seqs$action_seqs[[remn_obj[i]]], seqs$action_seqs[[current_obj]], L_set)
       }
       d_mat <- rbind(d_mat, d_new)
       
@@ -305,7 +306,7 @@ seq2feature_mds_large <- function(seqs, K, dist_type = "oss_action", subset_size
       for (i in 1:n_remn) {
         if (dist_type == "oss_action") d_new[i] <- calculate_dissimilarity_cpp(seqs$action_seqs[[remn_obj[i]]], seqs$action_seqs[[current_obj]])
         if (dist_type == "oss_both") d_new[i] <- calculate_tdissimilarity_cpp(seqs$action_seqs[[remn_obj[i]]], seqs$action_seqs[[current_obj]], seqs$time_seqs[[remn_obj[i]]], seqs$time_seqs[[current_obj]])
-        if (dist_type == "ngram") d_new[i] <- calculate_ngram_dissimilarity(seqs$action_seqs[[remn_obj[i]]], seqs$action_seqs[[current_obj]])
+        if (dist_type == "ngram") d_new[i] <- calculate_ngram_dissimilarity(seqs$action_seqs[[remn_obj[i]]], seqs$action_seqs[[current_obj]], L_set)
       }
       d_mat <- rbind(d_mat, d_new)
       
@@ -323,7 +324,7 @@ seq2feature_mds_large <- function(seqs, K, dist_type = "oss_action", subset_size
   D <- matrix(0, subset_size, subset_size)
   if (dist_type == "oss_action") D <- calculate_dist_cpp(seqs$action_seqs[init_obj])
   else if (dist_type == "oss_both") D <- calculate_tdist_cpp(seqs$action_seqs[init_obj], seqs$time_seqs[init_obj])
-  else if (dist_type == "ngram") D <- calculate_ngram_dist_cpp(seqs$action_seqs[init_obj])
+  else if (dist_type == "ngram") D <- calculate_ngram_dist_cpp(seqs$action_seqs[init_obj], L_set)
   
   theta[init_obj, ] <- cmdscale(D, k = K)
   
@@ -346,7 +347,7 @@ seq2feature_mds_large <- function(seqs, K, dist_type = "oss_action", subset_size
     for (j in 1:subset_size) {
       if (dist_type == "oss_action") d_vec[j] <- calculate_dissimilarity_cpp(seqs$action_seqs[[i]], seqs$action_seqs[[init_obj[j]]])
       else if (dist_type == "oss_both") d_vec[j] <- calculate_tdissimilarity_cpp(seqs$action_seqs[[i]], seqs$action_seqs[[init_obj[j]]], seqs$time_seqs[[i]], seqs$time_seqs[[init_obj[j]]])
-      else if (dist_type == "ngram") d_vec[j] <- calculate_ngram_dissimilarity(seqs$action_seqs[[i]], seqs$action_seqs[[init_obj[j]]])
+      else if (dist_type == "ngram") d_vec[j] <- calculate_ngram_dissimilarity(seqs$action_seqs[[i]], seqs$action_seqs[[init_obj[j]]], L_set)
     }
     opt_res <- optim(rnorm(K), fn = obj_fun, gr = grad_fun, method = "BFGS", theta_m_mat = theta_m_mat, d_vec = d_vec)
     theta[i, ] <- opt_res$par
@@ -372,6 +373,7 @@ seq2feature_mds_large <- function(seqs, K, dist_type = "oss_action", subset_size
 #' @param return_dist logical. If \code{TRUE}, the dissimilarity matrix will be
 #'   returned. Default is \code{FALSE}.
 #' @param seed random seed.
+#' @param L_set length of ngrams considered.
 #' @return \code{seq2feature_mds} returns a list containing 
 #'   \item{theta}{a numeric matrix giving the \code{K} extracted features or principal
 #'   features. Each column is a feature.} 
@@ -380,7 +382,7 @@ seq2feature_mds_large <- function(seqs, K, dist_type = "oss_action", subset_size
 #' @export
 seq2feature_mds_stochastic <- function(seqs = NULL, K = 2, dist_type = "oss_action", 
                                        max_epoch=100, step_size=0.01, pca=TRUE, 
-                                       tot=1e-6, return_dist=FALSE, seed=12345) {
+                                       tot=1e-6, return_dist=FALSE, seed=12345, L_set=1:3) {
   set.seed(seed)
   if (is.null(seqs)) 
     stop("Either response processes or their dissimilarity matrix should be provided!\n")
@@ -401,7 +403,7 @@ seq2feature_mds_stochastic <- function(seqs = NULL, K = 2, dist_type = "oss_acti
     } else if (dist_type == "oss_both") {
       dist_mat <- calculate_tdist_cpp(seqs$action_seqs, seqs$time_seqs)
     } else if (dist_type == "ngram") {
-      dist_mat <- calculate_ngram_dist_cpp(seqs$action_seqs)
+      dist_mat <- calculate_ngram_dist_cpp(seqs$action_seqs, L_set)
     } else stop("Invalid dissimilarity method!\n")
   } else {
     stop("seqs should be a 'proc' object or a square matrix\n!")

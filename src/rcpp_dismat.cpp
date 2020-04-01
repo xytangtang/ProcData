@@ -185,12 +185,12 @@ double calculate_common_ngram_proportion(StringVector seq1, StringVector seq2, i
 }
 
 // [[Rcpp::export]]
-double calculate_ngram_dissimilarity(StringVector seq1, StringVector seq2) {
+double calculate_ngram_dissimilarity(StringVector seq1, StringVector seq2, IntegerVector L_set) {
   
-  int L = 3;
-  NumericVector p_vec(L);
-  for (int l=0; l < L; l++) {
-    p_vec[l] = calculate_common_ngram_proportion(seq1, seq2, l+1);
+  int n_L_set = L_set.size();
+  NumericVector p_vec(n_L_set);
+  for (int l=0; l < n_L_set; l++) {
+    p_vec[l] = calculate_common_ngram_proportion(seq1, seq2, L_set[l]);
   }
   
   return exp(mean(log(1.0 - p_vec)));
@@ -198,12 +198,12 @@ double calculate_ngram_dissimilarity(StringVector seq1, StringVector seq2) {
 }
 
 // [[Rcpp::export]]
-NumericMatrix calculate_ngram_dist_cpp(List seqs) {
+NumericMatrix calculate_ngram_dist_cpp(List seqs, IntegerVector L_set) {
   int n = seqs.length();
   NumericMatrix Dmat(n,n);
   for(int i=1; i<n; i++){
     for(int j=0; j<i; j++){
-      Dmat(i,j) = calculate_ngram_dissimilarity(seqs[i],seqs[j]);
+      Dmat(i,j) = calculate_ngram_dissimilarity(seqs[i],seqs[j], L_set);
       Dmat(j,i) = Dmat(i,j);
     }
   }

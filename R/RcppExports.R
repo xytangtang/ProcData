@@ -40,12 +40,12 @@ calculate_common_ngram_proportion <- function(seq1, seq2, k) {
     .Call('_ProcData_calculate_common_ngram_proportion', PACKAGE = 'ProcData', seq1, seq2, k)
 }
 
-calculate_ngram_dissimilarity <- function(seq1, seq2) {
-    .Call('_ProcData_calculate_ngram_dissimilarity', PACKAGE = 'ProcData', seq1, seq2)
+calculate_ngram_dissimilarity <- function(seq1, seq2, L_set) {
+    .Call('_ProcData_calculate_ngram_dissimilarity', PACKAGE = 'ProcData', seq1, seq2, L_set)
 }
 
-calculate_ngram_dist_cpp <- function(seqs) {
-    .Call('_ProcData_calculate_ngram_dist_cpp', PACKAGE = 'ProcData', seqs)
+calculate_ngram_dist_cpp <- function(seqs, L_set) {
+    .Call('_ProcData_calculate_ngram_dist_cpp', PACKAGE = 'ProcData', seqs, L_set)
 }
 
 MDS <- function(D, Theta, n_epoch, step_size, tot, seed) {
