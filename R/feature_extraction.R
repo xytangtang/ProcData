@@ -106,7 +106,7 @@ seq2feature_mds <- function(seqs = NULL, K = 2, method = "auto", dist_type = "os
     if (subset_size > n) stop("Subset size is larger than the sample size!\n")
     theta <- seq2feature_mds_large(seqs = seqs, K = K, dist_type = dist_type, 
                           subset_size = subset_size, subset_method = subset_method, 
-                          n_cand = n_cand, pca = pca, seed = seed)
+                          n_cand = n_cand, pca = pca, seed = seed, L_set = L_set)
   }
   
   if (return_dist & dist_ready) 
