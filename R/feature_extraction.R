@@ -474,7 +474,8 @@ seq2feature_mds_stochastic <- function(seqs = NULL, K = 2, dist_type = "oss_acti
 #'   \item{valid_loss}{a vector of length \code{n_epoch} recording the trace of validation losses.}
 #'   \item{test_loss}{a vector of length \code{n_epoch} recording the trace of test losses. Exists only if \code{samples_test} is not \code{NULL}.}
 #' @seealso \code{\link{chooseK_seq2seq}} for choosing \code{K} through cross-validation.
-#' @examples 
+#' @examples
+#' \donotrun{ 
 #' n <- 50
 #' data(cc_data)
 #' samples <- sample(1:length(cc_data$seqs$time_seqs), n)
@@ -502,6 +503,7 @@ seq2feature_mds_stochastic <- function(seqs = NULL, K = 2, dist_type = "oss_acti
 #' theta <- seq2seq_res$theta
 #' plot(seq2seq_res$train_loss, col="blue", type="l")
 #' lines(seq2seq_res$valid_loss, col="red")
+#' }
 #' @export
 seq2feature_seq2seq <- function(seqs, ae_type="action", K, rnn_type="lstm", n_epoch=50, 
                                 method="last", step_size=0.0001, optimizer_name="adam", 

@@ -111,6 +111,7 @@ zeros to length \code{max_len} before feeding into the model. If the provided
 \code{seqs}, it will be overridden.
 }
 \examples{
+\\donotrun{
 n <- 100
 data(cc_data)
 samples <- sample(1:length(cc_data$responses), n)
@@ -154,6 +155,7 @@ res4 <- seqm(seqs = seqs_train, response = y[index_train],
              response_type = "binary", actions=actions,
              include_time=TRUE, K_emb=5, K_rnn=5, n_epoch=5)
 pred_res4 <- predict(res4, new_seqs = seqs_test)
+}
 }
 \seealso{
 \code{\link{predict.seqm}} for the \code{predict} method for \code{seqm} objects.

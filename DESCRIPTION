@@ -1,7 +1,7 @@
 Package: ProcData
 Type: Package
 Title: Process Data Analysis
-Version: 0.2.4
+Version: 0.2.5
 Date: 2019-10-12
 Authors@R: c(
     person("Xueying", "Tang", email = "xueyingtang1989@gmail.com", role = c("aut", "cre")),
@@ -21,7 +21,6 @@ License: GPL (>= 2)
 Depends: R (>= 3.5)
 Imports: Rcpp (>= 0.12.16), keras (>= 2.2.4)
 LinkingTo: Rcpp
-SystemRequirements: Keras >= 2.0 (https://keras.io)
 RoxygenNote: 6.1.1
 LazyData: true
 NeedsCompilation: yes

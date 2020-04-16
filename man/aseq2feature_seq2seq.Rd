@@ -76,6 +76,7 @@ It is the last output of the encoder recurrent neural network if \code{method="l
 and the average of the encoder recurrent nenural network if \code{method="avg"}.
 }
 \examples{
+\\donotrun{
 n <- 50
 seqs <- seq_gen(n)
 seq2seq_res <- aseq2feature_seq2seq(seqs$action_seqs, 5, rnn_type="lstm", n_epoch=5, 
@@ -83,6 +84,7 @@ seq2seq_res <- aseq2feature_seq2seq(seqs$action_seqs, 5, rnn_type="lstm", n_epoc
 features <- seq2seq_res$theta
 plot(seq2seq_res$train_loss, col="blue", type="l")
 lines(seq2seq_res$valid_loss, col="red")
+}
 }
 \seealso{
 \code{\link{chooseK_seq2seq}} for choosing \code{K} through cross-validation.

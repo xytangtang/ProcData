@@ -24,6 +24,7 @@
 #'   \item{test_loss}{a vector of length \code{n_epoch} recording the trace of test losses. Exists only if \code{samples_test} is not \code{NULL}.}
 #' @seealso \code{\link{chooseK_seq2seq}} for choosing \code{K} through cross-validation.
 #' @examples
+#' \donotrun{
 #' n <- 50
 #' seqs <- seq_gen(n)
 #' seq2seq_res <- aseq2feature_seq2seq(seqs$action_seqs, 5, rnn_type="lstm", n_epoch=5, 
@@ -31,6 +32,7 @@
 #' features <- seq2seq_res$theta
 #' plot(seq2seq_res$train_loss, col="blue", type="l")
 #' lines(seq2seq_res$valid_loss, col="red")
+#' }
 #' @export
 aseq2feature_seq2seq <- function(aseqs, K, rnn_type="lstm", n_epoch=50, method="last", 
                                 step_size=0.0001, optimizer_name="adam", 
@@ -221,6 +223,7 @@ aseq2feature_seq2seq <- function(aseqs, K, rnn_type="lstm", n_epoch=50, method="
 #'   \item{test_loss}{a vector of length \code{n_epoch} recording the trace of test losses. Exists only if \code{samples_test} is not \code{NULL}.}
 #' @seealso \code{\link{chooseK_seq2seq}} for choosing \code{K} through cross-validation.
 #' @examples
+#' \donotrun{
 #' n <- 50
 #' data(cc_data)
 #' samples <- sample(1:length(cc_data$seqs$time_seqs), n)
@@ -231,6 +234,7 @@ aseq2feature_seq2seq <- function(aseqs, K, rnn_type="lstm", n_epoch=50, method="
 #' plot(time_seq2seq_res$train_loss, col="blue", type="l",
 #'      ylim = range(c(time_seq2seq_res$train_loss, time_seq2seq_res$valid_loss)))
 #' lines(time_seq2seq_res$valid_loss, col="red", type = 'l')
+#' }
 #' @export
 tseq2feature_seq2seq <- function(tseqs, K, cumulative = FALSE, log = TRUE, rnn_type="lstm",
                                  n_epoch=50, method="last", step_size=0.0001, 
@@ -428,6 +432,7 @@ tseq2feature_seq2seq <- function(tseqs, K, cumulative = FALSE, log = TRUE, rnn_t
 #'   \item{test_loss}{a vector of length \code{n_epoch} recording the trace of test losses. Exists only if \code{samples_test} is not \code{NULL}.}
 #' @seealso \code{\link{chooseK_seq2seq}} for choosing \code{K} through cross-validation.
 #' @examples
+#' \donotrun{
 #' n <- 50
 #' data(cc_data)
 #' samples <- sample(1:length(cc_data$seqs$time_seqs), n)
@@ -439,6 +444,7 @@ tseq2feature_seq2seq <- function(tseqs, K, cumulative = FALSE, log = TRUE, rnn_t
 #'      ylim = range(c(action_and_time_seq2seq_res$train_loss, 
 #'                     action_and_time_seq2seq_res$valid_loss)))
 #' lines(action_and_time_seq2seq_res$valid_loss, col="red", type = 'l')
+#' }
 #' @export
 atseq2feature_seq2seq <- function(atseqs, K, weights = c(1, .5), cumulative = FALSE, 
                                   log = TRUE, rnn_type="lstm", n_epoch=50, method="last", 

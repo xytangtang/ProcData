@@ -80,6 +80,7 @@ This function wraps \code{\link{aseq2feature_seq2seq}},
 \code{\link{tseq2feature_seq2seq}}, and \code{\link{atseq2feature_seq2seq}}.
 }
 \examples{
+\\donotrun{ 
 n <- 50
 data(cc_data)
 samples <- sample(1:length(cc_data$seqs$time_seqs), n)
@@ -107,6 +108,7 @@ seq2seq_res <- seq2feature_seq2seq(seqs=seqs, ae_type="both", K=K_res$K,
 theta <- seq2seq_res$theta
 plot(seq2seq_res$train_loss, col="blue", type="l")
 lines(seq2seq_res$valid_loss, col="red")
+}
 }
 \seealso{
 \code{\link{chooseK_seq2seq}} for choosing \code{K} through cross-validation.

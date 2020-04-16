@@ -77,6 +77,7 @@ K2string <- function(K_emb, K_rnn, K_hidden = NULL, include_time, rnn_type) {
 #'
 #' @seealso \code{\link{predict.seqm}} for the \code{predict} method for \code{seqm} objects.
 #' @examples
+#' \donotrun{
 #' n <- 100
 #' data(cc_data)
 #' samples <- sample(1:length(cc_data$responses), n)
@@ -120,6 +121,7 @@ K2string <- function(K_emb, K_rnn, K_hidden = NULL, include_time, rnn_type) {
 #'              response_type = "binary", actions=actions,
 #'              include_time=TRUE, K_emb=5, K_rnn=5, n_epoch=5)
 #' pred_res4 <- predict(res4, new_seqs = seqs_test)
+#' }
 #' @export
 seqm <- function(seqs, response, covariates = NULL, response_type, 
                  actions = unique(unlist(seqs$action_seqs)), 

@@ -87,6 +87,7 @@ It is the last latent state of the encoder recurrent neural network if \code{met
 and the average of the encoder recurrent neural network latent states if \code{method="avg"}.
 }
 \examples{
+\\donotrun{
 n <- 50
 data(cc_data)
 samples <- sample(1:length(cc_data$seqs$time_seqs), n)
@@ -97,6 +98,7 @@ features <- time_seq2seq_res$theta
 plot(time_seq2seq_res$train_loss, col="blue", type="l",
      ylim = range(c(time_seq2seq_res$train_loss, time_seq2seq_res$valid_loss)))
 lines(time_seq2seq_res$valid_loss, col="red", type = 'l')
+}
 }
 \seealso{
 \code{\link{chooseK_seq2seq}} for choosing \code{K} through cross-validation.
