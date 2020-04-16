@@ -87,7 +87,7 @@ It is the last latent state of the encoder recurrent neural network if \code{met
 and the average of the encoder recurrent neural network latent states if \code{method="avg"}.
 }
 \examples{
-\\donotrun{
+\dontrun{
 n <- 50
 data(cc_data)
 samples <- sample(1:length(cc_data$seqs$time_seqs), n)

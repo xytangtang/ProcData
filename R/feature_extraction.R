@@ -475,7 +475,7 @@ seq2feature_mds_stochastic <- function(seqs = NULL, K = 2, dist_type = "oss_acti
 #'   \item{test_loss}{a vector of length \code{n_epoch} recording the trace of test losses. Exists only if \code{samples_test} is not \code{NULL}.}
 #' @seealso \code{\link{chooseK_seq2seq}} for choosing \code{K} through cross-validation.
 #' @examples
-#' \donotrun{ 
+#' \dontrun{ 
 #' n <- 50
 #' data(cc_data)
 #' samples <- sample(1:length(cc_data$seqs$time_seqs), n)

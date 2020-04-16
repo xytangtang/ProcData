@@ -77,7 +77,7 @@ K2string <- function(K_emb, K_rnn, K_hidden = NULL, include_time, rnn_type) {
 #'
 #' @seealso \code{\link{predict.seqm}} for the \code{predict} method for \code{seqm} objects.
 #' @examples
-#' \donotrun{
+#' \dontrun{
 #' n <- 100
 #' data(cc_data)
 #' samples <- sample(1:length(cc_data$responses), n)

@@ -76,7 +76,7 @@ It is the last output of the encoder recurrent neural network if \code{method="l
 and the average of the encoder recurrent nenural network if \code{method="avg"}.
 }
 \examples{
-\\donotrun{
+\dontrun{
 n <- 50
 seqs <- seq_gen(n)
 seq2seq_res <- aseq2feature_seq2seq(seqs$action_seqs, 5, rnn_type="lstm", n_epoch=5, 

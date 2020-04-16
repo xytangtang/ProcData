@@ -111,7 +111,7 @@ zeros to length \code{max_len} before feeding into the model. If the provided
 \code{seqs}, it will be overridden.
 }
 \examples{
-\\donotrun{
+\dontrun{
 n <- 100
 data(cc_data)
 samples <- sample(1:length(cc_data$responses), n)
