@@ -2,7 +2,7 @@ Package: ProcData
 Type: Package
 Title: Process Data Analysis
 Version: 0.2.5
-Date: 2019-10-12
+Date: 2020-04-22
 Authors@R: c(
     person("Xueying", "Tang", email = "xueyingtang1989@gmail.com", role = c("aut", "cre")),
     person("Susu", "Zhang", email = "susu.zhang1992@gmail.com", role = c("aut")),
@@ -15,7 +15,7 @@ Description: General tools for exploratory process data analysis. Process data r
     stored in process data, which often has a nonstandard format, into standard numerical vectors. This package
     also provides recurrent neural network based models that relate response processes with other binary or 
     scale variables of interest. The functions that involve training and evaluating neural networks are wrappers
-    of functions in keras.
+    of functions in 'keras'.
 BugReports: https://github.com/xytangtang/ProcData/issues
 License: GPL (>= 2)
 Depends: R (>= 3.5)
