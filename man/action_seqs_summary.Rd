@@ -16,8 +16,7 @@ a list containing the following objects:
   \item{action}{the action set}
   \item{seq_length}{sequence lengths}
   \item{action_freq}{action counts}
-  \item{action_seq_freq}{the number of sequences that each action appears}
-  \item{weighted_action_freq}{action frequency weighted by tfidf}
+  \item{action_seqfreq}{the number of sequences that each action appears}
   \item{trans_count}{a \code{length(action)} by \code{length(action)} matrix whose
     element in the i-th row and j-th column is the counts of transition from 
     \code{action[i]} to \code{action[j]}.}

@@ -44,7 +44,7 @@ body {
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">devtools<span class="op">::</span><span class="kw">install_github</span>(<span class="st">&quot;xytangtang/ProcData&quot;</span>)</code></pre></div>
 <p>ProcData depends on packages <code>Rcpp</code> and <a href="https://keras.rstudio.com"><code>keras</code></a>. A C compiler and python are needed. Some functions in <code>ProcData</code> calls functions in <code>keras</code> to fit neural networks. To make sure these functions run properly, execute the following command in <code>R</code>.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(keras)
-<span class="kw">install_keras</span>()</code></pre></div>
+<span class="kw">install_keras</span>(<span class="dt">tensorflow =</span> <span class="st">&quot;1.13.1&quot;</span>)</code></pre></div>
 <p>Note that if this step is skipped, <code>ProcData</code> can still be installed and loaded, but calling the functions that depends on <code>keras</code> will give an error.</p>
 <h2 id="contents">Contents</h2>
 <h3 id="data-structure">Data Structure</h3>

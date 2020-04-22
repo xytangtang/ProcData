@@ -200,7 +200,7 @@ seq_gen3 <- function(n, events = letters, rnn_type = "lstm", K = 10, weights=NUL
                      end_index=length(events), include_time = FALSE,
                      time_intv_dist = list("exp", 1), gpu=FALSE, parallel=FALSE, 
                      seed=12345) {
-  # use_session_with_seed(seed, disable_gpu = !gpu, disable_parallel_cpu = !parallel)
+  use_session_with_seed(seed, disable_gpu = !gpu, disable_parallel_cpu = !parallel)
   n_event <- length(events)
   
   if (!(rnn_type) %in% c("lstm", "gru")) 

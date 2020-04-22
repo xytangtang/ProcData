@@ -39,7 +39,8 @@ aseq2feature_seq2seq <- function(aseqs, K, rnn_type="lstm", n_epoch=50, method="
                                 samples_train, samples_valid, samples_test=NULL, 
                                 pca=TRUE, gpu=FALSE, parallel=FALSE, seed=12345,
                                 verbose=TRUE, return_theta=TRUE) {
-  # use_session_with_seed(seed, disable_gpu = !gpu, disable_parallel_cpu = !parallel)
+  use_session_with_seed(seed, disable_gpu = !gpu, disable_parallel_cpu = !parallel)
+  #tensorflow::use_compat("v1")
   if (!(rnn_type %in% c("lstm", "gru"))) 
     stop("Invalid rnn_type! Available options: lstm, gru.\n")
   if (!(method %in% c("last", "avg"))) 
@@ -242,7 +243,7 @@ tseq2feature_seq2seq <- function(tseqs, K, cumulative = FALSE, log = TRUE, rnn_t
                                  samples_test=NULL, pca=TRUE, gpu=FALSE, parallel=FALSE, 
                                  seed=12345, verbose=TRUE, return_theta=TRUE) {
   
-  # use_session_with_seed(seed, disable_gpu = !gpu, disable_parallel_cpu = !parallel)
+  use_session_with_seed(seed, disable_gpu = !gpu, disable_parallel_cpu = !parallel)
   if (!(rnn_type %in% c("lstm", "gru"))) 
     stop("Invalid rnn_type! Available options: lstm, gru.\n")
   if (!(method %in% c("last", "avg"))) 
@@ -453,7 +454,7 @@ atseq2feature_seq2seq <- function(atseqs, K, weights = c(1, .5), cumulative = FA
                                   pca=TRUE, gpu=FALSE, parallel=FALSE, seed=12345,
                                   verbose=TRUE, return_theta=TRUE) {
   
-  # use_session_with_seed(seed, disable_gpu = !gpu, disable_parallel_cpu = !parallel)
+  use_session_with_seed(seed, disable_gpu = !gpu, disable_parallel_cpu = !parallel)
   if (!(rnn_type %in% c("lstm", "gru"))) 
     stop("Invalid rnn_type! Available options: lstm, gru.\n")
   if (!(method %in% c("last", "avg"))) 

@@ -32,7 +32,7 @@ ProcData depends on packages `Rcpp` and [`keras`](https://keras.rstudio.com). A 
 
 ``` r
 library(keras)
-install_keras()
+install_keras(tensorflow = "1.13.1")
 ```
 
 Note that if this step is skipped, `ProcData` can still be installed and loaded, but calling the functions that depends on `keras` will give an error.

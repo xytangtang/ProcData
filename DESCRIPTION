@@ -21,6 +21,7 @@ License: GPL (>= 2)
 Depends: R (>= 3.5)
 Imports: Rcpp (>= 0.12.16), keras (>= 2.2.4)
 LinkingTo: Rcpp
+SystemRequirements: Python (>= 2.7)
 RoxygenNote: 6.1.1
 LazyData: true
 NeedsCompilation: yes

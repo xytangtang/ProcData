@@ -41,9 +41,9 @@ devtools::install_github("xytangtang/ProcData")
 ProcData depends on packages `Rcpp` and [`keras`](https://keras.rstudio.com). A C compiler and python are needed. Some functions in `ProcData` calls functions in `keras` to fit neural networks. To make sure these functions run properly, execute the following command in `R`.
 ``` {r keras_install, eval = FALSE}
 library(keras)
-install_keras()
+install_keras(tensorflow = "1.13.1")
 ```
-Note that if this step is skipped, `ProcData` can still be installed and loaded, but calling the functions that depends on `keras` will give an error.
+Note that if this step is skipped, `ProcData` can still be installed and loaded, but calling the functions that depends on `keras` will give an error. 
 
 
 ## Contents

@@ -29,8 +29,7 @@ aseq2atranseqs <- function(x) {
 #'   \item{action}{the action set}
 #'   \item{seq_length}{sequence lengths}
 #'   \item{action_freq}{action counts}
-#'   \item{action_seq_freq}{the number of sequences that each action appears}
-#'   \item{weighted_action_freq}{action frequency weighted by tfidf}
+#'   \item{action_seqfreq}{the number of sequences that each action appears}
 #'   \item{trans_count}{a \code{length(action)} by \code{length(action)} matrix whose
 #'     element in the i-th row and j-th column is the counts of transition from 
 #'     \code{action[i]} to \code{action[j]}.}
@@ -57,12 +56,12 @@ action_seqs_summary <- function(action_seqs)
 	names(action_seq_freq) <- actions
 	
 	# tfidf weighted action frequency
-	inv_seq_freq <- log(n_seq / action_seq_freq)
-	term_freq <- log(action_freq_by_seq)
-	term_freq[term_freq==-Inf] <- 0
-	term_freq <- 1 + term_freq
-	tfidf <- term_freq * (rep(1, n_seq) %*% rbind(inv_seq_freq))
-	weighted_action_freq <- colSums(tfidf)
+	# inv_seq_freq <- log(n_seq / action_seq_freq)
+	# term_freq <- log(action_freq_by_seq)
+	# term_freq[term_freq==-Inf] <- 0
+	# term_freq <- 1 + term_freq
+	# tfidf <- term_freq * (rep(1, n_seq) %*% rbind(inv_seq_freq))
+	# weighted_action_freq <- colSums(tfidf)
 	
 	# action transtion counts 
 	trans_counts <- matrix(0, n_action, n_action)
@@ -77,8 +76,8 @@ action_seqs_summary <- function(action_seqs)
 	
 	list(n_seq=n_seq, n_action = n_action,
 	     actions=actions, seq_length=seq_length, 
-	     action_freq=action_freq, action_seq_freq = action_seq_freq, 
-	     weighted_action_freq = weighted_action_freq, 
+	     action_freq=action_freq, action_seqfreq = action_seq_freq, 
+	     # weighted_action_freq = weighted_action_freq, 
 	     trans_count = trans_counts)
 }
 
@@ -96,20 +95,18 @@ tseq2interval <- function(x) {
 #' 
 #' @param time_seqs a list of timestamp sequences
 #' @return a list containing the following objects
-#'   \item{total_time}{summary of total time elapsed}
-#'   \item{time_per_action}{summary of average time between two consecutive actions}
-#'   \item{inter_arrival_time}{summary of inter-arrival time}
+#'   \item{total_time}{a summary of response time of \code{n_seq} response processes}
+#'   \item{mean_react_time}{a summary of mean reaction time of \code{n_seq} response processes}
 #' @export
 time_seqs_summary <- function(time_seqs) {
   # total time
   total_time <- summary(sapply(time_seqs, max))
   # time per action
-  time_per_action <- summary(sapply(time_seqs, max) / sapply(time_seqs, length))
+  mean_react_time <- summary(sapply(time_seqs, max) / sapply(time_seqs, length))
   # inter-arrival time seqs
-  time_interval <- summary(unlist(sapply(time_seqs, tseq2interval)))
+  #time_interval <- summary(unlist(sapply(time_seqs, tseq2interval)))
   
-  list(total_time=total_time, time_per_action=time_per_action, 
-       inter_arrival_time=time_interval)
+  list(total_time=total_time, mean_react_time=mean_react_time)
 }
 
 
