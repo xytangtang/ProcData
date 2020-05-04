@@ -2,14 +2,14 @@ Package: ProcData
 Type: Package
 Title: Process Data Analysis
 Version: 0.2.5
-Date: 2020-04-22
+Date: 2020-05-03
 Authors@R: c(
     person("Xueying", "Tang", email = "xueyingtang1989@gmail.com", role = c("aut", "cre")),
     person("Susu", "Zhang", email = "susu.zhang1992@gmail.com", role = c("aut")),
     person("Zhi", "Wang", email = "zhiwpku@gmail.com", role=c("aut")),
     person("Jingchen", "Liu", email = "jcliu@stat.columbia.edu", role=c("aut")),
     person("Zhiliang", "Ying", email = "zying@stat.columbia.edu", role=c("aut")))
-Description: General tools for exploratory process data analysis. Process data refers to the data describing 
+Description: General tools for exploratory process data analysis. Process data refers to the data describing
     participants' problem solving processes in computer-based assessments. It is often recorded in computer
     log files. This package provides two action sequence generators and implements two automatic feature extraction methods that compress the information
     stored in process data, which often has a nonstandard format, into standard numerical vectors. This package

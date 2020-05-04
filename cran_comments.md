@@ -13,6 +13,3 @@ There was 1 NOTE:
 Maintainer: 'Xueying Tang <xueyingtang1989@gmail.com>'
 
 New submission
-
-Possibly mis-spelled words in DESCRIPTION:
-  keras (18:21)

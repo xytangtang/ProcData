@@ -24,7 +24,7 @@
 #'   \item{test_loss}{a vector of length \code{n_epoch} recording the trace of test losses. Exists only if \code{samples_test} is not \code{NULL}.}
 #' @seealso \code{\link{chooseK_seq2seq}} for choosing \code{K} through cross-validation.
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' n <- 50
 #' seqs <- seq_gen(n)
 #' seq2seq_res <- aseq2feature_seq2seq(seqs$action_seqs, 5, rnn_type="lstm", n_epoch=5, 
@@ -224,7 +224,7 @@ aseq2feature_seq2seq <- function(aseqs, K, rnn_type="lstm", n_epoch=50, method="
 #'   \item{test_loss}{a vector of length \code{n_epoch} recording the trace of test losses. Exists only if \code{samples_test} is not \code{NULL}.}
 #' @seealso \code{\link{chooseK_seq2seq}} for choosing \code{K} through cross-validation.
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' n <- 50
 #' data(cc_data)
 #' samples <- sample(1:length(cc_data$seqs$time_seqs), n)
@@ -433,7 +433,7 @@ tseq2feature_seq2seq <- function(tseqs, K, cumulative = FALSE, log = TRUE, rnn_t
 #'   \item{test_loss}{a vector of length \code{n_epoch} recording the trace of test losses. Exists only if \code{samples_test} is not \code{NULL}.}
 #' @seealso \code{\link{chooseK_seq2seq}} for choosing \code{K} through cross-validation.
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' n <- 50
 #' data(cc_data)
 #' samples <- sample(1:length(cc_data$seqs$time_seqs), n)
