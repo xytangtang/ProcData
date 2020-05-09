@@ -209,9 +209,27 @@ chooseK_mds <- function(seqs=NULL, K_cand, dist_type="oss_action", n_fold=5,
 }
 
 #' Feature Extraction by MDS for Large Dataset
+#' 
+#' \code{seq2feature_mds_large} extracts MDS features from a large number of 
+#' response processes. The algorithm proposed in Paradis (2018) is implemented with minor 
+#' variations to perform MDS. The algorithm first selects a relatively small subset of 
+#' response processes to perform the classical MDS. Then the coordinate of each of the 
+#' other response processes are obtained by minimizing the loss function related to the target
+#' response processes and the those in the subset through BFGS.
+#' 
 #' @family feature extraction methods
 #' @inheritParams seq2feature_mds
 #' @param seqs an object of class \code{"\link{proc}"}
+#' @param subset_size the size of the subset on which classical MDS is performed.
+#' @param subset_method a character string specifying the method for choosing the subset.
+#'   It must be one of \code{"random"}, \code{"sample_avgmax"},
+#'   \code{"sample_minmax"}, \code{"full_avgmax"}, and \code{"full_minmax"}.
+#' @param n_cand The size of the candidate set when selecting the subset. It is only used when 
+#' \code{subset_method} is \code{"sample_avgmax"} or \code{"sample_minmax"}.
+#' @return \code{seq2feature_mds_large} returns an \eqn{n \times K} matrix of extracted 
+#' features.
+#' @references Paradis, E. (2018). Multidimensional Scaling with Very Large Datasets. 
+#'   \emph{Journal of Computational and Graphical Statistics}, 27, 935--939.
 #' @export
 seq2feature_mds_large <- function(seqs, K, dist_type = "oss_action", subset_size, 
                                   subset_method = "random", n_cand = 10, 
@@ -374,7 +392,7 @@ seq2feature_mds_large <- function(seqs, K, dist_type = "oss_action", subset_size
 #'   returned. Default is \code{FALSE}.
 #' @param seed random seed.
 #' @param L_set length of ngrams considered.
-#' @return \code{seq2feature_mds} returns a list containing 
+#' @return \code{seq2feature_mds_stochastic} returns a list containing 
 #'   \item{theta}{a numeric matrix giving the \code{K} extracted features or principal
 #'   features. Each column is a feature.} 
 #'   \item{loss}{the value of the multidimensional scaling objective function.}

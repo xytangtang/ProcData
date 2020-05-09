@@ -24,6 +24,9 @@ write.seqs(seqs, file, style, id_var = "ID", action_var = "Event",
 
 \item{...}{further arguments to be passed to \code{write.csv}}
 }
+\value{
+No return value.
+}
 \description{
 Write process data to csv files
 }

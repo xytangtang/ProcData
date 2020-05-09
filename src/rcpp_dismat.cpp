@@ -107,8 +107,10 @@ double group_score_cpp(List list1, List list2) {
   return ave/(l1*l2);
 }
 
-//' calculate dissimilarity matrix
+//' Calculate "oss_action" dissimilarity matrix through Rcpp
 //' @param seqs a list of action sequences
+//' @return \code{calculate_dist_cpp} returns the "oss_action" dissimilarity matrix of 
+//' the action sequences in \code{seqs}.
 //' @export
 // [[Rcpp::export]]
 NumericMatrix calculate_dist_cpp(List seqs) {

@@ -1,3 +1,10 @@
+## Resubmission
+This is a resubmission. In this version, I have added value tags in the following files:
+* calculate_dist_cpp.Rd
+* print.proc.Rd
+* proc.Rd
+* seq2feature_mds_large.Rd
+* write.seqs.Rd
 
 ## Test Environments
 * local macOS install, R 3.6.2
@@ -13,3 +20,6 @@ There was 1 NOTE:
 Maintainer: 'Xueying Tang <xueyingtang1989@gmail.com>'
 
 New submission
+
+
+

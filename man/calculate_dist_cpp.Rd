@@ -9,6 +9,10 @@ calculate_dist_cpp(seqs)
 \arguments{
 \item{seqs}{a list of action sequences}
 }
+\value{
+\code{calculate_dist_cpp} returns the "oss_action" dissimilarity matrix of 
+the action sequences in \code{seqs}.
+}
 \description{
 calculate dissimilarity matrix
 }

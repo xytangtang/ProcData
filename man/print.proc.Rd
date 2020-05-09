@@ -17,6 +17,9 @@
 
 \item{...}{not used.}
 }
+\value{
+\code{print.proc} invisibly returns the \code{"proc"} object it prints.
+}
 \description{
 Print method for class \code{"proc"}
 }

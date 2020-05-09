@@ -80,7 +80,7 @@ This function wraps \code{\link{aseq2feature_seq2seq}},
 \code{\link{tseq2feature_seq2seq}}, and \code{\link{atseq2feature_seq2seq}}.
 }
 \examples{
-\dontrun{ 
+\donttest{ 
 n <- 50
 data(cc_data)
 samples <- sample(1:length(cc_data$seqs$time_seqs), n)

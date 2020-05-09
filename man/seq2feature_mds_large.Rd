@@ -16,14 +16,14 @@ seq2feature_mds_large(seqs, K, dist_type = "oss_action", subset_size,
 \item{dist_type}{a character string specifies the dissimilarity measure for two
 response processes. See 'Details'.}
 
-\item{subset_size}{two parameters used in the large data algorithm. See 'Details'
-and \code{\link{seq2feature_mds_large}}.}
+\item{subset_size}{the size of the subset on which classical MDS is performed.}
 
-\item{subset_method}{a character string specifying the method for choosing the subset 
-in the large data algorithm. See 'Details' and \code{\link{seq2feature_mds_large}}.}
+\item{subset_method}{a character string specifying the method for choosing the subset.
+It must be one of \code{"random"}, \code{"sample_avgmax"},
+\code{"sample_minmax"}, \code{"full_avgmax"}, and \code{"full_minmax"}.}
 
-\item{n_cand}{two parameters used in the large data algorithm. See 'Details'
-and \code{\link{seq2feature_mds_large}}.}
+\item{n_cand}{The size of the candidate set when selecting the subset. It is only used when 
+\code{subset_method} is \code{"sample_avgmax"} or \code{"sample_minmax"}.}
 
 \item{pca}{logical. If \code{TRUE} (default), the principal components of the
 extracted features are returned.}
@@ -32,8 +32,21 @@ extracted features are returned.}
 
 \item{L_set}{length of ngrams considered}
 }
+\value{
+\code{seq2feature_mds_large} returns an \eqn{n \times K} matrix of extracted 
+features.
+}
 \description{
-Feature Extraction by MDS for Large Dataset
+\code{seq2feature_mds_large} extracts MDS features from a large number of 
+response processes. The algorithm proposed in Paradis (2018) is implemented with minor 
+variations to perform MDS. The algorithm first selects a relatively small subset of 
+response processes to perform the classical MDS. Then the coordinate of each of the 
+other response processes are obtained by minimizing the loss function related to the target
+response processes and the those in the subset through BFGS.
+}
+\references{
+Paradis, E. (2018). Multidimensional Scaling with Very Large Datasets. 
+  \emph{Journal of Computational and Graphical Statistics}, 27, 935--939.
 }
 \seealso{
 Other feature extraction methods: \code{\link{aseq2feature_seq2seq}},

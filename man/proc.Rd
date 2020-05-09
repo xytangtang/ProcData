@@ -13,6 +13,10 @@ proc(action_seqs, time_seqs, ids = NULL)
 
 \item{ids}{ids identifiers of response processes.}
 }
+\value{
+an object of class \code{"\link{proc}"} containing the provided action and
+ timestamp sequences.
+}
 \description{
 Create a \code{"proc"} object from given action sequences and timestamp sequences
 }

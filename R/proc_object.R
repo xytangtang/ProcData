@@ -14,6 +14,8 @@
 #' @param action_seqs a list of action sequences.
 #' @param time_seqs a list of timestamp sequences.
 #' @param ids ids identifiers of response processes.
+#' @return an object of class \code{"\link{proc}"} containing the provided action and
+#'  timestamp sequences.
 #' @export
 proc <- function(action_seqs, time_seqs, ids = NULL) {
   l_action <- length(action_seqs)
@@ -69,6 +71,7 @@ summary.proc <- function(object, ...) {
 #' @param index indice of processes to be printed.
 #' @param quote logical, indicating whether or not strings should be printed with surrounding quotes.
 #' @param ... not used.
+#' @return \code{print.proc} invisibly returns the \code{"proc"} object it prints.
 #' @export
 print.proc <- function(x, n=5, index=NULL, quote=FALSE, ...) {
   n_total <- length(x$action_seqs)

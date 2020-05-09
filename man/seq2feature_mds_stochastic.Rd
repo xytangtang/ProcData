@@ -36,7 +36,7 @@ returned. Default is \code{FALSE}.}
 \item{L_set}{length of ngrams considered.}
 }
 \value{
-\code{seq2feature_mds} returns a list containing 
+\code{seq2feature_mds_stochastic} returns a list containing 
   \item{theta}{a numeric matrix giving the \code{K} extracted features or principal
   features. Each column is a feature.} 
   \item{loss}{the value of the multidimensional scaling objective function.}

@@ -79,6 +79,7 @@ read.seqs <- function(file, style, id_var=NULL, action_var=NULL, time_var=NULL, 
 #' @inheritParams read.seqs
 #' @param seqs an object of class \code{"\link{proc}"} to written in the csv file.
 #' @param ... further arguments to be passed to \code{write.csv}
+#' @return No return value.
 #' @export
 write.seqs <- function(seqs, file, style, id_var="ID", action_var="Event", time_var="Time", step_sep=",", ...) {
   if (!(style %in% c("multiple", "single")))
