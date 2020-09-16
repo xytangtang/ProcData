@@ -61,7 +61,11 @@ summary.proc <- function(object, ...) {
   else
     res_time <- time_seqs_summary(object$time_seqs)
   
-  c(res_action, res_time)
+  res <- c(res_action, res_time)
+  
+  class(res) <- "summary.proc"
+  
+  res
 }
 
 #' Print method for class \code{"proc"}
@@ -101,3 +105,24 @@ print.proc <- function(x, n=5, index=NULL, quote=FALSE, ...) {
   }
   invisible(x)
 }
+
+#' Print method for class \code{"summary.proc"}
+#' 
+#' @param x an object of class \code{"\link{proc}"}
+#' @param ... not used.
+#' 
+#' @export
+print.summary.proc <- function(x, ...) {
+  cat("Number of response processes: ", x$n_seq, "\n", sep ="")
+  cat("Number of unique actions: ", x$n_action, "\n", sep="")
+  cat("Range of process length: [", min(x$seq_length), ", ", max(x$seq_length), "]\n", sep="")
+  cat("Mean process length: ", mean(x$seq_length), "\n", sep="")
+  if (is.null(x$total_time)) {
+    cat("Timestamp sequences are not available.\n")
+  } else {
+    cat("Range of total response time: [", min(x$total_time), ", ", max(x$total_time), "]\n", sep="")
+    cat("Mean total response time: ", mean(x$total_time), "\n", sep="")
+  }
+  cat("\n")
+}
+

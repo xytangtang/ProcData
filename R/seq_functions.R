@@ -95,14 +95,14 @@ tseq2interval <- function(x) {
 #' 
 #' @param time_seqs a list of timestamp sequences
 #' @return a list containing the following objects
-#'   \item{total_time}{a summary of response time of \code{n_seq} response processes}
-#'   \item{mean_react_time}{a summary of mean reaction time of \code{n_seq} response processes}
+#'   \item{total_time}{total response time of \code{n_seq} response processes}
+#'   \item{mean_react_time}{mean reaction time of \code{n_seq} response processes}
 #' @export
 time_seqs_summary <- function(time_seqs) {
   # total time
-  total_time <- summary(sapply(time_seqs, max))
+  total_time <- sapply(time_seqs, max)
   # time per action
-  mean_react_time <- summary(sapply(time_seqs, max) / sapply(time_seqs, length))
+  mean_react_time <- sapply(time_seqs, max) / sapply(time_seqs, length)
   # inter-arrival time seqs
   #time_interval <- summary(unlist(sapply(time_seqs, tseq2interval)))
   
