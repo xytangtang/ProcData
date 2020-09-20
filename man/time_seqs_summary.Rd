@@ -11,8 +11,8 @@ time_seqs_summary(time_seqs)
 }
 \value{
 a list containing the following objects
-  \item{total_time}{a summary of response time of \code{n_seq} response processes}
-  \item{mean_react_time}{a summary of mean reaction time of \code{n_seq} response processes}
+  \item{total_time}{total response time of \code{n_seq} response processes}
+  \item{mean_react_time}{mean reaction time of \code{n_seq} response processes}
 }
 \description{
 Summarize timestamp sequences

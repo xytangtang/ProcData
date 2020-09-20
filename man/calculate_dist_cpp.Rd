@@ -2,7 +2,7 @@
 % Please edit documentation in R/RcppExports.R
 \name{calculate_dist_cpp}
 \alias{calculate_dist_cpp}
-\title{calculate dissimilarity matrix}
+\title{Calculate "oss_action" dissimilarity matrix through Rcpp}
 \usage{
 calculate_dist_cpp(seqs)
 }
@@ -14,5 +14,5 @@ calculate_dist_cpp(seqs)
 the action sequences in \code{seqs}.
 }
 \description{
-calculate dissimilarity matrix
+Calculate "oss_action" dissimilarity matrix through Rcpp
 }

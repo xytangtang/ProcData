@@ -89,6 +89,7 @@ Paradis, E. (2018). Multidimensional scaling with very large datasets. \emph{
 Other feature extraction methods: \code{\link{aseq2feature_seq2seq}},
   \code{\link{atseq2feature_seq2seq}},
   \code{\link{seq2feature_mds_large}},
+  \code{\link{seq2feature_ngram}},
   \code{\link{seq2feature_seq2seq}},
   \code{\link{tseq2feature_seq2seq}}
 }
