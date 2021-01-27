@@ -1,5 +1,6 @@
 #' @useDynLib ProcData
 #' @importFrom Rcpp sourceCpp
+#' @import reticulate
 #' @import keras
 #' @import stats
 #' @import utils
