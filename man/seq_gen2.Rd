@@ -4,9 +4,17 @@
 \alias{seq_gen2}
 \title{Markov action sequence generator}
 \usage{
-seq_gen2(n, Pmat = NULL, events = letters, start_index = 1,
-  end_index = length(events), max_len = 200, include_time = FALSE,
-  time_intv_dist = list("exp", 1), seed = 12345)
+seq_gen2(
+  n,
+  Pmat = NULL,
+  events = letters,
+  start_index = 1,
+  end_index = length(events),
+  max_len = 200,
+  include_time = FALSE,
+  time_intv_dist = list("exp", 1),
+  seed = 12345
+)
 }
 \arguments{
 \item{n}{An integer. The number of action sequences to be generated.}
@@ -46,7 +54,8 @@ set of possible actions is \code{events}. All generated sequences start with
 \code{events[-start_index]} until \code{events[end_index]} appears.
 }
 \seealso{
-Other sequence generators: \code{\link{seq_gen3}},
-  \code{\link{seq_gen}}
+Other sequence generators: 
+\code{\link{seq_gen3}()},
+\code{\link{seq_gen}()}
 }
 \concept{sequence generators}

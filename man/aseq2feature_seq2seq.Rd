@@ -4,11 +4,24 @@
 \alias{aseq2feature_seq2seq}
 \title{Feature Extraction by action sequence autoencoder}
 \usage{
-aseq2feature_seq2seq(aseqs, K, rnn_type = "lstm", n_epoch = 50,
-  method = "last", step_size = 1e-04, optimizer_name = "adam",
-  samples_train, samples_valid, samples_test = NULL, pca = TRUE,
-  gpu = FALSE, parallel = FALSE, seed = 12345, verbose = TRUE,
-  return_theta = TRUE)
+aseq2feature_seq2seq(
+  aseqs,
+  K,
+  rnn_type = "lstm",
+  n_epoch = 50,
+  method = "last",
+  step_size = 1e-04,
+  optimizer_name = "adam",
+  samples_train,
+  samples_valid,
+  samples_test = NULL,
+  pca = TRUE,
+  gpu = FALSE,
+  parallel = FALSE,
+  seed = 12345,
+  verbose = TRUE,
+  return_theta = TRUE
+)
 }
 \arguments{
 \item{aseqs}{a list of \code{n} action sequences. Each element is an action
@@ -89,11 +102,12 @@ lines(seq2seq_res$valid_loss, col="red")
 \seealso{
 \code{\link{chooseK_seq2seq}} for choosing \code{K} through cross-validation.
 
-Other feature extraction methods: \code{\link{atseq2feature_seq2seq}},
-  \code{\link{seq2feature_mds_large}},
-  \code{\link{seq2feature_mds}},
-  \code{\link{seq2feature_ngram}},
-  \code{\link{seq2feature_seq2seq}},
-  \code{\link{tseq2feature_seq2seq}}
+Other feature extraction methods: 
+\code{\link{atseq2feature_seq2seq}()},
+\code{\link{seq2feature_mds_large}()},
+\code{\link{seq2feature_mds}()},
+\code{\link{seq2feature_ngram}()},
+\code{\link{seq2feature_seq2seq}()},
+\code{\link{tseq2feature_seq2seq}()}
 }
 \concept{feature extraction methods}

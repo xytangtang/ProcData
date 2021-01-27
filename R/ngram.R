@@ -22,7 +22,9 @@ log_plus_one <- function(x) {
 #' 
 #' @param seqs an object of class \code{"\link{proc}"}
 #' @param level an integer specifying the max length of ngrams
-#' @param type a character string (\code{"binary"}, \code{"freq"}, or \code{"weighted"}) specifying the type of ngram features.
+#' @param type a character string (\code{"binary"}, \code{"freq"}, or \code{"weighted"}) 
+#'             specifying the type of ngram features.
+#' @param sep action seperator within ngram.
 #' @return a matrix of ngram features
 #' @examples 
 #' seqs <- seq_gen(100)

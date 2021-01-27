@@ -4,10 +4,18 @@
 \alias{seq2feature_mds_stochastic}
 \title{Feature extraction by stochastic mds}
 \usage{
-seq2feature_mds_stochastic(seqs = NULL, K = 2,
-  dist_type = "oss_action", max_epoch = 100, step_size = 0.01,
-  pca = TRUE, tot = 1e-06, return_dist = FALSE, seed = 12345,
-  L_set = 1:3)
+seq2feature_mds_stochastic(
+  seqs = NULL,
+  K = 2,
+  dist_type = "oss_action",
+  max_epoch = 100,
+  step_size = 0.01,
+  pca = TRUE,
+  tot = 1e-06,
+  return_dist = FALSE,
+  seed = 12345,
+  L_set = 1:3
+)
 }
 \arguments{
 \item{seqs}{a \code{"\link{proc}"} object or a square matrix. If a squared matrix is 

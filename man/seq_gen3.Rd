@@ -4,11 +4,22 @@
 \alias{seq_gen3}
 \title{RNN action sequence generator}
 \usage{
-seq_gen3(n, events = letters, rnn_type = "lstm", K = 10,
-  weights = NULL, max_len = 100, initial_state = NULL,
-  start_index = 1, end_index = length(events), include_time = FALSE,
-  time_intv_dist = list("exp", 1), gpu = FALSE, parallel = FALSE,
-  seed = 12345)
+seq_gen3(
+  n,
+  events = letters,
+  rnn_type = "lstm",
+  K = 10,
+  weights = NULL,
+  max_len = 100,
+  initial_state = NULL,
+  start_index = 1,
+  end_index = length(events),
+  include_time = FALSE,
+  time_intv_dist = list("exp", 1),
+  gpu = FALSE,
+  parallel = FALSE,
+  seed = 12345
+)
 }
 \arguments{
 \item{n}{An integer. The number of action sequences to be generated.}
@@ -59,7 +70,8 @@ A list containing the following elements
 \code{seq_gen3} generates action sequences according to a recurrent neural network
 }
 \seealso{
-Other sequence generators: \code{\link{seq_gen2}},
-  \code{\link{seq_gen}}
+Other sequence generators: 
+\code{\link{seq_gen2}()},
+\code{\link{seq_gen}()}
 }
 \concept{sequence generators}

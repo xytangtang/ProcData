@@ -1,17 +1,17 @@
 #include <Rcpp.h>
 using namespace Rcpp;
 
-inline int randWrapper(const int n) { return floor(unif_rand()*n); }
-
-Rcpp::IntegerVector randomShuffle(Rcpp::IntegerVector a) {
-    
-    // clone a into b to leave a alone
-    Rcpp::IntegerVector b = Rcpp::clone(a);
-    
-    std::random_shuffle(b.begin(), b.end(), randWrapper);
-    
-    return b;
-}
+// inline int randWrapper(const int n) { return floor(unif_rand()*n); }
+// 
+// Rcpp::IntegerVector randomShuffle(Rcpp::IntegerVector a) {
+//     
+//     // clone a into b to leave a alone
+//     Rcpp::IntegerVector b = Rcpp::clone(a);
+//     
+//     std::random_shuffle(b.begin(), b.end(), randWrapper);
+//     
+//     return b;
+// }
 
 double myabs(double x) {
     return x > 0 ? x : -x;
@@ -151,7 +151,7 @@ List MDS(NumericMatrix D, NumericMatrix Theta, int n_epoch, double step_size, do
     {
         loss_old = loss_new;
         
-        sample_order = randomShuffle(sample_order);
+        sample_order = sample(sample_order, N, false);
         
         for (int index_sample = 0; index_sample < N; index_sample++)
         {
@@ -207,7 +207,7 @@ List MDS_subset(NumericMatrix D, NumericMatrix Theta, int n_epoch, double step_s
     {
         loss_old = loss_new;
         
-        train_idx = randomShuffle(train_idx);
+        train_idx = sample(train_idx, n_train, false);
         
         for (int index_sample = 0; index_sample < n_train; index_sample++)
         {

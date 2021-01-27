@@ -19,9 +19,9 @@ Description: General tools for exploratory process data analysis. Process data r
 BugReports: https://github.com/xytangtang/ProcData/issues
 License: GPL (>= 2)
 Depends: R (>= 3.5)
-Imports: Rcpp (>= 0.12.16), keras (>= 2.2.4)
+Imports: Rcpp (>= 0.12.16), keras (>= 2.2.4), reticulate (>= 1.15)
 LinkingTo: Rcpp
 SystemRequirements: Python (>= 2.7)
-RoxygenNote: 6.1.1
+RoxygenNote: 7.1.0
 LazyData: true
 NeedsCompilation: yes

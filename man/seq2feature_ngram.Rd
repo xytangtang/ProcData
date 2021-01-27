@@ -11,7 +11,10 @@ seq2feature_ngram(seqs, level = 2, type = "binary", sep = "\\t")
 
 \item{level}{an integer specifying the max length of ngrams}
 
-\item{type}{a character string (\code{"binary"}, \code{"freq"}, or \code{"weighted"}) specifying the type of ngram features.}
+\item{type}{a character string (\code{"binary"}, \code{"freq"}, or \code{"weighted"}) 
+specifying the type of ngram features.}
+
+\item{sep}{action seperator within ngram.}
 }
 \value{
 a matrix of ngram features
@@ -24,11 +27,12 @@ seqs <- seq_gen(100)
 theta <- seq2feature_ngram(seqs)
 }
 \seealso{
-Other feature extraction methods: \code{\link{aseq2feature_seq2seq}},
-  \code{\link{atseq2feature_seq2seq}},
-  \code{\link{seq2feature_mds_large}},
-  \code{\link{seq2feature_mds}},
-  \code{\link{seq2feature_seq2seq}},
-  \code{\link{tseq2feature_seq2seq}}
+Other feature extraction methods: 
+\code{\link{aseq2feature_seq2seq}()},
+\code{\link{atseq2feature_seq2seq}()},
+\code{\link{seq2feature_mds_large}()},
+\code{\link{seq2feature_mds}()},
+\code{\link{seq2feature_seq2seq}()},
+\code{\link{tseq2feature_seq2seq}()}
 }
 \concept{feature extraction methods}

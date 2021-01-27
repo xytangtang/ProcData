@@ -4,9 +4,18 @@
 \alias{chooseK_mds}
 \title{Choose the number of multidimensional scaling features}
 \usage{
-chooseK_mds(seqs = NULL, K_cand, dist_type = "oss_action",
-  n_fold = 5, max_epoch = 100, step_size = 0.01, tot = 1e-06,
-  return_dist = FALSE, seed = 12345, L_set = 1:3)
+chooseK_mds(
+  seqs = NULL,
+  K_cand,
+  dist_type = "oss_action",
+  n_fold = 5,
+  max_epoch = 100,
+  step_size = 0.01,
+  tot = 1e-06,
+  return_dist = FALSE,
+  seed = 12345,
+  L_set = 1:3
+)
 }
 \arguments{
 \item{seqs}{a \code{"\link{proc}"} object or a square matrix. If a squared matrix is 

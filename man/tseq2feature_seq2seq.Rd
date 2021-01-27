@@ -4,12 +4,26 @@
 \alias{tseq2feature_seq2seq}
 \title{Feature Extraction by time sequence autoencoder}
 \usage{
-tseq2feature_seq2seq(tseqs, K, cumulative = FALSE, log = TRUE,
-  rnn_type = "lstm", n_epoch = 50, method = "last",
-  step_size = 1e-04, optimizer_name = "rmsprop", samples_train,
-  samples_valid, samples_test = NULL, pca = TRUE, gpu = FALSE,
-  parallel = FALSE, seed = 12345, verbose = TRUE,
-  return_theta = TRUE)
+tseq2feature_seq2seq(
+  tseqs,
+  K,
+  cumulative = FALSE,
+  log = TRUE,
+  rnn_type = "lstm",
+  n_epoch = 50,
+  method = "last",
+  step_size = 1e-04,
+  optimizer_name = "rmsprop",
+  samples_train,
+  samples_valid,
+  samples_test = NULL,
+  pca = TRUE,
+  gpu = FALSE,
+  parallel = FALSE,
+  seed = 12345,
+  verbose = TRUE,
+  return_theta = TRUE
+)
 }
 \arguments{
 \item{tseqs}{a list of \code{n} timestamp sequences. Each element is a numeric
@@ -103,11 +117,12 @@ lines(time_seq2seq_res$valid_loss, col="red", type = 'l')
 \seealso{
 \code{\link{chooseK_seq2seq}} for choosing \code{K} through cross-validation.
 
-Other feature extraction methods: \code{\link{aseq2feature_seq2seq}},
-  \code{\link{atseq2feature_seq2seq}},
-  \code{\link{seq2feature_mds_large}},
-  \code{\link{seq2feature_mds}},
-  \code{\link{seq2feature_ngram}},
-  \code{\link{seq2feature_seq2seq}}
+Other feature extraction methods: 
+\code{\link{aseq2feature_seq2seq}()},
+\code{\link{atseq2feature_seq2seq}()},
+\code{\link{seq2feature_mds_large}()},
+\code{\link{seq2feature_mds}()},
+\code{\link{seq2feature_ngram}()},
+\code{\link{seq2feature_seq2seq}()}
 }
 \concept{feature extraction methods}

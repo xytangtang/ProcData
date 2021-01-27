@@ -4,8 +4,15 @@
 \alias{read.seqs}
 \title{Reading response processes from csv files}
 \usage{
-read.seqs(file, style, id_var = NULL, action_var = NULL,
-  time_var = NULL, step_sep = ",", ...)
+read.seqs(
+  file,
+  style,
+  id_var = NULL,
+  action_var = NULL,
+  time_var = NULL,
+  step_sep = ",",
+  ...
+)
 }
 \arguments{
 \item{file}{the name of the csv file from which the response processes are to be read.}
