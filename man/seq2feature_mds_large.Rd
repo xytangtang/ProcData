@@ -4,17 +4,9 @@
 \alias{seq2feature_mds_large}
 \title{Feature Extraction by MDS for Large Dataset}
 \usage{
-seq2feature_mds_large(
-  seqs,
-  K,
-  dist_type = "oss_action",
-  subset_size,
-  subset_method = "random",
-  n_cand = 10,
-  pca = TRUE,
-  seed = 12345,
-  L_set = 1:3
-)
+seq2feature_mds_large(seqs, K, dist_type = "oss_action", subset_size,
+  subset_method = "random", n_cand = 10, pca = TRUE, seed = 12345,
+  L_set = 1:3)
 }
 \arguments{
 \item{seqs}{an object of class \code{"\link{proc}"}}
@@ -57,12 +49,11 @@ Paradis, E. (2018). Multidimensional Scaling with Very Large Datasets.
   \emph{Journal of Computational and Graphical Statistics}, 27, 935--939.
 }
 \seealso{
-Other feature extraction methods: 
-\code{\link{aseq2feature_seq2seq}()},
-\code{\link{atseq2feature_seq2seq}()},
-\code{\link{seq2feature_mds}()},
-\code{\link{seq2feature_ngram}()},
-\code{\link{seq2feature_seq2seq}()},
-\code{\link{tseq2feature_seq2seq}()}
+Other feature extraction methods: \code{\link{aseq2feature_seq2seq}},
+  \code{\link{atseq2feature_seq2seq}},
+  \code{\link{seq2feature_mds}},
+  \code{\link{seq2feature_ngram}},
+  \code{\link{seq2feature_seq2seq}},
+  \code{\link{tseq2feature_seq2seq}}
 }
 \concept{feature extraction methods}

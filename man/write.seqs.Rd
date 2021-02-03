@@ -4,16 +4,8 @@
 \alias{write.seqs}
 \title{Write process data to csv files}
 \usage{
-write.seqs(
-  seqs,
-  file,
-  style,
-  id_var = "ID",
-  action_var = "Event",
-  time_var = "Time",
-  step_sep = ",",
-  ...
-)
+write.seqs(seqs, file, style, id_var = "ID", action_var = "Event",
+  time_var = "Time", step_sep = ",", ...)
 }
 \arguments{
 \item{seqs}{an object of class \code{"\link{proc}"} to written in the csv file.}

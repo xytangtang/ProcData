@@ -4,31 +4,13 @@
 \alias{seqm}
 \title{Fitting sequence models}
 \usage{
-seqm(
-  seqs,
-  response,
-  covariates = NULL,
-  response_type,
-  actions = unique(unlist(seqs$action_seqs)),
-  rnn_type = "lstm",
-  include_time = FALSE,
-  time_interval = TRUE,
-  log_time = TRUE,
-  K_emb = 20,
-  K_rnn = 20,
-  n_hidden = 0,
-  K_hidden = NULL,
-  index_valid = 0.2,
-  verbose = FALSE,
-  max_len = NULL,
-  n_epoch = 20,
-  batch_size = 16,
-  optimizer_name = "rmsprop",
-  step_size = 0.001,
-  gpu = FALSE,
-  parallel = FALSE,
-  seed = 12345
-)
+seqm(seqs, response, covariates = NULL, response_type,
+  actions = unique(unlist(seqs$action_seqs)), rnn_type = "lstm",
+  include_time = FALSE, time_interval = TRUE, log_time = TRUE,
+  K_emb = 20, K_rnn = 20, n_hidden = 0, K_hidden = NULL,
+  index_valid = 0.2, verbose = FALSE, max_len = NULL, n_epoch = 20,
+  batch_size = 16, optimizer_name = "rmsprop", step_size = 0.001,
+  gpu = FALSE, parallel = FALSE, seed = 12345)
 }
 \arguments{
 \item{seqs}{an object of class \code{"\link{proc}"}.}

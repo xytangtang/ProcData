@@ -57,6 +57,8 @@ transition matrix.
 
   \item \code{\link{seq2feature_seq2seq}} extracts features from response processes by
     autoencoder.
+    
+ \item \code{\link{seq2feature_ngram}} extracts ngram features from response processes.
 }
 }
 

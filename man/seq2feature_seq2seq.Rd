@@ -4,28 +4,12 @@
 \alias{seq2feature_seq2seq}
 \title{Feature Extraction by autoencoder}
 \usage{
-seq2feature_seq2seq(
-  seqs,
-  ae_type = "action",
-  K,
-  rnn_type = "lstm",
-  n_epoch = 50,
-  method = "last",
-  step_size = 1e-04,
-  optimizer_name = "adam",
-  cumulative = FALSE,
-  log = TRUE,
-  weights = c(1, 0.5),
-  samples_train,
-  samples_valid,
-  samples_test = NULL,
-  pca = TRUE,
-  gpu = FALSE,
-  parallel = FALSE,
-  seed = 12345,
-  verbose = TRUE,
-  return_theta = TRUE
-)
+seq2feature_seq2seq(seqs, ae_type = "action", K, rnn_type = "lstm",
+  n_epoch = 50, method = "last", step_size = 1e-04,
+  optimizer_name = "adam", cumulative = FALSE, log = TRUE,
+  weights = c(1, 0.5), samples_train, samples_valid,
+  samples_test = NULL, pca = TRUE, gpu = FALSE, parallel = FALSE,
+  seed = 12345, verbose = TRUE, return_theta = TRUE)
 }
 \arguments{
 \item{seqs}{an object of class \code{"\link{proc}"}.}
@@ -129,12 +113,11 @@ lines(seq2seq_res$valid_loss, col="red")
 \seealso{
 \code{\link{chooseK_seq2seq}} for choosing \code{K} through cross-validation.
 
-Other feature extraction methods: 
-\code{\link{aseq2feature_seq2seq}()},
-\code{\link{atseq2feature_seq2seq}()},
-\code{\link{seq2feature_mds_large}()},
-\code{\link{seq2feature_mds}()},
-\code{\link{seq2feature_ngram}()},
-\code{\link{tseq2feature_seq2seq}()}
+Other feature extraction methods: \code{\link{aseq2feature_seq2seq}},
+  \code{\link{atseq2feature_seq2seq}},
+  \code{\link{seq2feature_mds_large}},
+  \code{\link{seq2feature_mds}},
+  \code{\link{seq2feature_ngram}},
+  \code{\link{tseq2feature_seq2seq}}
 }
 \concept{feature extraction methods}

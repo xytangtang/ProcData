@@ -4,20 +4,13 @@
 \alias{seq_gen}
 \title{Action sequence generator}
 \usage{
-seq_gen(
-  n,
-  action_set1 = c("OPT1_1", "OPT1_2", "OPT1_3"),
-  action_set2 = c("OPT2_1", "OPT2_2"),
-  answer_set = c("CHECK_A", "CHECK_B", "CHECK_C", "CHECK_D"),
-  p1 = rep(1, length(action_set1)),
-  p2 = rep(1, length(action_set2)),
-  p_answer = rep(1, length(answer_set)),
-  p_continue = 0.5,
-  p_choose = 0.5,
-  include_time = FALSE,
-  time_intv_dist = list("exp", 1),
-  seed = 12345
-)
+seq_gen(n, action_set1 = c("OPT1_1", "OPT1_2", "OPT1_3"),
+  action_set2 = c("OPT2_1", "OPT2_2"), answer_set = c("CHECK_A",
+  "CHECK_B", "CHECK_C", "CHECK_D"), p1 = rep(1, length(action_set1)),
+  p2 = rep(1, length(action_set2)), p_answer = rep(1,
+  length(answer_set)), p_continue = 0.5, p_choose = 0.5,
+  include_time = FALSE, time_intv_dist = list("exp", 1),
+  seed = 12345)
 }
 \arguments{
 \item{n}{An integer. The number of action sequences to be generated.}
@@ -68,8 +61,7 @@ answer will be chosen. The chosen answer is randomly sampled from \code{answer_s
 according to \code{p_answer}. All generated sequences end with "End".
 }
 \seealso{
-Other sequence generators: 
-\code{\link{seq_gen2}()},
-\code{\link{seq_gen3}()}
+Other sequence generators: \code{\link{seq_gen2}},
+  \code{\link{seq_gen3}}
 }
 \concept{sequence generators}

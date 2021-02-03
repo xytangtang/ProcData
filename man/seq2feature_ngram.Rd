@@ -20,19 +20,31 @@ specifying the type of ngram features.}
 a matrix of ngram features
 }
 \description{
-ngram feature extraction
+\code{seq2feature_ngram} extracts ngram features from response processes.
+}
+\details{
+Three types of ngram features can be extracted. \code{type = "binary"} gives 
+binary ngram features indicating whether an ngram appears in a response process. 
+\code{type = "freq"} gives ngram frequency features. Each feature is the count of
+the corresponding ngram in a response process. \code{type = "weighted"} gives the
+weighted ngram features proposed in He and von Davier (2015).
 }
 \examples{
 seqs <- seq_gen(100)
 theta <- seq2feature_ngram(seqs)
 }
+\references{
+He Q., von Davier M. (2015). Identifying Feature Sequences from Process
+Data in Problem-Solving Items with N-Grams. In: van der Ark L., Bolt D., Wang WC., 
+Douglas J., Chow SM. (eds) \emph{Quantitative Psychology Research}. Springer 
+Proceedings in Mathematics & Statistics, vol 140. Springer, Cham.
+}
 \seealso{
-Other feature extraction methods: 
-\code{\link{aseq2feature_seq2seq}()},
-\code{\link{atseq2feature_seq2seq}()},
-\code{\link{seq2feature_mds_large}()},
-\code{\link{seq2feature_mds}()},
-\code{\link{seq2feature_seq2seq}()},
-\code{\link{tseq2feature_seq2seq}()}
+Other feature extraction methods: \code{\link{aseq2feature_seq2seq}},
+  \code{\link{atseq2feature_seq2seq}},
+  \code{\link{seq2feature_mds_large}},
+  \code{\link{seq2feature_mds}},
+  \code{\link{seq2feature_seq2seq}},
+  \code{\link{tseq2feature_seq2seq}}
 }
 \concept{feature extraction methods}

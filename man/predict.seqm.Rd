@@ -4,7 +4,8 @@
 \alias{predict.seqm}
 \title{Predict method for sequence models}
 \usage{
-\method{predict}{seqm}(object, new_seqs, new_covariates = NULL, type = "response", ...)
+\method{predict}{seqm}(object, new_seqs, new_covariates = NULL,
+  type = "response", ...)
 }
 \arguments{
 \item{object}{a fitted object of class \code{"seqm"} from \code{seqm}.}

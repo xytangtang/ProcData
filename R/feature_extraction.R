@@ -20,9 +20,8 @@
 #' for action sequences. If \code{dist_type = "oss_both"}, both action sequences and
 #' timestamp sequences are used to compute a time-weighted oss. 
 #'   
-#' The number of
-#' features to be extracted \code{K} can be selected by cross-validation using
-#' \code{\link{chooseK_mds}}.
+#' The number of features to be extracted \code{K} can be selected by cross-validation 
+#' using \code{\link{chooseK_mds}}.
 #'
 #' @family feature extraction methods
 #' @param seqs a \code{"\link{proc}"} object or a square matrix. If a squared matrix is 

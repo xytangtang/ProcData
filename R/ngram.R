@@ -18,6 +18,14 @@ log_plus_one <- function(x) {
 
 #' ngram feature extraction
 #' 
+#' \code{seq2feature_ngram} extracts ngram features from response processes.
+#' 
+#' Three types of ngram features can be extracted. \code{type = "binary"} gives 
+#' binary ngram features indicating whether an ngram appears in a response process. 
+#' \code{type = "freq"} gives ngram frequency features. Each feature is the count of
+#' the corresponding ngram in a response process. \code{type = "weighted"} gives the
+#' weighted ngram features proposed in He and von Davier (2015).
+#' 
 #' @family feature extraction methods
 #' 
 #' @param seqs an object of class \code{"\link{proc}"}
@@ -26,6 +34,10 @@ log_plus_one <- function(x) {
 #'             specifying the type of ngram features.
 #' @param sep action seperator within ngram.
 #' @return a matrix of ngram features
+#' @references He Q., von Davier M. (2015). Identifying Feature Sequences from Process
+#' Data in Problem-Solving Items with N-Grams. In: van der Ark L., Bolt D., Wang WC., 
+#' Douglas J., Chow SM. (eds) \emph{Quantitative Psychology Research}. Springer 
+#' Proceedings in Mathematics & Statistics, vol 140. Springer, Cham.
 #' @examples 
 #' seqs <- seq_gen(100)
 #' theta <- seq2feature_ngram(seqs)

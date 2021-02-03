@@ -1,6 +1,5 @@
 #' @useDynLib ProcData
 #' @importFrom Rcpp sourceCpp
-#' @import reticulate
 #' @import keras
 #' @import stats
 #' @import utils
@@ -49,6 +48,8 @@ NULL
 #' 
 #'   \item \code{\link{seq2feature_seq2seq}} extracts features from response processes by
 #'     autoencoder.
+#'     
+#'  \item \code{\link{seq2feature_ngram}} extracts ngram features from response processes.
 #' }
 #' @section Sequence models:
 #' \itemize{
