@@ -25,4 +25,3 @@ SystemRequirements: Python (>= 2.7)
 RoxygenNote: 7.1.0
 LazyData: true
 NeedsCompilation: yes
-StagedInstall: no
