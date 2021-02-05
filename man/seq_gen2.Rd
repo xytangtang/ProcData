@@ -6,7 +6,7 @@
 \usage{
 seq_gen2(n, Pmat = NULL, events = letters, start_index = 1,
   end_index = length(events), max_len = 200, include_time = FALSE,
-  time_intv_dist = list("exp", 1), seed = 12345)
+  time_intv_dist = list("exp", 1))
 }
 \arguments{
 \item{n}{An integer. The number of action sequences to be generated.}
@@ -28,8 +28,6 @@ actions. Default is \code{letters}.}
 FALSE.}
 
 \item{time_intv_dist}{A list specifying the distribution of the inter-arrival time.}
-
-\item{seed}{random generator seed.}
 }
 \value{
 An object of class \code{"\link{proc}"} with \code{time_seqs = NULL}.

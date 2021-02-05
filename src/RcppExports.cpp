@@ -140,8 +140,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // MDS
-List MDS(NumericMatrix D, NumericMatrix Theta, int n_epoch, double step_size, double tot, unsigned int seed);
-RcppExport SEXP _ProcData_MDS(SEXP DSEXP, SEXP ThetaSEXP, SEXP n_epochSEXP, SEXP step_sizeSEXP, SEXP totSEXP, SEXP seedSEXP) {
+List MDS(NumericMatrix D, NumericMatrix Theta, int n_epoch, double step_size, double tot);
+RcppExport SEXP _ProcData_MDS(SEXP DSEXP, SEXP ThetaSEXP, SEXP n_epochSEXP, SEXP step_sizeSEXP, SEXP totSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -150,8 +150,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< int >::type n_epoch(n_epochSEXP);
     Rcpp::traits::input_parameter< double >::type step_size(step_sizeSEXP);
     Rcpp::traits::input_parameter< double >::type tot(totSEXP);
-    Rcpp::traits::input_parameter< unsigned int >::type seed(seedSEXP);
-    rcpp_result_gen = Rcpp::wrap(MDS(D, Theta, n_epoch, step_size, tot, seed));
+    rcpp_result_gen = Rcpp::wrap(MDS(D, Theta, n_epoch, step_size, tot));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -185,7 +184,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_ProcData_calculate_common_ngram_proportion", (DL_FUNC) &_ProcData_calculate_common_ngram_proportion, 3},
     {"_ProcData_calculate_ngram_dissimilarity", (DL_FUNC) &_ProcData_calculate_ngram_dissimilarity, 3},
     {"_ProcData_calculate_ngram_dist_cpp", (DL_FUNC) &_ProcData_calculate_ngram_dist_cpp, 2},
-    {"_ProcData_MDS", (DL_FUNC) &_ProcData_MDS, 6},
+    {"_ProcData_MDS", (DL_FUNC) &_ProcData_MDS, 5},
     {"_ProcData_MDS_subset", (DL_FUNC) &_ProcData_MDS_subset, 7},
     {NULL, NULL, 0}
 };

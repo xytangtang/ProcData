@@ -31,7 +31,6 @@
 #' @param include_time logical. Indicate if timestamp sequences should be generated. Default is
 #'   FALSE.
 #' @param time_intv_dist A list specifying the distribution of the inter-arrival time.
-#' @param seed Random seed.
 #' @return An object of class \code{"\link{proc}"} with \code{time_seqs = NULL}.
 #' @family sequence generators
 #' @export
@@ -40,8 +39,7 @@ seq_gen <- function(n, action_set1 = c("OPT1_1", "OPT1_2", "OPT1_3"),
                     answer_set = c("CHECK_A", "CHECK_B", "CHECK_C", "CHECK_D"), 
                     p1 = rep(1,length(action_set1)), p2 = rep(1, length(action_set2)), 
                     p_answer = rep(1, length(answer_set)), p_continue = 0.5, p_choose = 0.5, 
-                    include_time = FALSE, time_intv_dist = list("exp", 1), seed = 12345) {
-  set.seed(seed)
+                    include_time = FALSE, time_intv_dist = list("exp", 1)) {
   seqs <- list()
   for (i in 1:n) {
     cur_seq <- c("Start")
@@ -101,15 +99,13 @@ seq_gen <- function(n, action_set1 = c("OPT1_1", "OPT1_2", "OPT1_3"),
 #' @param include_time logical. Indicate if timestamp sequences should be generated. Default is
 #'   FALSE.
 #' @param time_intv_dist A list specifying the distribution of the inter-arrival time.
-#' @param seed random generator seed.
 #' @return An object of class \code{"\link{proc}"} with \code{time_seqs = NULL}.
 #' @family sequence generators
 #' @export
 seq_gen2 <- function(n, Pmat = NULL, events = letters, 
                      start_index=1, end_index=length(events), 
                      max_len=200, include_time = FALSE, 
-                     time_intv_dist = list("exp", 1), seed=12345) {
-  set.seed(seed)
+                     time_intv_dist = list("exp", 1)) {
   n_event <- length(events)
   if (is.null(Pmat)) {
     Pmat <- matrix(0, n_event, n_event)
@@ -198,9 +194,10 @@ same_shape <- function(target, current) {
 seq_gen3 <- function(n, events = letters, rnn_type = "lstm", K = 10, weights=NULL, 
                      max_len = 100, initial_state = NULL, start_index=1, 
                      end_index=length(events), include_time = FALSE,
-                     time_intv_dist = list("exp", 1), gpu=FALSE, parallel=FALSE, 
-                     seed=12345) {
-  use_session_with_seed(seed, disable_gpu = !gpu, disable_parallel_cpu = !parallel)
+                     time_intv_dist = list("exp", 1)
+                     #gpu=FALSE, parallel=FALSE, seed=12345
+                     ) {
+  #use_session_with_seed(seed, disable_gpu = !gpu, disable_parallel_cpu = !parallel)
   n_event <- length(events)
   
   if (!(rnn_type) %in% c("lstm", "gru")) 

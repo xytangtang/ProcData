@@ -5,3 +5,5 @@
 ^README\.html$
 ^.*\.csv$
 ^cran_comments\.md$
+^NEWS\.Rmd$
+^NEWS\.html$

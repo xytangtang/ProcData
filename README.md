@@ -76,7 +76,16 @@ seqs2 <- read.seqs(file="example_multiple.csv", style="multiple", id_var="ID", a
 
 ### Feature Extraction Methods
 
-`ProcData` implements two feature extraction methods that compress varying length response processes into fixed dimension numeric vectors. One of the methods is based on multidimensional scaling (MDS) and the other one is based on sequence-to-sequence autoencoders (seq2seq AE). Details of the two methods can be found [here](http://www.scientifichpc.com/processdata/method.html).
+`ProcData` implements three feature extraction methods that compress varying length response processes into fixed dimension numeric vectors. The first method extract n-gram features from response processes. The other two methods are based on multidimensional scaling (MDS) and sequence-to-sequence autoencoders (seq2seq AE). Details of the methods can be found [here](http://www.scientifichpc.com/processdata/method.html).
+
+#### N-Gram
+
+Function `seq2feature_ngram` extracts ngram features from response processes.
+
+``` r
+seqs <- seq_gen(100)
+theta <- seq2feature_ngram(seqs)
+```
 
 #### MDS
 

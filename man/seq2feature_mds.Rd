@@ -7,7 +7,7 @@
 seq2feature_mds(seqs = NULL, K = 2, method = "auto",
   dist_type = "oss_action", pca = TRUE, subset_size = 100,
   subset_method = "random", n_cand = 10, return_dist = FALSE,
-  seed = 12345, L_set = 1:3)
+  L_set = 1:3)
 }
 \arguments{
 \item{seqs}{a \code{"\link{proc}"} object or a square matrix. If a squared matrix is 
@@ -32,8 +32,6 @@ in the large data algorithm. See 'Details' and \code{\link{seq2feature_mds_large
 
 \item{return_dist}{logical. If \code{TRUE}, the dissimilarity matrix will be
 returned. Default is \code{FALSE}.}
-
-\item{seed}{random seed.}
 
 \item{L_set}{length of ngrams considered}
 }
@@ -71,6 +69,7 @@ using \code{\link{chooseK_mds}}.
 }
 \examples{
 n <- 50
+set.seed(12345)
 seqs <- seq_gen(n)
 theta <- seq2feature_mds(seqs, 5)$theta
 }

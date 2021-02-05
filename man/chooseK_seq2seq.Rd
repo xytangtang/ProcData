@@ -7,8 +7,7 @@
 chooseK_seq2seq(seqs, ae_type, K_cand, rnn_type = "lstm", n_epoch = 50,
   method = "last", step_size = 1e-04, optimizer_name = "adam",
   n_fold = 5, cumulative = FALSE, log = TRUE, weights = c(1, 0.5),
-  valid_prop = 0.1, gpu = FALSE, parallel = FALSE, seed = 12345,
-  verbose = TRUE)
+  valid_prop = 0.1, verbose = TRUE)
 }
 \arguments{
 \item{seqs}{an object of class \code{"\link{proc}"}.}
@@ -51,12 +50,6 @@ the original sequence of times is used.}
 The total loss is calculated as the weighted sum of the two losses.}
 
 \item{valid_prop}{the proportion of validation samples in each fold.}
-
-\item{gpu}{logical. If TRUE, use gpu for training when available. Default is FALSE.}
-
-\item{parallel}{logical. If TRUE, allow cpu parallel computing. Default is FALSE.}
-
-\item{seed}{random seed.}
 
 \item{verbose}{logical. If TRUE, training progress is printed.}
 }

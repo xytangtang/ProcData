@@ -8,8 +8,7 @@ atseq2feature_seq2seq(atseqs, K, weights = c(1, 0.5),
   cumulative = FALSE, log = TRUE, rnn_type = "lstm", n_epoch = 50,
   method = "last", step_size = 1e-04, optimizer_name = "rmsprop",
   samples_train, samples_valid, samples_test = NULL, pca = TRUE,
-  gpu = FALSE, parallel = FALSE, seed = 12345, verbose = TRUE,
-  return_theta = TRUE)
+  verbose = TRUE, return_theta = TRUE)
 }
 \arguments{
 \item{atseqs}{a list of two elements, first element is the list of \code{n} action sequences, Each element 
@@ -59,12 +58,6 @@ training, validation and test sets for training autoencoder.}
 
 \item{pca}{logical. If TRUE, the principal components of features are
 returned. Default is TRUE.}
-
-\item{gpu}{logical. If TRUE, use gpu for training when available. Default is FALSE.}
-
-\item{parallel}{logical. If TRUE, allow cpu parallel computing. Default is FALSE.}
-
-\item{seed}{random seed.}
 
 \item{verbose}{logical. If TRUE, training progress is printed.}
 
