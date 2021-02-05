@@ -50,8 +50,8 @@ calculate_ngram_dist_cpp <- function(seqs, L_set) {
     .Call('_ProcData_calculate_ngram_dist_cpp', PACKAGE = 'ProcData', seqs, L_set)
 }
 
-MDS <- function(D, Theta, n_epoch, step_size, tot, seed) {
-    .Call('_ProcData_MDS', PACKAGE = 'ProcData', D, Theta, n_epoch, step_size, tot, seed)
+MDS <- function(D, Theta, n_epoch, step_size, tot) {
+    .Call('_ProcData_MDS', PACKAGE = 'ProcData', D, Theta, n_epoch, step_size, tot)
 }
 
 MDS_subset <- function(D, Theta, n_epoch, step_size, tot, train_set, valid_set) {

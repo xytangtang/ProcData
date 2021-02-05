@@ -9,8 +9,7 @@ seqm(seqs, response, covariates = NULL, response_type,
   include_time = FALSE, time_interval = TRUE, log_time = TRUE,
   K_emb = 20, K_rnn = 20, n_hidden = 0, K_hidden = NULL,
   index_valid = 0.2, verbose = FALSE, max_len = NULL, n_epoch = 20,
-  batch_size = 16, optimizer_name = "rmsprop", step_size = 0.001,
-  gpu = FALSE, parallel = FALSE, seed = 12345)
+  batch_size = 16, optimizer_name = "rmsprop", step_size = 0.001)
 }
 \arguments{
 \item{seqs}{an object of class \code{"\link{proc}"}.}
@@ -60,12 +59,6 @@ for training. Availabel options are \code{"sgd"}, \code{"rmsprop"},
 \code{"adadelta"}, and \code{"adam"}.}
 
 \item{step_size}{the learning rate of optimizer.}
-
-\item{gpu}{logical. If TRUE, use gpu for training when available. Default is FALSE.}
-
-\item{parallel}{logical. If TRUE, allow cpu parallel computing. Default is FALSE.}
-
-\item{seed}{random seed.}
 }
 \value{
 \code{seqm} returns an object of class \code{"seqm"}, which is a list containing

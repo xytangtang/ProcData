@@ -6,7 +6,7 @@
 \usage{
 chooseK_mds(seqs = NULL, K_cand, dist_type = "oss_action",
   n_fold = 5, max_epoch = 100, step_size = 0.01, tot = 1e-06,
-  return_dist = FALSE, seed = 12345, L_set = 1:3)
+  return_dist = FALSE, L_set = 1:3)
 }
 \arguments{
 \item{seqs}{a \code{"\link{proc}"} object or a square matrix. If a squared matrix is 
@@ -29,8 +29,6 @@ descent.}
 \item{return_dist}{logical. If \code{TRUE}, the dissimilarity matrix will be
 returned. Default is \code{FALSE}.}
 
-\item{seed}{random seed.}
-
 \item{L_set}{length of ngrams considered}
 }
 \value{
@@ -46,6 +44,7 @@ returned. Default is \code{FALSE}.}
 }
 \examples{
 n <- 50
+set.seed(12345)
 seqs <- seq_gen(n)
 K_res <- chooseK_mds(seqs, 5:10, return_dist=TRUE)
 theta <- seq2feature_mds(K_res$dist_mat, K_res$K)$theta

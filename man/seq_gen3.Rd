@@ -7,8 +7,7 @@
 seq_gen3(n, events = letters, rnn_type = "lstm", K = 10,
   weights = NULL, max_len = 100, initial_state = NULL,
   start_index = 1, end_index = length(events), include_time = FALSE,
-  time_intv_dist = list("exp", 1), gpu = FALSE, parallel = FALSE,
-  seed = 12345)
+  time_intv_dist = list("exp", 1))
 }
 \arguments{
 \item{n}{An integer. The number of action sequences to be generated.}
@@ -43,12 +42,6 @@ all the elements are set to zero.}
 FALSE.}
 
 \item{time_intv_dist}{A list specifying the distribution of the inter-arrival time.}
-
-\item{gpu}{logical. If TRUE, use gpu for training when available. Default is FALSE.}
-
-\item{parallel}{logical. If TRUE, allow cpu parallel computing. Default is FALSE.}
-
-\item{seed}{random generator seed.}
 }
 \value{
 A list containing the following elements
