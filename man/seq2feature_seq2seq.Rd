@@ -75,33 +75,35 @@ This function wraps \code{\link{aseq2feature_seq2seq}},
 }
 \examples{
 \donttest{ 
-n <- 50
-data(cc_data)
-samples <- sample(1:length(cc_data$seqs$time_seqs), n)
-seqs <- sub_seqs(cc_data$seqs, samples)
+if (!system("python -c 'import tensorflow as tf'", ignore.stdout = TRUE, ignore.stderr= TRUE)) {
+  n <- 50
+  data(cc_data)
+  samples <- sample(1:length(cc_data$seqs$time_seqs), n)
+  seqs <- sub_seqs(cc_data$seqs, samples)
 
-# action sequence autoencoder
-K_res <- chooseK_seq2seq(seqs=seqs, ae_type="action", K_cand=c(5, 10), 
-                         n_epoch=5, n_fold=2, valid_prop=0.2)
-seq2seq_res <- seq2feature_seq2seq(seqs=seqs, ae_type="action", K=K_res$K, 
-                       n_epoch=5, samples_train=1:40, samples_valid=41:50)
-theta <- seq2seq_res$theta
+  # action sequence autoencoder
+  K_res <- chooseK_seq2seq(seqs=seqs, ae_type="action", K_cand=c(5, 10), 
+                           n_epoch=5, n_fold=2, valid_prop=0.2)
+  seq2seq_res <- seq2feature_seq2seq(seqs=seqs, ae_type="action", K=K_res$K, 
+                         n_epoch=5, samples_train=1:40, samples_valid=41:50)
+  theta <- seq2seq_res$theta
 
-# time sequence autoencoder
-K_res <- chooseK_seq2seq(seqs=seqs, ae_type="time", K_cand=c(5, 10), 
-                         n_epoch=5, n_fold=2, valid_prop=0.2)
-seq2seq_res <- seq2feature_seq2seq(seqs=seqs, ae_type="time", K=K_res$K, 
-                       n_epoch=5, samples_train=1:40, samples_valid=41:50)
-theta <- seq2seq_res$theta
+  # time sequence autoencoder
+  K_res <- chooseK_seq2seq(seqs=seqs, ae_type="time", K_cand=c(5, 10), 
+                           n_epoch=5, n_fold=2, valid_prop=0.2)
+  seq2seq_res <- seq2feature_seq2seq(seqs=seqs, ae_type="time", K=K_res$K, 
+                         n_epoch=5, samples_train=1:40, samples_valid=41:50)
+  theta <- seq2seq_res$theta
 
-# action and time sequence autoencoder
-K_res <- chooseK_seq2seq(seqs=seqs, ae_type="both", K_cand=c(5, 10), 
-                         n_epoch=5, n_fold=2, valid_prop=0.2)
-seq2seq_res <- seq2feature_seq2seq(seqs=seqs, ae_type="both", K=K_res$K, 
-                       n_epoch=5, samples_train=1:40, samples_valid=41:50)
-theta <- seq2seq_res$theta
-plot(seq2seq_res$train_loss, col="blue", type="l")
-lines(seq2seq_res$valid_loss, col="red")
+  # action and time sequence autoencoder
+  K_res <- chooseK_seq2seq(seqs=seqs, ae_type="both", K_cand=c(5, 10), 
+                           n_epoch=5, n_fold=2, valid_prop=0.2)
+  seq2seq_res <- seq2feature_seq2seq(seqs=seqs, ae_type="both", K=K_res$K, 
+                         n_epoch=5, samples_train=1:40, samples_valid=41:50)
+  theta <- seq2seq_res$theta
+  plot(seq2seq_res$train_loss, col="blue", type="l")
+  lines(seq2seq_res$valid_loss, col="red")
+}
 }
 }
 \seealso{

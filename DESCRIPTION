@@ -1,8 +1,8 @@
 Package: ProcData
 Type: Package
 Title: Process Data Analysis
-Version: 0.3.0
-Date: 2021-02-03
+Version: 0.3.1
+Date: 2021-03-22
 Authors@R: c(
     person("Xueying", "Tang", email = "xueyingtang1989@gmail.com", role = c("aut", "cre")),
     person("Susu", "Zhang", email = "susu.zhang1992@gmail.com", role = c("aut")),
@@ -21,7 +21,7 @@ License: GPL (>= 2)
 Depends: R (>= 3.5)
 Imports: Rcpp (>= 0.12.16), keras (>= 2.2.4)
 LinkingTo: Rcpp
-SystemRequirements: Python (>= 2.7)
+SystemRequirements: Python (>= 2.7), Keras (>= 2.0), TensorFlow (>= 1.13)
 RoxygenNote: 7.1.0
 LazyData: true
 NeedsCompilation: yes

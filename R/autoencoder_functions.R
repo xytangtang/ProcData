@@ -25,13 +25,16 @@
 #' @seealso \code{\link{chooseK_seq2seq}} for choosing \code{K} through cross-validation.
 #' @examples
 #' \donttest{
-#' n <- 50
-#' seqs <- seq_gen(n)
-#' seq2seq_res <- aseq2feature_seq2seq(seqs$action_seqs, 5, rnn_type="lstm", n_epoch=5, 
+#' if (!system("python -c 'import tensorflow as tf'", ignore.stdout = TRUE, ignore.stderr= TRUE)) {
+#'   n <- 50
+#'   seqs <- seq_gen(n)
+#'   seq2seq_res <- aseq2feature_seq2seq(seqs$action_seqs, 5, rnn_type="lstm", n_epoch=5, 
 #'                                    samples_train=1:40, samples_valid=41:50)
-#' features <- seq2seq_res$theta
-#' plot(seq2seq_res$train_loss, col="blue", type="l")
-#' lines(seq2seq_res$valid_loss, col="red")
+#'   features <- seq2seq_res$theta
+#'   plot(seq2seq_res$train_loss, col="blue", type="l")
+#'   lines(seq2seq_res$valid_loss, col="red")
+#' }
+#' 
 #' }
 #' @export
 aseq2feature_seq2seq <- function(aseqs, K, rnn_type="lstm", n_epoch=50, method="last", 
@@ -226,16 +229,19 @@ aseq2feature_seq2seq <- function(aseqs, K, rnn_type="lstm", n_epoch=50, method="
 #' @seealso \code{\link{chooseK_seq2seq}} for choosing \code{K} through cross-validation.
 #' @examples
 #' \donttest{
-#' n <- 50
-#' data(cc_data)
-#' samples <- sample(1:length(cc_data$seqs$time_seqs), n)
-#' tseqs <- cc_data$seqs$time_seqs[samples]
-#' time_seq2seq_res <- tseq2feature_seq2seq(tseqs, 5, rnn_type="lstm", n_epoch=5, 
+#' if (!system("python -c 'import tensorflow as tf'", ignore.stdout = TRUE, ignore.stderr= TRUE)) {
+#'   n <- 50
+#'   data(cc_data)
+#'   samples <- sample(1:length(cc_data$seqs$time_seqs), n)
+#'   tseqs <- cc_data$seqs$time_seqs[samples]
+#'   time_seq2seq_res <- tseq2feature_seq2seq(tseqs, 5, rnn_type="lstm", n_epoch=5, 
 #'                                    samples_train=1:40, samples_valid=41:50)
-#' features <- time_seq2seq_res$theta
-#' plot(time_seq2seq_res$train_loss, col="blue", type="l",
+#'   features <- time_seq2seq_res$theta
+#'   plot(time_seq2seq_res$train_loss, col="blue", type="l",
 #'      ylim = range(c(time_seq2seq_res$train_loss, time_seq2seq_res$valid_loss)))
-#' lines(time_seq2seq_res$valid_loss, col="red", type = 'l')
+#'   lines(time_seq2seq_res$valid_loss, col="red", type = 'l')
+#' }
+#' 
 #' }
 #' @export
 tseq2feature_seq2seq <- function(tseqs, K, cumulative = FALSE, log = TRUE, rnn_type="lstm",
@@ -437,17 +443,19 @@ tseq2feature_seq2seq <- function(tseqs, K, cumulative = FALSE, log = TRUE, rnn_t
 #' @seealso \code{\link{chooseK_seq2seq}} for choosing \code{K} through cross-validation.
 #' @examples
 #' \donttest{
-#' n <- 50
-#' data(cc_data)
-#' samples <- sample(1:length(cc_data$seqs$time_seqs), n)
-#' atseqs <- sub_seqs(cc_data$seqs, samples)
-#' action_and_time_seq2seq_res <- atseq2feature_seq2seq(atseqs, 5, rnn_type="lstm", n_epoch=5, 
+#' if (!system("python -c 'import tensorflow as tf'", ignore.stdout = TRUE, ignore.stderr= TRUE)) {
+#'   n <- 50
+#'   data(cc_data)
+#'   samples <- sample(1:length(cc_data$seqs$time_seqs), n)
+#'   atseqs <- sub_seqs(cc_data$seqs, samples)
+#'   action_and_time_seq2seq_res <- atseq2feature_seq2seq(atseqs, 5, rnn_type="lstm", n_epoch=5, 
 #'                                    samples_train=1:40, samples_valid=41:50)
-#' features <- action_and_time_seq2seq_res$theta
-#' plot(action_and_time_seq2seq_res$train_loss, col="blue", type="l",
-#'      ylim = range(c(action_and_time_seq2seq_res$train_loss, 
-#'                     action_and_time_seq2seq_res$valid_loss)))
-#' lines(action_and_time_seq2seq_res$valid_loss, col="red", type = 'l')
+#'   features <- action_and_time_seq2seq_res$theta
+#'   plot(action_and_time_seq2seq_res$train_loss, col="blue", type="l",
+#'        ylim = range(c(action_and_time_seq2seq_res$train_loss, 
+#'                       action_and_time_seq2seq_res$valid_loss)))
+#'   lines(action_and_time_seq2seq_res$valid_loss, col="red", type = 'l')
+#' }
 #' }
 #' @export
 atseq2feature_seq2seq <- function(atseqs, K, weights = c(1, .5), cumulative = FALSE, 

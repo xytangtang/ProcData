@@ -81,16 +81,19 @@ and the average of the encoder recurrent neural network latent states if \code{m
 }
 \examples{
 \donttest{
-n <- 50
-data(cc_data)
-samples <- sample(1:length(cc_data$seqs$time_seqs), n)
-tseqs <- cc_data$seqs$time_seqs[samples]
-time_seq2seq_res <- tseq2feature_seq2seq(tseqs, 5, rnn_type="lstm", n_epoch=5, 
+if (!system("python -c 'import tensorflow as tf'", ignore.stdout = TRUE, ignore.stderr= TRUE)) {
+  n <- 50
+  data(cc_data)
+  samples <- sample(1:length(cc_data$seqs$time_seqs), n)
+  tseqs <- cc_data$seqs$time_seqs[samples]
+  time_seq2seq_res <- tseq2feature_seq2seq(tseqs, 5, rnn_type="lstm", n_epoch=5, 
                                    samples_train=1:40, samples_valid=41:50)
-features <- time_seq2seq_res$theta
-plot(time_seq2seq_res$train_loss, col="blue", type="l",
+  features <- time_seq2seq_res$theta
+  plot(time_seq2seq_res$train_loss, col="blue", type="l",
      ylim = range(c(time_seq2seq_res$train_loss, time_seq2seq_res$valid_loss)))
-lines(time_seq2seq_res$valid_loss, col="red", type = 'l')
+  lines(time_seq2seq_res$valid_loss, col="red", type = 'l')
+}
+
 }
 }
 \seealso{

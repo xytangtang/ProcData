@@ -87,17 +87,19 @@ and the average of the encoder recurrent neural network latent states if \code{m
 }
 \examples{
 \donttest{
-n <- 50
-data(cc_data)
-samples <- sample(1:length(cc_data$seqs$time_seqs), n)
-atseqs <- sub_seqs(cc_data$seqs, samples)
-action_and_time_seq2seq_res <- atseq2feature_seq2seq(atseqs, 5, rnn_type="lstm", n_epoch=5, 
+if (!system("python -c 'import tensorflow as tf'", ignore.stdout = TRUE, ignore.stderr= TRUE)) {
+  n <- 50
+  data(cc_data)
+  samples <- sample(1:length(cc_data$seqs$time_seqs), n)
+  atseqs <- sub_seqs(cc_data$seqs, samples)
+  action_and_time_seq2seq_res <- atseq2feature_seq2seq(atseqs, 5, rnn_type="lstm", n_epoch=5, 
                                    samples_train=1:40, samples_valid=41:50)
-features <- action_and_time_seq2seq_res$theta
-plot(action_and_time_seq2seq_res$train_loss, col="blue", type="l",
-     ylim = range(c(action_and_time_seq2seq_res$train_loss, 
-                    action_and_time_seq2seq_res$valid_loss)))
-lines(action_and_time_seq2seq_res$valid_loss, col="red", type = 'l')
+  features <- action_and_time_seq2seq_res$theta
+  plot(action_and_time_seq2seq_res$train_loss, col="blue", type="l",
+       ylim = range(c(action_and_time_seq2seq_res$train_loss, 
+                      action_and_time_seq2seq_res$valid_loss)))
+  lines(action_and_time_seq2seq_res$valid_loss, col="red", type = 'l')
+}
 }
 }
 \seealso{

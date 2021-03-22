@@ -70,13 +70,16 @@ and the average of the encoder recurrent nenural network if \code{method="avg"}.
 }
 \examples{
 \donttest{
-n <- 50
-seqs <- seq_gen(n)
-seq2seq_res <- aseq2feature_seq2seq(seqs$action_seqs, 5, rnn_type="lstm", n_epoch=5, 
+if (!system("python -c 'import tensorflow as tf'", ignore.stdout = TRUE, ignore.stderr= TRUE)) {
+  n <- 50
+  seqs <- seq_gen(n)
+  seq2seq_res <- aseq2feature_seq2seq(seqs$action_seqs, 5, rnn_type="lstm", n_epoch=5, 
                                    samples_train=1:40, samples_valid=41:50)
-features <- seq2seq_res$theta
-plot(seq2seq_res$train_loss, col="blue", type="l")
-lines(seq2seq_res$valid_loss, col="red")
+  features <- seq2seq_res$theta
+  plot(seq2seq_res$train_loss, col="blue", type="l")
+  lines(seq2seq_res$valid_loss, col="red")
+}
+
 }
 }
 \seealso{
