@@ -11,6 +11,9 @@
 
 \item{...}{not used.}
 }
+\value{
+No return value.
+}
 \description{
 Print method for class \code{"summary.proc"}
 }

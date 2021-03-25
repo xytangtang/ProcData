@@ -1,21 +1,21 @@
 Package: ProcData
 Type: Package
 Title: Process Data Analysis
-Version: 0.3.1
-Date: 2021-03-22
+Version: 0.3.2
+Date: 2021-03-24
 Authors@R: c(
     person("Xueying", "Tang", email = "xueyingtang1989@gmail.com", role = c("aut", "cre")),
     person("Susu", "Zhang", email = "susu.zhang1992@gmail.com", role = c("aut")),
     person("Zhi", "Wang", email = "zhiwpku@gmail.com", role=c("aut")),
     person("Jingchen", "Liu", email = "jcliu@stat.columbia.edu", role=c("aut")),
     person("Zhiliang", "Ying", email = "zying@stat.columbia.edu", role=c("aut")))
-Description: General tools for exploratory process data analysis. Process data refers to the data describing
-    participants' problem solving processes in computer-based assessments. It is often recorded in computer
-    log files. This package provides two action sequence generators and implements two automatic feature extraction methods that compress the information
-    stored in process data, which often has a nonstandard format, into standard numerical vectors. This package
-    also provides recurrent neural network based models that relate response processes with other binary or 
-    scale variables of interest. The functions that involve training and evaluating neural networks are wrappers
-    of functions in 'keras'.
+Description: Provides tools for exploratory process data analysis. Process data refers to the data describing
+    participants' problem-solving processes in computer-based assessments. It is often recorded in computer
+    log files. This package provides functions to read, process, and write process data. It also implements
+    two feature extraction methods to compress the information stored in process data into standard 
+    numerical vectors. This package also provides recurrent neural network based models that relate response processes 
+    with other binary or scale variables of interest. The functions that involve training and evaluating neural networks 
+    are wrappers of functions in 'keras'.
 BugReports: https://github.com/xytangtang/ProcData/issues
 License: GPL (>= 2)
 Depends: R (>= 3.5)

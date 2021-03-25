@@ -110,7 +110,7 @@ print.proc <- function(x, n=5, index=NULL, quote=FALSE, ...) {
 #' 
 #' @param x an object of class \code{"\link{proc}"}
 #' @param ... not used.
-#' 
+#' @return No return value.
 #' @export
 print.summary.proc <- function(x, ...) {
   cat("Number of response processes: ", x$n_seq, "\n", sep ="")

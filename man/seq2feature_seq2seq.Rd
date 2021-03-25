@@ -106,6 +106,11 @@ if (!system("python -c 'import tensorflow as tf'", ignore.stdout = TRUE, ignore.
 }
 }
 }
+\references{
+Tang, X., Wang, Z., Liu, J., and Ying, Z. (2020) An exploratory analysis of the latent 
+  structure of process data via action sequence autoencoders. \emph{British Journal of 
+  Mathematical and Statistical Psychology}. 74(1), 1-33.
+}
 \seealso{
 \code{\link{chooseK_seq2seq}} for choosing \code{K} through cross-validation.
 

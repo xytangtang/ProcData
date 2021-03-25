@@ -51,6 +51,8 @@
 #'   \emph{Modeling Decisions for Artificial Intelligence}, (pp. 134-145). Springer Berlin Heidelberg.
 #' @references Paradis, E. (2018). Multidimensional scaling with very large datasets. \emph{
 #'   Journal of Computational and Graphical Statistics}, 27(4), 935-939.
+#' @references Tang, X., Wang, Z., He, Q., Liu, J., and Ying, Z. (2020) Latent Feature Extraction for 
+#'   Process Data via Multidimensional Scaling. \emph{Psychometrika}, 85, 378-397.
 #' @examples
 #' n <- 50
 #' set.seed(12345)
@@ -485,6 +487,9 @@ seq2feature_mds_stochastic <- function(seqs = NULL, K = 2, dist_type = "oss_acti
 #'   \item{valid_loss}{a vector of length \code{n_epoch} recording the trace of validation losses.}
 #'   \item{test_loss}{a vector of length \code{n_epoch} recording the trace of test losses. Exists only if \code{samples_test} is not \code{NULL}.}
 #' @seealso \code{\link{chooseK_seq2seq}} for choosing \code{K} through cross-validation.
+#' @references Tang, X., Wang, Z., Liu, J., and Ying, Z. (2020) An exploratory analysis of the latent 
+#'   structure of process data via action sequence autoencoders. \emph{British Journal of 
+#'   Mathematical and Statistical Psychology}. 74(1), 1-33.
 #' @examples
 #' \donttest{ 
 #' if (!system("python -c 'import tensorflow as tf'", ignore.stdout = TRUE, ignore.stderr= TRUE)) {

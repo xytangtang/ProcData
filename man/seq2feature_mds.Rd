@@ -80,6 +80,9 @@ Gomez-Alonso, C. and Valls, A. (2008). A similarity measure for sequences of
 
 Paradis, E. (2018). Multidimensional scaling with very large datasets. \emph{
   Journal of Computational and Graphical Statistics}, 27(4), 935-939.
+
+Tang, X., Wang, Z., He, Q., Liu, J., and Ying, Z. (2020) Latent Feature Extraction for 
+  Process Data via Multidimensional Scaling. \emph{Psychometrika}, 85, 378-397.
 }
 \seealso{
 \code{\link{chooseK_mds}} for choosing \code{K}.

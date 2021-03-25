@@ -1,6 +1,7 @@
-This is a resubmission. TensorFlow is now added in SystemRequirements. Examples depends on TensorFlow is now executed conditionally. These examples are still wrapped with donttest because they need several minutes to run.
+This is a resubmission. \value tag is added in print.summary.proc.RD. No reference is needed in DESCRIPTION.
 
-std::random_shuffle has been replaced by Rcpp sample.
+In addition, the package was archived because of the use of std::random_shuffle. 
+It has been replaced by Rcpp sample.
 
 ## Test Environments
 * local macOS install, R 4.0.3
